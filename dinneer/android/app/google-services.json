@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "832231555760",
+    "project_id": "dinneer-19ada",
+    "storage_bucket": "dinneer-19ada.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:832231555760:android:c01a009fe2f048bec7b175",
+        "android_client_info": {
+          "package_name": "com.example.dinneer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANMw8rbJBOC0wu2hgxY5QbuZjR4QOwx7w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

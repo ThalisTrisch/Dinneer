@@ -1,0 +1,38 @@
+### Dinneer API - Testes de Local
+### Base URL
+@baseUrl = http://localhost:3000
+@apiPath = /api/v1/local/LocalController
+
+### ============================================
+### 1. Listar todos os locais
+GET {{baseUrl}}{{apiPath}}?operacao=getLocais
+
+### ============================================
+### 2. Buscar local por ID
+GET {{baseUrl}}{{apiPath}}?operacao=getLocal&id_local=7
+
+### ============================================
+### 3. Buscar locais de um usuário específico
+GET {{baseUrl}}{{apiPath}}?operacao=getMeusLocais&id_usuario=6
+
+### ============================================
+### 4. Criar novo local
+POST {{baseUrl}}{{apiPath}}?operacao=createLocal
+Content-Type: application/json
+
+{
+  "nu_cep": "94065200",
+  "nu_casa": "123",
+  "id_usuario": 6,
+  "nu_cnpj": null,
+  "dc_complemento": "Apartamento 101"
+}
+
+### ============================================
+### 5. Deletar local
+POST {{baseUrl}}{{apiPath}}?operacao=deleteLocal
+Content-Type: application/json
+
+{
+  "id_local": 999
+}

@@ -1,0 +1,64 @@
+### Dinneer API - Testes de Usuario
+### Base URL
+@baseUrl = http://localhost:3000
+@apiPath = /api/v1/usuario/UsuarioController
+
+### ============================================
+### 1. Listar todos os usuários
+GET {{baseUrl}}{{apiPath}}?operacao=getUsuarios
+
+### ============================================
+### 2. Buscar usuário por ID
+GET {{baseUrl}}{{apiPath}}?operacao=getUsuario&id_usuario=1
+
+### ============================================
+### 3. Login de usuário (TESTE PRINCIPAL)
+### Substitua com credenciais válidas do seu banco
+POST {{baseUrl}}{{apiPath}}?operacao=loginUsuario
+Content-Type: application/json
+
+{
+  "vl_email": "teste@email.com",
+  "vl_senha": "senha123"
+}
+
+### ============================================
+### 4. Criar novo usuário
+POST {{baseUrl}}{{apiPath}}?operacao=createUsuario
+Content-Type: application/json
+
+{
+  "nu_cpf": "12345678900",
+  "nm_usuario": "Teste",
+  "nm_sobrenome": "Usuario",
+  "vl_email": "teste@email.com",
+  "vl_senha": "senha123",
+  "vl_foto": null
+}
+
+### ============================================
+### 5. Atualizar foto de perfil
+POST {{baseUrl}}{{apiPath}}?operacao=atualizarFotoPerfil
+Content-Type: application/json
+
+{
+  "id_usuario": 1,
+  "vl_foto": "https://exemplo.com/foto.jpg"
+}
+
+### ============================================
+### 6. Deletar usuário
+POST {{baseUrl}}{{apiPath}}?operacao=deleteUsuario
+Content-Type: application/json
+
+{
+  "id_usuario": 999
+}
+
+### ============================================
+### TESTE COM FORM DATA (alternativa ao JSON)
+### Login usando application/x-www-form-urlencoded
+POST {{baseUrl}}{{apiPath}}?operacao=loginUsuario
+Content-Type: application/x-www-form-urlencoded
+
+vl_email=teste@email.com&vl_senha=senha123

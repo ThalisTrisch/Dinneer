@@ -1,0 +1,1317 @@
+{
+  "name": "pdm-php",
+  "version": "1",
+  "items": [
+    {
+      "type": "folder",
+      "name": "Cardapio",
+      "filename": "Cardapio",
+      "seq": 4,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "Cardapio",
+          "seq": 4
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "createCardapio",
+          "filename": "createCardapio.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/cardapio/cardapioController.php/?operacao=createCardapio",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createCardapio",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_local",
+                  "value": "4",
+                  "enabled": true
+                },
+                {
+                  "name": "ds_cardapio",
+                  "value": "cardapio muito apimentado com iguarias novas da casa",
+                  "enabled": true
+                },
+                {
+                  "name": "nm_cardapio",
+                  "value": "frango à milanesa",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "deleteCardapio",
+          "filename": "deleteCardapio.bru",
+          "seq": 4,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/cardapio/cardapioController.php/?operacao=createCardapio",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createCardapio",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_local",
+                  "value": "4",
+                  "enabled": true
+                },
+                {
+                  "name": "ds_cardapio",
+                  "value": "cardapio muito apimentado com iguarias novas da casa",
+                  "enabled": true
+                },
+                {
+                  "name": "nm_cardapio",
+                  "value": "frango à milanesa",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getCardapio",
+          "filename": "getCardapio.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/cardapio/cardapioController.php/?operacao=getCardapio&id_cardapio=1",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getCardapio",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_cardapio",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getCardapios",
+          "filename": "getCardapios.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/cardapio/cardapioController.php/?operacao=getCardapio&id_cardapio=1",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getCardapio",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_cardapio",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Encontro",
+      "filename": "Encontro",
+      "seq": 2,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "Encontro",
+          "seq": 2
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "addUsuarioEncontro",
+          "filename": "addUsuarioEncontro.bru",
+          "seq": 5,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=createEncontro",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createEncontro",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_local",
+                  "value": "",
+                  "enabled": true
+                },
+                {
+                  "name": "id_cardapio",
+                  "value": "",
+                  "enabled": true
+                },
+                {
+                  "name": "hr_encontro",
+                  "value": "",
+                  "enabled": true
+                },
+                {
+                  "name": "nu_max_convidados",
+                  "value": "",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "createEncontro",
+          "filename": "createEncontro.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=createEncontro",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createEncontro",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "deleteEncontro",
+          "filename": "deleteEncontro.bru",
+          "seq": 4,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=createEncontro",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createEncontro",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getEncontro",
+          "filename": "getEncontro.bru",
+          "seq": 6,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=getEncontro",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getEncontro",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getEncontros",
+          "filename": "getEncontros.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=getEncontros",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getEncontros",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getUsuarioEncontros",
+          "filename": "getUsuarioEncontros.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/encontro/EncontroController.php/?operacao=getUsuarioEncontros",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getUsuarioEncontros",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "usuario",
+      "filename": "usuario",
+      "seq": 6,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "usuario",
+          "seq": 6
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "createUsuario",
+          "filename": "createUsuario.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/usuario/UsuarioController.php/?operacao=createUsuario",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": false
+              }
+            ],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createUsuario",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "nu_cpf",
+                  "value": "04293446001",
+                  "enabled": true
+                },
+                {
+                  "name": "nm_usuario",
+                  "value": "thalonario",
+                  "enabled": true
+                },
+                {
+                  "name": "nm_sobrenome",
+                  "value": "O+lindo",
+                  "enabled": true
+                },
+                {
+                  "name": "vl_email",
+                  "value": "thalonario@hotmail.com",
+                  "enabled": true
+                },
+                {
+                  "name": "vl_senha",
+                  "value": "12345678454",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [
+                {
+                  "type": "text",
+                  "name": "nu_cpf",
+                  "value": "fffffffffffffff",
+                  "enabled": true
+                }
+              ],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "deleteUsuario",
+          "filename": "deleteUsuario.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/usuario/UsuarioController.php/?operacao=deleteUsuario",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "deleteUsuario",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_usuario",
+                  "value": "1",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getUsuario",
+          "filename": "getUsuario.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/usuario/UsuarioController.php/?operacao=getUsuario&id_usuario=1",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getUsuario",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_usuario",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getUsuarios",
+          "filename": "getUsuarios.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/usuario/UsuarioController.php/?operacao=getUsuarios",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getUsuarios",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "loginUsuario",
+          "filename": "loginUsuario.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/usuario/UsuarioController.php/?operacao=loginUsuario",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": false
+              }
+            ],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "loginUsuario",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "vl_email",
+                  "value": "thalonario@hotmail.com",
+                  "enabled": true
+                },
+                {
+                  "name": "vl_senha",
+                  "value": "12345678454",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [
+                {
+                  "type": "text",
+                  "name": "vl_email",
+                  "value": "thalis3@hotmail.com",
+                  "enabled": true
+                },
+                {
+                  "type": "text",
+                  "name": "vl_senha",
+                  "value": "123456",
+                  "enabled": true
+                }
+              ],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "Local",
+      "filename": "Local",
+      "seq": 3,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "Local",
+          "seq": 3
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "createLocal",
+          "filename": "createLocal.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/local/LocalController.php/?operacao=createLocal",
+            "method": "POST",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              }
+            ],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createLocal",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "nu_cnpj",
+                  "value": "04293446001",
+                  "enabled": true
+                },
+                {
+                  "name": "nu_casa",
+                  "value": "79",
+                  "enabled": true
+                },
+                {
+                  "name": "id_usuario",
+                  "value": "2",
+                  "enabled": true
+                },
+                {
+                  "name": "nu_cep",
+                  "value": "9480390",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [
+                {
+                  "type": "text",
+                  "name": "nu_cep",
+                  "value": "454",
+                  "enabled": true
+                },
+                {
+                  "type": "text",
+                  "name": "nu_casa",
+                  "value": "244",
+                  "enabled": true
+                },
+                {
+                  "type": "text",
+                  "name": "id_usuario",
+                  "value": "3",
+                  "enabled": true
+                },
+                {
+                  "type": "text",
+                  "name": "nu_cpf",
+                  "value": "2875238775",
+                  "enabled": true
+                },
+                {
+                  "type": "text",
+                  "name": "nu_cnpj",
+                  "value": "423432424242",
+                  "enabled": true
+                }
+              ],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "deleteLocal",
+          "filename": "deleteLocal.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/local/LocalController.php/?operacao=deleteLocal",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "deleteLocal",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_local",
+                  "value": "23",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [
+                {
+                  "type": "text",
+                  "name": "id_local",
+                  "value": "22",
+                  "enabled": true
+                }
+              ],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getLocais",
+          "filename": "getLocais.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/local/LocalController.php/?operacao=getLocais",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getLocais",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getLocal",
+          "filename": "getLocal.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "http://localhost/pdm/api/v1/local/LocalController.php/?operacao=getLocal&id_local=29",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getLocal",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_local",
+                "value": "29",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "avaliacao",
+      "filename": "avaliacao",
+      "seq": 5,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "avaliacao",
+          "seq": 5
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "createAvaliacao",
+          "filename": "createAvaliacao.bru",
+          "seq": 4,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/avaliacao/AvaliacaoController.php/?operacao=createAvaliacao",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createAvaliacao",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_usuario",
+                  "value": "1",
+                  "enabled": true
+                },
+                {
+                  "name": "id_encontro",
+                  "value": "30",
+                  "enabled": true
+                },
+                {
+                  "name": "id_avaliacao",
+                  "value": "4",
+                  "enabled": true
+                },
+                {
+                  "name": "vl_avaliacao",
+                  "value": "5",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getAvaliacoes",
+          "filename": "getAvaliacoes.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/avaliacao/AvaliacaoController.php/?operacao=getAvaliacoes",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getAvaliacoes",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "getAvaliacaoUsuario",
+          "filename": "getAvaliacaoUsuario.bru",
+          "seq": 7,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/avaliacao/AvaliacaoController.php/?operacao=getAvaliacao&id_usuario=1&id_encontro=29",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getAvaliacao",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_usuario",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_encontro",
+                "value": "29",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "imagem",
+      "filename": "imagem",
+      "seq": 6,
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "imagem",
+          "seq": 6
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "getImagem",
+          "filename": "getImagem.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/imagem/ImagemController.php/?operacao=getImagem&id_imagem=1",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "getImagem",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "id_imagem",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "createImagem",
+          "filename": "createImagem.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "request": {
+            "url": "localhost/pdm/api/v1/imagem/ImagemController.php/?operacao=createImagem",
+            "method": "POST",
+            "headers": [],
+            "params": [
+              {
+                "name": "operacao",
+                "value": "createImagem",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "formUrlEncoded",
+              "formUrlEncoded": [
+                {
+                  "name": "id_sequence",
+                  "value": "1",
+                  "enabled": true
+                },
+                {
+                  "name": "vl_url",
+                  "value": "seila.com",
+                  "enabled": true
+                }
+              ],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [],
+  "brunoConfig": {
+    "version": "1",
+    "name": "pdm-php",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "size": 0.006361961364746094,
+    "filesCount": 23
+  }
+}
