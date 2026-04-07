@@ -1,180 +1,290 @@
-# Dinneer API - Node.js + TypeScript
+# 🚀 Dinneer Backend - Node.js + TypeScript
 
-Backend Node.js com Express e TypeScript para o aplicativo Dinneer, migrado do PHP mantendo compatibilidade total.
+API REST para o aplicativo Dinneer, construída com Node.js, TypeScript, Express e PostgreSQL.
 
-## 🚀 Tecnologias
+## 📋 Índice
 
-- Node.js
-- TypeScript
-- Express
-- PostgreSQL (pg)
-- Criptografia AES-256-CBC (compatível com PHP)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Executar](#executar)
+- [Estrutura](#estrutura)
+- [API Endpoints](#api-endpoints)
+- [Testes](#testes)
 
-## 📋 Pré-requisitos
+## 🔧 Pré-requisitos
 
-- Node.js 18+ instalado
-- PostgreSQL rodando (mesma base do PHP)
-- npm ou yarn
+- **Node.js** 18+ 
+- **PostgreSQL** 14+
+- **npm** ou **yarn**
 
-## 🔧 Instalação
+## 📦 Instalação
 
-1. Entre na pasta do projeto:
 ```bash
-cd node-backend
-```
+# Navegar para o diretório do backend
+cd Dinneer/pdm_php/node-backend
 
-2. Instale as dependências:
-```bash
+# Instalar dependências
 npm install
 ```
 
-3. Configure as variáveis de ambiente:
-O arquivo `.env` já está configurado com as mesmas credenciais do PHP:
+## ⚙️ Configuração
+
+### 1. Criar arquivo .env
+
+```bash
+cp .env.example .env
 ```
-DB_HOST=200.19.1.18
+
+### 2. Editar .env
+
+```env
+# Configurações do Banco de Dados
+DB_HOST=localhost
 DB_PORT=5432
-DB_USER=thalistrisch
-DB_PASSWORD=123456
-DB_NAME=thalistrisch
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=dinneer_local
+
+# Configurações do Servidor
 PORT=3000
+NODE_ENV=development
 ```
 
-## ▶️ Executar
+### 3. Criar Banco de Dados
 
-### Modo desenvolvimento (com hot reload):
+```bash
+# Conectar ao PostgreSQL
+psql postgres
+
+# Criar banco
+CREATE DATABASE dinneer_local;
+
+# Sair
+\q
+```
+
+### 4. Criar Tabelas (Migration)
+
+```bash
+psql dinneer_local -f src/database/schema-local.sql
+```
+
+### 5. Popular com Dados de Teste (Seed)
+
+```bash
+psql dinneer_local -f src/database/seed-data.sql
+```
+
+## 🚀 Executar
+
+### Modo Desenvolvimento
+
 ```bash
 npm run dev
 ```
 
-### Build para produção:
+Servidor rodando em: `http://localhost:3000`
+
+### Modo Produção
+
 ```bash
 npm run build
 npm start
 ```
 
-## 🌐 Endpoints Disponíveis
+### Verificar se está rodando
 
-Base URL: `http://localhost:3000`
-
-### Usuario
-
-#### Login
-```
-POST /api/v1/usuario/UsuarioController?operacao=loginUsuario
-Body: {
-  "vl_email": "usuario@email.com",
-  "vl_senha": "senha123"
-}
+```bash
+curl http://localhost:3000
 ```
 
-#### Listar todos os usuários
-```
-GET /api/v1/usuario/UsuarioController?operacao=getUsuarios
-```
-
-#### Buscar usuário por ID
-```
-GET /api/v1/usuario/UsuarioController?operacao=getUsuario&id_usuario=1
-```
-
-#### Criar usuário
-```
-POST /api/v1/usuario/UsuarioController?operacao=createUsuario
-Body: {
-  "nu_cpf": "12345678900",
-  "nm_usuario": "João",
-  "nm_sobrenome": "Silva",
-  "vl_email": "joao@email.com",
-  "vl_senha": "senha123",
-  "vl_foto": "https://..." (opcional)
-}
-```
-
-#### Deletar usuário
-```
-POST /api/v1/usuario/UsuarioController?operacao=deleteUsuario
-Body: {
-  "id_usuario": 1
-}
-```
-
-#### Atualizar foto de perfil
-```
-POST /api/v1/usuario/UsuarioController?operacao=atualizarFotoPerfil
-Body: {
-  "id_usuario": 1,
-  "vl_foto": "https://..."
-}
-```
-
-## 📦 Formato de Resposta
-
-Todas as respostas seguem o mesmo formato do PHP:
-
+Resposta esperada:
 ```json
 {
-  "operacao": "loginUsuario",
-  "NumMens": 0,
-  "Mensagem": "Login bem-sucedido",
-  "registros": 1,
-  "dados": {
-    "id_usuario": 1,
-    "nm_usuario": "João",
-    "nm_sobrenome": "Silva",
-    "vl_email": "joao@email.com",
-    "vl_foto": "https://..."
-  }
+  "message": "Dinneer API - Node.js + TypeScript",
+  "version": "1.0.0",
+  "endpoints": [...]
 }
 ```
-
-## 🔐 Segurança
-
-- Criptografia de senhas usando AES-256-CBC (compatível com PHP)
-- Mesma chave e IV do PHP para manter compatibilidade
-- CORS habilitado para requisições do Flutter
 
 ## 📁 Estrutura do Projeto
 
 ```
 node-backend/
 ├── src/
-│   ├── config/          # Configurações (DB, env)
-│   ├── database/        # Classes de banco (Database, BaseService)
-│   ├── modules/         # Módulos da aplicação
-│   │   └── usuario/     # Módulo de usuário
-│   ├── types/           # Tipos TypeScript
-│   ├── utils/           # Utilitários (criptografia)
-│   ├── app.ts           # Configuração do Express
-│   └── server.ts        # Inicialização do servidor
+│   ├── app.ts                 # Configuração do Express
+│   ├── server.ts              # Inicialização do servidor
+│   │
+│   ├── config/                # Configurações
+│   │   └── database.config.ts
+│   │
+│   ├── database/              # Banco de Dados
+│   │   ├── Database.ts        # Classe de conexão
+│   │   ├── BaseService.ts     # Service base
+│   │   ├── schema-local.sql   # Schema (CREATE TABLE)
+│   │   └── seed-data.sql      # Dados de teste
+│   │
+│   ├── modules/               # Módulos da API
+│   │   ├── usuario/
+│   │   │   ├── usuario.controller.ts
+│   │   │   ├── usuario.service.ts
+│   │   │   └── usuario.routes.ts
+│   │   │
+│   │   ├── local/
+│   │   ├── cardapio/
+│   │   ├── encontro/
+│   │   ├── avaliacao/
+│   │   └── imagem/
+│   │
+│   ├── types/                 # TypeScript types
+│   └── utils/                 # Utilitários
+│
+├── test/                      # Testes
+│   ├── http/                  # Testes HTTP (REST Client)
+│   └── integration/           # Testes de integração
+│
+├── .env.example               # Exemplo de configuração
 ├── package.json
 ├── tsconfig.json
-└── .env
+└── README.md
 ```
 
-## 🔄 Migração do PHP
+## 🌐 API Endpoints
 
-Este backend mantém:
-- ✅ Mesma estrutura de URLs com `?operacao=`
-- ✅ Mesmo formato de resposta JSON
-- ✅ Mesma criptografia de senhas
-- ✅ Mesmo banco de dados e tabelas
-- ✅ Sistema manual de sequências
-
-## 🧪 Testando com Flutter
-
-No seu app Flutter, altere a URL base de:
-```dart
-// PHP
-http://localhost/pdm/api/v1/usuario/UsuarioController.php?operacao=loginUsuario
-
-// Node.js
-http://localhost:3000/api/v1/usuario/UsuarioController?operacao=loginUsuario
+### Base URL
+```
+http://localhost:3000/api/v1
 ```
 
-## 📝 Próximos Passos
+### Usuários (`/usuario/UsuarioController`)
 
-- [ ] Migrar módulo Cardapio
-- [ ] Migrar módulo Encontro
-- [ ] Migrar módulo Local
-- [ ] Migrar módulo Avaliacao
-- [ ] Migrar módulo Imagem
+| Operação | Método | Descrição |
+|----------|--------|-----------|
+| `getUsuarios` | GET | Lista todos os usuários |
+| `getUsuario` | GET | Busca usuário por ID |
+| `loginUsuario` | POST | Autentica usuário |
+| `createUsuario` | POST | Cria novo usuário |
+| `deleteUsuario` | POST | Deleta usuário |
+| `atualizarFotoPerfil` | POST | Atualiza foto do perfil |
+
+### Locais (`/local/LocalController`)
+
+| Operação | Método | Descrição |
+|----------|--------|-----------|
+| `getLocais` | GET | Lista todos os locais |
+| `getLocal` | GET | Busca local por ID |
+| `getMeusLocais` | GET | Lista locais do usuário |
+| `createLocal` | POST | Cria novo local |
+| `deleteLocal` | POST | Deleta local |
+
+### Cardápios (`/cardapio/CardapioController`)
+
+| Operação | Método | Descrição |
+|----------|--------|-----------|
+| `getCardapiosDisponiveis` | GET | Lista jantares disponíveis |
+| `getCardapio` | GET | Busca cardápio por ID |
+| `createJantarCompleto` | POST | Cria jantar completo |
+| `updateJantar` | POST | Atualiza jantar |
+| `deleteJantar` | POST | Deleta jantar |
+
+### Encontros (`/encontro/EncontroController`)
+
+| Operação | Método | Descrição |
+|----------|--------|-----------|
+| `addUsuarioEncontro` | POST | Solicita reserva |
+| `aprovarReserva` | POST | Aprova convidado |
+| `rejeitarReserva` | POST | Rejeita convidado |
+| `getParticipantes` | GET | Lista participantes |
+| `verificarReserva` | GET | Verifica se já reservou |
+| `deleteUsuarioEncontro` | POST | Cancela reserva |
+| `getMinhasReservas` | GET | Minhas reservas (convidado) |
+| `getMeusJantaresCriados` | GET | Meus jantares (anfitrião) |
+
+### Avaliações (`/avaliacao/AvaliacaoController`)
+
+| Operação | Método | Descrição |
+|----------|--------|-----------|
+| `createAvaliacao` | POST | Cria avaliação |
+| `getTiposAvaliacao` | GET | Lista tipos de avaliação |
+| `getMediaAvaliacaoUsuario` | GET | Média do anfitrião |
+
+## 📝 Exemplos de Uso
+
+### Listar Usuários
+
+```bash
+curl "http://localhost:3000/api/v1/usuario/UsuarioController?operacao=getUsuarios" | jq
+```
+
+### Login
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/usuario/UsuarioController?operacao=loginUsuario" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "vl_email=joao.silva@email.com&vl_senha=senha123" | jq
+```
+
+### Listar Jantares Disponíveis
+
+```bash
+curl "http://localhost:3000/api/v1/cardapio/CardapioController?operacao=getCardapiosDisponiveis" | jq
+```
+
+### Criar Jantar
+
+```bash
+curl -X POST "http://localhost:3000/api/v1/cardapio/CardapioController?operacao=createJantarCompleto" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "id_usuario=1&nm_cardapio=Teste&ds_cardapio=Descrição&preco_refeicao=50&nu_max_convidados=10&hr_encontro=2026-12-31T20:00:00&id_local=1" | jq
+```
+
+## 🧪 Testes
+
+### Testar Conexão com Banco
+
+```bash
+node test-db-quick.js
+```
+
+### Testar Endpoints (REST Client)
+
+Use os arquivos `.http` na pasta `test/http/`:
+
+```
+test/http/
+├── usuario/
+│   └── usuario.http
+├── cardapio/
+│   └── cardapio.http
+└── encontro/
+    └── encontro.http
+```
+
+Abra no VS Code com a extensão REST Client instalada.
+
+## 🗄️ Banco de Dados
+
+### Tabelas
+
+- `tb_usuario_dn` - Usuários
+- `tb_local_dn` - Locais dos anfitriões
+- `tb_cardapio_dn` - Cardápios/Jantares
+- `tb_encontro_dn` - Encontros/Eventos
+- `tb_encontro_usuario_dn` - Participantes
+- `tb_tipo_avaliacao_dn` - Tipos de avaliação
+- `tb_avaliacao_encontro_dn` - Avaliações
+- `tb_imagem_dn` - Imagens
+- `tb_sequence_dn` - Controle de IDs
+
+## 🐛 Troubleshooting
+
+### Porta 3000 já está em uso
+
+```bash
+# Encontrar processo
+lsof -ti:3000
+
+# Matar processo
+lsof -ti:3000 | xargs kill -9
+```
