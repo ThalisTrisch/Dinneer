@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import '../http/HttpService.dart';
+import '../../config/api_config.dart';
 
 class LocalService {
-  static const endpoint = "local/LocalController.php";
+  static final endpoint = ApiConfig.getEndpoint("local/LocalController.php");
   static final httpService = HttpService();
 
   static Future<dynamic> getMeusLocais(String idUsuario) async {

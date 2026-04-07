@@ -3,6 +3,7 @@ import 'package:dinneer/service/http/HttpService.dart';
 import 'package:dinneer/service/avaliacao/AvaliacaoService.dart';
 import 'package:dinneer/service/encontro/EncontroService.dart';
 import 'package:dinneer/service/refeicao/Cardapio.dart';
+import 'package:dinneer/config/api_config.dart';
 import 'package:dinneer/widgets/card_refeicao.dart';
 
 class TelaPerfilPublico extends StatefulWidget {
@@ -50,7 +51,8 @@ class _TelaPerfilPublicoState extends State<TelaPerfilPublico> with SingleTicker
 
   Future<void> _carregarDadosUsuario() async {
     try {
-      final res = await http.get("usuario/UsuarioController.php", "getUsuario", queryParams: {
+      final endpoint = ApiConfig.getEndpoint("usuario/UsuarioController.php");
+      final res = await http.get(endpoint, "getUsuario", queryParams: {
         "id_usuario": widget.idUsuario.toString()
       });
       if (res['dados'] != null && (res['dados'] as List).isNotEmpty) {

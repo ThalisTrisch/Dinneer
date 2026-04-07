@@ -1,7 +1,8 @@
 import '../http/HttpService.dart';
+import '../../config/api_config.dart';
 
 class EncontroService {
-  static const endpoint = "encontro/EncontroController.php";
+  static final endpoint = ApiConfig.getEndpoint("encontro/EncontroController.php");
   static final httpService = HttpService();
 
   static Future<dynamic> reservar(int idUsuario, int idEncontro, int dependentes) async {

@@ -3,6 +3,7 @@ import 'package:dinneer/service/refeicao/Cardapio.dart';
 import 'package:dinneer/service/encontro/EncontroService.dart';
 import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/service/http/HttpService.dart';
+import 'package:dinneer/config/api_config.dart';
 import 'package:dinneer/screens/tela_perfil_publico.dart';
 import '../widgets/card_refeicao.dart';
 
@@ -313,16 +314,28 @@ class _ModalGerenciarParticipantesState extends State<_ModalGerenciarParticipant
 
   Future<void> _carregarParticipantes() async {
     try {
-      final res = await http.get("encontro/EncontroController.php", "getParticipantes", queryParams: {
+      final endpoint = ApiConfig.getEndpoint("encontro/EncontroController.php");
+      debugPrint("🔍 DEBUG: Carregando participantes do encontro ${widget.jantar.idEncontro}");
+      debugPrint("🔍 DEBUG: Endpoint: $endpoint");
+      
+      final res = await http.get(endpoint, "getParticipantes", queryParams: {
         "id_encontro": widget.jantar.idEncontro.toString(),
       });
+      
+      debugPrint("🔍 DEBUG: Resposta completa: $res");
+      debugPrint("🔍 DEBUG: Dados: ${res['dados']}");
+      debugPrint("🔍 DEBUG: Tipo de dados: ${res['dados'].runtimeType}");
+      debugPrint("🔍 DEBUG: Quantidade de registros: ${res['registros']}");
+      
       if (mounted) {
         setState(() {
           participantes = res['dados'] ?? [];
           carregando = false;
         });
+        debugPrint("🔍 DEBUG: Participantes carregados: ${participantes.length}");
       }
     } catch (e) {
+      debugPrint("❌ DEBUG: Erro ao carregar participantes: $e");
       if (mounted) setState(() => carregando = false);
     }
   }
@@ -332,7 +345,8 @@ class _ModalGerenciarParticipantesState extends State<_ModalGerenciarParticipant
     setState(() => carregando = true);
     
     try {
-      await http.post("encontro/EncontroController.php", operacao, body: {
+      final endpoint = ApiConfig.getEndpoint("encontro/EncontroController.php");
+      await http.post(endpoint, operacao, body: {
         "id_encontro": widget.jantar.idEncontro.toString(),
         "id_convidado": idConvidado.toString(),
       });

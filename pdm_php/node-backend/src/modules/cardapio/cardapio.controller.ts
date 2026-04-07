@@ -24,6 +24,7 @@ export class CardapioController {
           break;
 
         case 'createJantar':
+        case 'createJantarCompleto':
           const createData = {
             id_usuario: parseInt(req.body.id_usuario),
             nm_cardapio: req.body.nm_cardapio,
@@ -55,6 +56,7 @@ export class CardapioController {
           throw new Error('Operação getMeuCardapio não implementada ainda');
 
         case 'deleteCardapio':
+        case 'deleteJantar':
           const id_cardapio_delete = parseInt(req.body.id_cardapio);
           if (!id_cardapio_delete) throw new Error('id_cardapio faltando');
           await cardapioService.deleteJantar(id_cardapio_delete);

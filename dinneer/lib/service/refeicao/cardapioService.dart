@@ -1,11 +1,14 @@
 import '../http/HttpService.dart';
+import '../../config/api_config.dart';
 
 class CardapioService {
-  static const endpoint = "cardapio/CardapioController.php";
+  static final endpoint = ApiConfig.getEndpoint("cardapio/CardapioController.php");
   static final httpService = HttpService();
 
   static Future<dynamic> createJantar(Map<String, dynamic> dados) async {
-    return await httpService.post(endpoint, "createJantar", body: dados);
+    // Node.js backend usa "createJantarCompleto" ao invés de "createJantar"
+    final operacao = ApiConfig.useNodeBackend ? "createJantarCompleto" : "createJantar";
+    return await httpService.post(endpoint, operacao, body: dados);
   }
 
   static Future<dynamic> getCardapiosDisponiveis() async {
@@ -29,9 +32,11 @@ class CardapioService {
   }
 
   static Future<dynamic> deleteJantar(int idJantar) async {
+    // Node.js backend usa "deleteJantar" ao invés de "deleteCardapio"
+    final operacao = ApiConfig.useNodeBackend ? "deleteJantar" : "deleteCardapio";
     return await httpService.post(
       endpoint,
-      "deleteCardapio",
+      operacao,
       body: {
         "id_cardapio": idJantar.toString(),
       },
