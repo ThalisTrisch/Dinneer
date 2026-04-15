@@ -35,31 +35,7 @@ flutter doctor
 
 ## ⚙️ Configuração
 
-### 1. Configurar Backend
-
-Edite `lib/config/api_config.dart`:
-
-```dart
-class ApiConfig {
-  // true = Node.js Backend (porta 3000)
-  // false = PHP Backend (porta 80)
-  static const bool useNodeBackend = true;
-  
-  static String get baseUrl {
-    if (useNodeBackend) {
-      return kIsWeb 
-        ? "http://localhost:3000/api/v1/"
-        : "http://10.0.2.2:3000/api/v1/";  // Android Emulator
-    } else {
-      return kIsWeb 
-        ? "http://localhost/pdm/api/v1/"
-        : "http://10.0.2.2/pdm/api/v1/";
-    }
-  }
-}
-```
-
-### 2. Configurar Firebase (Opcional)
+### 1. Configurar Firebase (Opcional)
 
 Se for usar upload de imagens:
 
