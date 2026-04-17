@@ -62,7 +62,7 @@ flutter run
 flutter run -d <device_id>
 
 # Executar no Chrome (Web)
-flutter run -d chrome
+flutter run -d chrome --web-browser-flag "--disable-web-security" --web-browser-flag "--user-data-dir=/tmp/chrome_dev_test"
 ```
 
 ### Hot Reload
