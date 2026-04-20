@@ -1,0 +1,289 @@
+
+CREATE TABLE tb_sequence_imagem (
+                id_sequence serial NOT NULL,
+                nm_sequence CHAR(1) NOT NULL,
+                CONSTRAINT tb_sequence_imagem_pk PRIMARY KEY (id_sequence)
+);
+
+
+CREATE TABLE tb_imagem (
+                id_imagem serial NOT NULL,
+                id_sequence INTEGER NOT NULL,
+                vl_url VARCHAR(100) NOT NULL,
+                CONSTRAINT tb_imagem_pk PRIMARY KEY (id_imagem)
+);
+
+
+CREATE TABLE tb_tipo_avaliacao (
+                id_avaliacao serial NOT NULL,
+                nm_tipo_avaliacao VARCHAR(50) NOT NULL,
+                fl_avaliador BOOLEAN,
+                CONSTRAINT tb_tipo_avaliacao_pk PRIMARY KEY (id_avaliacao)
+);
+
+
+CREATE UNIQUE INDEX tb_tipo_avaliacao_idx
+ ON tb_tipo_avaliacao
+ ( nm_tipo_avaliacao );
+
+CREATE TABLE tb_categoria (
+                id_tag serial NOT NULL,
+                nm_tag VARCHAR(100) NOT NULL,
+                CONSTRAINT tb_categoria_pk PRIMARY KEY (id_tag)
+);
+
+
+CREATE UNIQUE INDEX tb_tags_idx
+ ON tb_categoria
+ ( nm_tag );
+
+CREATE TABLE tb_usuario (
+                id_usuario serial NOT NULL,
+                nu_cpf CHAR(11) NOT NULL,
+                nm_usuario VARCHAR(100) NOT NULL,
+                vl_email VARCHAR(100) NOT NULL,
+                nm_sobrenome VARCHAR NOT NULL,
+                id_sequence INTEGER NOT NULL,
+                vl_senha VARCHAR(100) NOT NULL,
+                CONSTRAINT tb_usuario_pk PRIMARY KEY (id_usuario)
+);
+
+
+CREATE UNIQUE INDEX tb_usuario_idx
+ ON tb_usuario
+ ( nm_usuario, vl_email );
+
+CREATE UNIQUE INDEX tb_usuario_idx1
+ ON tb_usuario
+ ( nu_cpf );
+
+CREATE TABLE tb_grupo (
+                id_grupo serial NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                fl_grupo boolean NOT NULL,
+                CONSTRAINT tb_grupo_pk PRIMARY KEY (id_grupo)
+);
+
+
+CREATE TABLE tb_grupo_conversa (
+                id_conversa serial NOT NULL,
+                id_grupo INTEGER NOT NULL,
+                dt_envio DATE NOT NULL,
+                hr_envio TIMESTAMP NOT NULL,
+                vl_mensagem VARCHAR(1000) NOT NULL,
+                CONSTRAINT tb_grupo_conversa_pk PRIMARY KEY (id_conversa)
+);
+
+
+CREATE TABLE tb_cardapio (
+                id_cardapio serial NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                dc_cardapio VARCHAR(100) NOT NULL,
+                id_imagem INTEGER NOT NULL,
+                CONSTRAINT tb_cardapio_pk PRIMARY KEY (id_cardapio)
+);
+
+
+CREATE TABLE tb_categoria_cardapio (
+                id_cardapio INTEGER NOT NULL,
+                id_tag INTEGER NOT NULL,
+                CONSTRAINT tb_categoria_cardapio_pk PRIMARY KEY (id_cardapio, id_tag)
+);
+
+
+CREATE TABLE tb_local (
+                id_local serial NOT NULL,
+                nu_cep INTEGER NOT NULL,
+                nu_casa INTEGER NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                id_sequence INTEGER NOT NULL,
+                nu_cnpj CHAR(14) NOT NULL,
+                CONSTRAINT tb_local_pk PRIMARY KEY (id_local)
+);
+
+
+CREATE TABLE tb_refeicao (
+                id_refeicao serial NOT NULL,
+                id_cardapio INTEGER NOT NULL,
+                id_local INTEGER NOT NULL,
+                dt_agendamento DATE NOT NULL,
+                hr_encontro TIMESTAMP NOT NULL,
+                nu_max_convidados INTEGER NOT NULL,
+                CONSTRAINT tb_refeicao_pk PRIMARY KEY (id_refeicao)
+);
+
+
+CREATE TABLE tb_encontro (
+                id_encontro serial NOT NULL,
+                id_refeicao INTEGER NOT NULL,
+                fl_anfitriao_confirma BOOLEAN NOT NULL,
+                id_sequence INTEGER NOT NULL,
+                CONSTRAINT tb_encontro_pk PRIMARY KEY (id_encontro)
+);
+
+
+CREATE TABLE tb_encontro_usuario (
+                id_encontro INTEGER NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                CONSTRAINT tb_encontro_usuario_pk PRIMARY KEY (id_encontro, id_usuario)
+);
+
+
+CREATE TABLE tb_avaliacao_encontro (
+                id_usuario INTEGER NOT NULL,
+                id_encontro INTEGER NOT NULL,
+                vl_avaliacao INTEGER NOT NULL,
+                id_avaliacao INTEGER NOT NULL,
+                CONSTRAINT tb_avaliacao_encontro_pk PRIMARY KEY (id_usuario, id_encontro)
+);
+
+
+CREATE TABLE tb_preferencia_usuario (
+                id_tag INTEGER NOT NULL,
+                id_usuario INTEGER NOT NULL,
+                CONSTRAINT tb_preferencia_usuario_pk PRIMARY KEY (id_tag, id_usuario)
+);
+
+
+ALTER TABLE tb_usuario ADD CONSTRAINT tb_sequence_tb_usuario_fk
+FOREIGN KEY (id_sequence)
+REFERENCES tb_sequence_imagem (id_sequence)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_local ADD CONSTRAINT tb_sequence_tb_local_fk
+FOREIGN KEY (id_sequence)
+REFERENCES tb_sequence_imagem (id_sequence)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_encontro ADD CONSTRAINT tb_sequence_tb_encontro_fk
+FOREIGN KEY (id_sequence)
+REFERENCES tb_sequence_imagem (id_sequence)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_imagem ADD CONSTRAINT tb_sequence_imagem_tb_imagem_fk
+FOREIGN KEY (id_sequence)
+REFERENCES tb_sequence_imagem (id_sequence)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_cardapio ADD CONSTRAINT tb_imagem_tb_cardapio_fk
+FOREIGN KEY (id_imagem)
+REFERENCES tb_imagem (id_imagem)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_avaliacao_encontro ADD CONSTRAINT tb_tipo_avaliacao_tb_avaliacao_encontro_fk
+FOREIGN KEY (id_avaliacao)
+REFERENCES tb_tipo_avaliacao (id_avaliacao)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_categoria_cardapio ADD CONSTRAINT tb_tags_tb_postagem_tags_fk
+FOREIGN KEY (id_tag)
+REFERENCES tb_categoria (id_tag)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_preferencia_usuario ADD CONSTRAINT tb_tags_tb_preferencia_usuario_fk
+FOREIGN KEY (id_tag)
+REFERENCES tb_categoria (id_tag)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_preferencia_usuario ADD CONSTRAINT tb_usuario_tb_preferencia_usuario_fk
+FOREIGN KEY (id_usuario)
+REFERENCES tb_usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_local ADD CONSTRAINT tb_usuario_tb_local_fk
+FOREIGN KEY (id_usuario)
+REFERENCES tb_usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_encontro_usuario ADD CONSTRAINT tb_usuario_tb_encontro_usuario_fk
+FOREIGN KEY (id_usuario)
+REFERENCES tb_usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_cardapio ADD CONSTRAINT tb_usuario_tb_cardapio_fk
+FOREIGN KEY (id_usuario)
+REFERENCES tb_usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_grupo ADD CONSTRAINT tb_usuario_tb_grupo_conversa_fk
+FOREIGN KEY (id_usuario)
+REFERENCES tb_usuario (id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_grupo_conversa ADD CONSTRAINT tb_conversa_tb_grupo_conversa_fk
+FOREIGN KEY (id_grupo)
+REFERENCES tb_grupo (id_grupo)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_categoria_cardapio ADD CONSTRAINT tb_postagem_tb_postagem_tags_fk
+FOREIGN KEY (id_cardapio)
+REFERENCES tb_cardapio (id_cardapio)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_refeicao ADD CONSTRAINT tb_cardapio_janta_fk
+FOREIGN KEY (id_cardapio)
+REFERENCES tb_cardapio (id_cardapio)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_refeicao ADD CONSTRAINT tb_local_janta_fk
+FOREIGN KEY (id_local)
+REFERENCES tb_local (id_local)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_encontro ADD CONSTRAINT janta_tb_encontro_fk
+FOREIGN KEY (id_refeicao)
+REFERENCES tb_refeicao (id_refeicao)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_encontro_usuario ADD CONSTRAINT tb_encontro_tb_encontro_usuario_fk
+FOREIGN KEY (id_encontro)
+REFERENCES tb_encontro (id_encontro)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_avaliacao_encontro ADD CONSTRAINT tb_encontro_usuario_tb_avaliacao_encontro_fk
+FOREIGN KEY (id_encontro, id_usuario)
+REFERENCES tb_encontro_usuario (id_encontro, id_usuario)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE tb_refeicao
+ADD COLUMN preco_refeicao DECIMAL(10,2);

@@ -84,18 +84,17 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       return;
     }
 
-    if (_imagemSelecionada == null) {
-      _mostrarErro("Selecione uma foto para o prato.");
-      return;
-    }
-
     setState(() => _estaCarregando = true);
 
-    String? urlFoto = await _uploadImagemFirebase(_imagemSelecionada!);
-    if (urlFoto == null) {
-      _mostrarErro("Erro ao enviar imagem.");
-      setState(() => _estaCarregando = false);
-      return;
+    // Foto é opcional - só faz upload se foi selecionada
+    String? urlFoto;
+    if (_imagemSelecionada != null) {
+      urlFoto = await _uploadImagemFirebase(_imagemSelecionada!);
+      if (urlFoto == null) {
+        _mostrarErro("Erro ao enviar imagem.");
+        setState(() => _estaCarregando = false);
+        return;
+      }
     }
 
     final dataHora = DateTime(
@@ -110,7 +109,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       'preco_refeicao': _precoController.text.replaceAll(',', '.'),
       'nu_max_convidados': _vagasController.text,
       'hr_encontro': dataHora.toIso8601String(),
-      'vl_foto': urlFoto,
+      'vl_foto': urlFoto ?? '',  // Envia string vazia se não houver foto
       'id_local': widget.idLocalPreSelecionado.toString(),
     };
 

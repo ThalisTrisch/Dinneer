@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import '../http/HttpService.dart';
+import '../../config/api_config.dart';
 
 class AvaliacaoService {
-  static const endpoint = "avaliacao/AvaliacaoController.php";
+  static final endpoint = ApiConfig.getEndpoint("avaliacao/AvaliacaoController.php");
   static final httpService = HttpService();
 
   static Future<dynamic> avaliar(int idUsuario, int idEncontro, int idTipoAvaliacao, double nota) async {

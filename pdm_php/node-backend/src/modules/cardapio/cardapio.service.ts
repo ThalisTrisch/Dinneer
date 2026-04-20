@@ -89,8 +89,15 @@ export class CardapioService extends BaseService {
       let idLocal = 0;
 
       // Verifica se deve usar local existente ou criar novo
-      if (dados.id_local && dados.id_local !== 'novo' && typeof dados.id_local === 'number') {
-        idLocal = dados.id_local;
+      if (dados.id_local && dados.id_local !== 'novo') {
+        // Converte para número se for string
+        idLocal = typeof dados.id_local === 'string' ? parseInt(dados.id_local) : dados.id_local;
+        
+        // Verifica se o local existe
+        const checkLocal = await this.conexao.query('SELECT id_local FROM tb_local_dn WHERE id_local = $1', [idLocal]);
+        if (checkLocal.rows.length === 0) {
+          throw new Error('Local não encontrado');
+        }
       } else {
         // Cria novo local
         const sqlSeqL = 'SELECT id_sequence FROM tb_sequence_dn ORDER BY id_sequence DESC LIMIT 1';
@@ -120,7 +127,7 @@ export class CardapioService extends BaseService {
         dados.nm_cardapio,
         dados.ds_cardapio,
         dados.preco_refeicao,
-        dados.vl_foto || null
+        dados.vl_foto && dados.vl_foto.trim() !== '' ? dados.vl_foto : null
       ]);
 
       // Cria encontro

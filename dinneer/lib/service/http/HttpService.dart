@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import '../../config/api_config.dart';
 
 class HttpService {
 
-  // Use localhost for web, 10.0.2.2 for Android emulator
-  String baseUrl = kIsWeb 
-    ? "http://localhost/pdm/api/v1/" 
-    : "http://10.0.2.2/pdm/api/v1/";
+  // Usa ApiConfig para determinar a URL base
+  String get baseUrl => ApiConfig.baseUrl;
 
   HttpService();
 

@@ -1,8 +1,10 @@
 import 'package:dinneer/service/http/HttpService.dart';
+import 'package:dinneer/config/api_config.dart';
 
 class UsuarioService {
-  static const endpoint = "usuario/UsuarioController.php";
-  static final httpService = HttpService(); 
+  // Remove .php quando usar Node.js backend
+  static final endpoint = ApiConfig.getEndpoint("usuario/UsuarioController.php");
+  static final httpService = HttpService();
 
   UsuarioService();
 
