@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/local/LocalService.dart';
-import 'package:dinneer/screens/jantar/tela_criar_jantar.dart';
+import 'package:dinneer/screens/tela_criar_jantar.dart';
 
 class TabMeusLocais extends StatefulWidget {
   final String idUsuario;
