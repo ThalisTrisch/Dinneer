@@ -2,12 +2,18 @@ import '../http/HttpService.dart';
 import '../../config/api_config.dart';
 
 class EncontroService {
-  static final endpoint = ApiConfig.getEndpoint("encontro/EncontroController.php");
+  static final endpoint = ApiConfig.getEndpoint(
+    "encontro/EncontroController.php",
+  );
   static final httpService = HttpService();
 
-  static Future<dynamic> reservar(int idUsuario, int idEncontro, int dependentes) async {
+  static Future<dynamic> reservar(
+    int idUsuario,
+    int idEncontro,
+    int dependentes,
+  ) async {
     return await httpService.post(
-      endpoint, 
+      endpoint,
       "addUsuarioEncontro",
       body: {
         "id_usuario": idUsuario.toString(),
@@ -19,7 +25,7 @@ class EncontroService {
 
   static Future<dynamic> cancelarReserva(int idUsuario, int idEncontro) async {
     return await httpService.post(
-      endpoint, 
+      endpoint,
       "deleteUsuarioEncontro",
       body: {
         "id_usuario": idUsuario.toString(),
@@ -28,22 +34,26 @@ class EncontroService {
     );
   }
 
-  static Future<dynamic> verificarSeJaReservei(int idUsuario, int idEncontro) async {
+  static Future<dynamic> verificarSeJaReservei(
+    int idUsuario,
+    int idEncontro,
+  ) async {
     try {
       final resposta = await httpService.get(
-        endpoint, 
+        endpoint,
         "verificarReserva",
         queryParams: {
           "id_usuario": idUsuario.toString(),
           "id_encontro": idEncontro.toString(),
-        }
+        },
       );
-      
+
       if (resposta != null && resposta['dados'] != null) {
-        if (resposta['dados'] is List && (resposta['dados'] as List).isNotEmpty) {
-           return (resposta['dados'] as List).first;
+        if (resposta['dados'] is List &&
+            (resposta['dados'] as List).isNotEmpty) {
+          return (resposta['dados'] as List).first;
         } else if (resposta['dados'] is Map) {
-           return resposta['dados'];
+          return resposta['dados'];
         }
       }
       return false;
@@ -53,10 +63,18 @@ class EncontroService {
   }
 
   static Future<dynamic> getMinhasReservas(int idUsuario) async {
-    return await httpService.get(endpoint, "getMinhasReservas", queryParams: {"id_usuario": idUsuario.toString()});
+    return await httpService.get(
+      endpoint,
+      "getMinhasReservas",
+      queryParams: {"id_usuario": idUsuario.toString()},
+    );
   }
 
   static Future<dynamic> getMeusJantaresCriados(int idUsuario) async {
-    return await httpService.get(endpoint, "getMeusJantaresCriados", queryParams: {"id_usuario": idUsuario.toString()});
+    return await httpService.get(
+      endpoint,
+      "getMeusJantaresCriados",
+      queryParams: {"id_usuario": idUsuario.toString()},
+    );
   }
 }

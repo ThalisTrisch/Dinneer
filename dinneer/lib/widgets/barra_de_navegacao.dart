@@ -40,17 +40,26 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
             inactiveColor: Colors.grey[600],
             textAlign: TextAlign.center,
           ),
-          
-          // 1: Reservas (Não pode ser Chat!)
+
+          // 1: Reservas
           BottomNavyBarItem(
-            icon: const Icon(Icons.calendar_today_rounded), // Ícone de calendário
+            icon: const Icon(Icons.calendar_today_rounded),
             title: const Text('Reservas'),
             activeColor: Colors.black,
             inactiveColor: Colors.grey[600],
             textAlign: TextAlign.center,
           ),
-          
-          // 2: Perfil
+
+          // 2: Chat
+          BottomNavyBarItem(
+            icon: const Icon(Icons.chat_bubble_rounded),
+            title: const Text('Chat'),
+            activeColor: Colors.black,
+            inactiveColor: Colors.grey[600],
+            textAlign: TextAlign.center,
+          ),
+
+          // 3: Perfil
           BottomNavyBarItem(
             icon: const Icon(Icons.person_rounded),
             title: const Text('Perfil'),

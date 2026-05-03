@@ -84,65 +84,65 @@ class _TelaMeusJantaresState extends State<TelaMeusJantares> {
       body: carregando
           ? const Center(child: CircularProgressIndicator())
           : jantares.isEmpty
-              ? const Center(child: Text("Nenhum jantar cadastrado."))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: jantares.length,
-                  itemBuilder: (_, index) {
-                    final jantar = jantares[index];
+          ? const Center(child: Text("Nenhum jantar cadastrado."))
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: jantares.length,
+              itemBuilder: (_, index) {
+                final jantar = jantares[index];
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          jantar["nm_cardapio"] ?? "Jantar sem título",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        Text(
+                          "Data: ${jantar["ds_cardapio"] ?? "--"}",
+                          style: const TextStyle(fontSize: 14),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        const SizedBox(height: 16),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              jantar["nm_cardapio"] ?? "Jantar sem título",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.delete),
+                              label: const Text("Excluir"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
                               ),
+                              onPressed: () {
+                                _confirmarDeleteJantar(jantar["id_cardapio"]);
+                              },
                             ),
-
-                            const SizedBox(height: 6),
-
-                            Text(
-                              "Data: ${jantar["ds_cardapio"] ?? "--"}",
-                              style: const TextStyle(fontSize: 14),
-                            ),
-
-                            const SizedBox(height: 6),
-
-                            const SizedBox(height: 16),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton.icon(
-                                  icon: const Icon(Icons.delete),
-                                  label: const Text("Excluir"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    _confirmarDeleteJantar(jantar["id_cardapio"]);
-                                  },
-                                )
-                              ],
-                            )
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

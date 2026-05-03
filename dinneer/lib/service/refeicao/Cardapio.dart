@@ -14,7 +14,7 @@ class Cardapio {
   final int idLocal;
   final String nuCep;
   final String nuCasa;
-  final String? urlFoto;     
+  final String? urlFoto;
   final String? urlFotoAnfitriao;
   final int nuSolicitacoesPendentes;
   final String? statusReserva;
@@ -55,29 +55,36 @@ class Cardapio {
       nmUsuarioAnfitriao: map['nm_usuario_anfitriao'].toString(),
       nmCardapio: map['nm_cardapio'].toString(),
       dsCardapio: map['ds_cardapio']?.toString() ?? "",
-      idRefeicao: _toInt(map['id_cardapio']), 
-      idEncontro: map['id_encontro'] != null ? _toInt(map['id_encontro']) : _toInt(map['id_cardapio']),
-      hrEncontro: DateTime.tryParse(map['hr_encontro'].toString()) ?? DateTime.now(),
+      idRefeicao: _toInt(map['id_cardapio']),
+      idEncontro: map['id_encontro'] != null
+          ? _toInt(map['id_encontro'])
+          : _toInt(map['id_cardapio']),
+      hrEncontro:
+          DateTime.tryParse(map['hr_encontro'].toString()) ?? DateTime.now(),
       nuMaxConvidados: _toInt(map['nu_max_convidados']),
-      nuConvidadosConfirmados: _toInt(map['nu_convidados_confirmados']), 
+      nuConvidadosConfirmados: _toInt(map['nu_convidados_confirmados']),
       precoRefeicao: _toDouble(map['preco_refeicao']),
       idLocal: _toInt(map['id_local']),
       nuCep: map['nu_cep'].toString(),
       nuCasa: map['nu_casa'].toString(),
-      urlFoto: map['vl_foto_cardapio']?.toString(), 
-      urlFotoAnfitriao: map['vl_foto']?.toString() ?? map['vl_foto_usuario']?.toString(),
+      urlFoto: map['vl_foto_cardapio']?.toString(),
+      urlFotoAnfitriao:
+          map['vl_foto']?.toString() ?? map['vl_foto_usuario']?.toString(),
 
-      nuSolicitacoesPendentes: map['nu_solicitacoes_pendentes'] != null 
-          ? int.tryParse(map['nu_solicitacoes_pendentes'].toString()) ?? 0 
+      nuSolicitacoesPendentes: map['nu_solicitacoes_pendentes'] != null
+          ? int.tryParse(map['nu_solicitacoes_pendentes'].toString()) ?? 0
           : 0,
-      
+
       statusReserva: map['fl_status']?.toString(),
     );
   }
 
   String get dataFormatada {
     try {
-      final DateFormat formatador = DateFormat("dd 'de' MMMM 'às' HH:mm'h'", 'pt_BR');
+      final DateFormat formatador = DateFormat(
+        "dd 'de' MMMM 'às' HH:mm'h'",
+        'pt_BR',
+      );
       return formatador.format(hrEncontro);
     } catch (e) {
       return "Data a definir";

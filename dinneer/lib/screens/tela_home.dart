@@ -46,7 +46,7 @@ class _TelaHomeState extends State<TelaHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      
+
       body: RefreshIndicator(
         onRefresh: _atualizarLista,
         color: Colors.black,
@@ -68,23 +68,26 @@ class _TelaHomeState extends State<TelaHome> {
                 future: _refeicoesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator(color: Colors.black));
-                  } 
-                  else if (snapshot.hasError) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.black),
+                    );
+                  } else if (snapshot.hasError) {
                     return Center(child: Text("Erro: ${snapshot.error}"));
-                  } 
-                  else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return LayoutBuilder(
                       builder: (context, constraints) => SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                          child: const Center(child: Text("Nenhum jantar disponível no momento.")),
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: const Center(
+                            child: Text("Nenhum jantar disponível no momento."),
+                          ),
                         ),
                       ),
                     );
-                  } 
-                  else {
+                  } else {
                     final refeicoes = snapshot.data!;
                     return ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -94,7 +97,7 @@ class _TelaHomeState extends State<TelaHome> {
                         return CardRefeicao(
                           refeicao: refeicao,
                           onRecarregar: _atualizarLista, // <--- O PULO DO GATO
-                        ); 
+                        );
                       },
                     );
                   }
@@ -115,7 +118,10 @@ class _TelaHomeState extends State<TelaHome> {
         prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
         filled: true,
         fillColor: Colors.grey[100],
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30.0), borderSide: BorderSide.none),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide.none,
+        ),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       ),
     );

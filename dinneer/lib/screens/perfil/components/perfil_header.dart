@@ -35,7 +35,7 @@ class PerfilHeader extends StatelessWidget {
       backgroundColor: Colors.white,
       pinned: true,
       stretch: true,
-      
+
       actions: [
         IconButton(
           icon: const Icon(Icons.logout, color: Colors.black),
@@ -47,13 +47,19 @@ class PerfilHeader extends StatelessWidget {
                 title: const Text("Sair"),
                 content: const Text("Tem a certeza que deseja sair?"),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancelar")),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text("Cancelar"),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.pop(ctx);
                       _fazerLogout(context);
                     },
-                    child: const Text("Sair", style: TextStyle(color: Colors.red)),
+                    child: const Text(
+                      "Sair",
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
                 ],
               ),
@@ -90,14 +96,21 @@ class PerfilHeader extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 54,
                           backgroundColor: Colors.grey.shade300,
-                          backgroundImage: (fotoUrl != null && fotoUrl!.isNotEmpty)
+                          backgroundImage:
+                              (fotoUrl != null && fotoUrl!.isNotEmpty)
                               ? NetworkImage(fotoUrl!)
                               : null,
                           child: isUploading
-                              ? const CircularProgressIndicator(color: Colors.black)
+                              ? const CircularProgressIndicator(
+                                  color: Colors.black,
+                                )
                               : (fotoUrl == null || fotoUrl!.isEmpty
-                                  ? const Icon(Icons.person, size: 60, color: Colors.white)
-                                  : null),
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Colors.white,
+                                      )
+                                    : null),
                         ),
                       ),
                       GestureDetector(
@@ -109,7 +122,11 @@ class PerfilHeader extends StatelessWidget {
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 2),
                           ),
-                          child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 18,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
@@ -121,7 +138,13 @@ class PerfilHeader extends StatelessWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      shadows: [Shadow(offset: Offset(0, 1), blurRadius: 3.0, color: Colors.black45)],
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 3.0,
+                          color: Colors.black45,
+                        ),
+                      ],
                     ),
                   ),
                   Text(
@@ -130,7 +153,7 @@ class PerfilHeader extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -146,9 +169,14 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   double get maxExtent => _tabBar.preferredSize.height;
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return Container(color: Colors.white, child: _tabBar);
   }
+
   @override
   bool shouldRebuild(SliverAppBarDelegate oldDelegate) => false;
 }

@@ -24,8 +24,10 @@ class CampoDeTextoCustomizado extends StatelessWidget {
         hintStyle: TextStyle(color: Colors.grey[400]),
         filled: true,
         fillColor: Colors.grey[100],
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 18.0,
+          horizontal: 20.0,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide.none,
