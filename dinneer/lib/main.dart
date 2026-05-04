@@ -17,6 +17,7 @@ void main() async {
         messagingSenderId: "832231555760",
         projectId: "dinneer-19ada",
         storageBucket: "dinneer-19ada.firebasestorage.app",
+        databaseURL: "https://dinneer-19ada-default-rtdb.firebaseio.com",
       ),
     );
   } else {
