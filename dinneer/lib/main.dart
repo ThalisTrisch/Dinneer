@@ -6,7 +6,7 @@ import 'screens/tela_login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase with proper configuration
   if (kIsWeb) {
     // For web platform
@@ -17,15 +17,16 @@ void main() async {
         messagingSenderId: "832231555760",
         projectId: "dinneer-19ada",
         storageBucket: "dinneer-19ada.firebasestorage.app",
+        databaseURL: "https://dinneer-19ada-default-rtdb.firebaseio.com",
       ),
     );
   } else {
     // For mobile platforms (uses google-services.json / GoogleService-Info.plist)
     await Firebase.initializeApp();
   }
-  
+
   await initializeDateFormatting('pt_BR', null);
-  
+
   runApp(const MyApp());
 }
 

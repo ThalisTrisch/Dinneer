@@ -36,7 +36,9 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
   @override
   Widget build(BuildContext context) {
     if (carregando) {
-      return const Center(child: CircularProgressIndicator(color: Colors.black));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
     }
 
     return ListView(
@@ -52,11 +54,18 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
           ),
           child: Column(
             children: [
-              const Text("Média Geral", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                "Média Geral",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               const SizedBox(height: 8),
               Text(
                 mediaGeral.toStringAsFixed(1),
-                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.amber),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -69,12 +78,18 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
                 }),
               ),
               const SizedBox(height: 4),
-              Text("Baseado em $totalAvaliacoes avaliações", style: const TextStyle(color: Colors.grey)),
+              Text(
+                "Baseado em $totalAvaliacoes avaliações",
+                style: const TextStyle(color: Colors.grey),
+              ),
             ],
           ),
         ),
 
-        const Text("Detalhes", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          "Detalhes",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 10),
 
         _buildRatingCard('Comida', mediaGeral),
@@ -96,26 +111,35 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(category, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            category,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           Row(
             children: [
               Text(
                 rating.toStringAsFixed(1),
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber,
+                  fontSize: 16,
+                ),
               ),
               const SizedBox(width: 8),
               Row(
                 children: List.generate(
                   5,
                   (index) => Icon(
-                    index < rating.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                    index < rating.round()
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
                     color: Colors.amber,
                     size: 24,
                   ),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

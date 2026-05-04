@@ -3,6 +3,7 @@ import '../widgets/barra_de_navegacao.dart';
 import 'tela_home.dart';
 import 'perfil/tela_perfil.dart';
 import 'tela_reservas.dart';
+import 'tela_lista_chats.dart';
 
 class TelaPrincipal extends StatefulWidget {
   final Map<String, dynamic> dadosUsuario;
@@ -15,22 +16,24 @@ class TelaPrincipal extends StatefulWidget {
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
   int _paginaAtual = 0;
-  late List<Widget> _paginas; 
+  late List<Widget> _paginas;
 
   @override
   void initState() {
     super.initState();
-    
+
     int idUsuario = 0;
     if (widget.dadosUsuario['id_usuario'] != null) {
-      idUsuario = int.tryParse(widget.dadosUsuario['id_usuario'].toString()) ?? 0;
+      idUsuario =
+          int.tryParse(widget.dadosUsuario['id_usuario'].toString()) ?? 0;
     }
 
     // A ORDEM AQUI TEM QUE SER IGUAL A DA BARRA
     _paginas = [
-      TelaHome(idUsuarioLogado: idUsuario),          // 0: Home
-      const TelaReservas(),                          // 1: Reservas
-      TelaPerfil(dadosUsuario: widget.dadosUsuario), // 2: Perfil
+      TelaHome(idUsuarioLogado: idUsuario), // 0: Home
+      const TelaReservas(), // 1: Reservas
+      const TelaListaChats(), // 2: Chat
+      TelaPerfil(dadosUsuario: widget.dadosUsuario), // 3: Perfil
     ];
   }
 
@@ -43,7 +46,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _paginas.length > _paginaAtual ? _paginas[_paginaAtual] : _paginas[0],
+      body: _paginas.length > _paginaAtual
+          ? _paginas[_paginaAtual]
+          : _paginas[0],
       bottomNavigationBar: BarraNavegacaoCustomizada(
         index: _paginaAtual,
         onTap: _onItemTapped,

@@ -27,7 +27,7 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
 
     try {
       final resposta = await LocalService.getMeusLocais(widget.idUsuario);
-      
+
       if (!mounted) return;
       setState(() {
         meusLocais = resposta['dados'] ?? [];
@@ -49,7 +49,10 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -57,13 +60,26 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                 try {
                   await LocalService.deleteLocal(idLocal.toString());
                   if (!mounted) return;
-                  await carregarLocais(); 
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Local excluído.")));
+                  await carregarLocais();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Local excluído.")),
+                  );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Erro ao excluir."), backgroundColor: Colors.red));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Erro ao excluir."),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
               },
-              child: const Text("Excluir", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              child: const Text(
+                "Excluir",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
@@ -74,7 +90,9 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
   @override
   Widget build(BuildContext context) {
     if (carregandoLocais) {
-      return const Center(child: CircularProgressIndicator(color: Colors.black));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
     }
 
     if (meusLocais.isEmpty) {
@@ -84,7 +102,10 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
           children: [
             Icon(Icons.location_off_outlined, size: 60, color: Colors.grey),
             SizedBox(height: 16),
-            Text("Você ainda não cadastrou nenhum local.", style: TextStyle(color: Colors.grey)),
+            Text(
+              "Você ainda não cadastrou nenhum local.",
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       );
@@ -117,7 +138,10 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.location_on_rounded, color: Colors.black87),
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        color: Colors.black87,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -126,24 +150,34 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                         children: [
                           Text(
                             "CEP: ${local['nu_cep']}",
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Número: ${local['nu_casa']}",
-                            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
-                          if (local['dc_complemento'] != null && local['dc_complemento'].toString().isNotEmpty)
-                             Text(
-                               "${local['dc_complemento']}",
-                               style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                             ),
+                          if (local['dc_complemento'] != null &&
+                              local['dc_complemento'].toString().isNotEmpty)
+                            Text(
+                              "${local['dc_complemento']}",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                
+
                 const Divider(height: 32),
 
                 Row(
@@ -151,8 +185,9 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                   children: [
                     TextButton.icon(
                       onPressed: () {
-                        int idLocal = int.tryParse(local['id_local'].toString()) ?? 0;
-                        
+                        int idLocal =
+                            int.tryParse(local['id_local'].toString()) ?? 0;
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -165,10 +200,14 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                       },
                       icon: const Icon(Icons.restaurant_menu, size: 18),
                       label: const Text("Novo Jantar"),
-                      style: TextButton.styleFrom(foregroundColor: Colors.orange.shade800),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.orange.shade800,
+                      ),
                     ),
                     IconButton(
-                      onPressed: () => _confirmarDeleteLocal(int.tryParse(local['id_local'].toString()) ?? 0),
+                      onPressed: () => _confirmarDeleteLocal(
+                        int.tryParse(local['id_local'].toString()) ?? 0,
+                      ),
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       tooltip: "Excluir Local",
                     ),

@@ -23,9 +23,10 @@ class TelaPerfil extends StatefulWidget {
 
 class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
   late TabController _tabController;
-  
-  final GlobalKey<TabMeusLocaisState> _meusLocaisKey = GlobalKey<TabMeusLocaisState>();
-  
+
+  final GlobalKey<TabMeusLocaisState> _meusLocaisKey =
+      GlobalKey<TabMeusLocaisState>();
+
   String? idUsuario;
   String? fotoUrlAtual;
   String nomeUsuario = "Usuário";
@@ -44,9 +45,11 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     setState(() {
       nomeUsuario = widget.dadosUsuario['nm_usuario'] ?? 'Usuário';
       emailUsuario = widget.dadosUsuario['vl_email'] ?? '@usuario';
-      
+
       final rawFoto = widget.dadosUsuario['vl_foto'];
-      if (rawFoto != null && rawFoto.toString().isNotEmpty && rawFoto.toString() != 'null') {
+      if (rawFoto != null &&
+          rawFoto.toString().isNotEmpty &&
+          rawFoto.toString() != 'null') {
         fotoUrlAtual = rawFoto.toString();
       }
     });
@@ -91,22 +94,29 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
   Future<void> _uploadEAtualizarFoto(File imagem) async {
     try {
-      String nomeArquivo = "perfil_${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = FirebaseStorage.instance.ref().child('perfis/$nomeArquivo');
-      
-      final metadata = SettableMetadata(contentType: "image/jpeg");
-      
-      UploadTask task = ref.putFile(imagem, metadata);
-      
-      await task.whenComplete(() {}).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () { throw Exception("Tempo limite excedido."); },
+      String nomeArquivo =
+          "perfil_${DateTime.now().millisecondsSinceEpoch}.jpg";
+      Reference ref = FirebaseStorage.instance.ref().child(
+        'perfis/$nomeArquivo',
       );
+
+      final metadata = SettableMetadata(contentType: "image/jpeg");
+
+      UploadTask task = ref.putFile(imagem, metadata);
+
+      await task
+          .whenComplete(() {})
+          .timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              throw Exception("Tempo limite excedido.");
+            },
+          );
 
       String novaUrl = await ref.getDownloadURL();
 
       if (idUsuario != null) {
-         await UsuarioService.atualizarFotoPerfil(idUsuario!, novaUrl);
+        await UsuarioService.atualizarFotoPerfil(idUsuario!, novaUrl);
       }
 
       if (mounted) {
@@ -115,7 +125,10 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           _enviandoFoto = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Foto atualizada!"), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text("Foto atualizada!"),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
@@ -123,7 +136,10 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
       if (mounted) {
         setState(() => _enviandoFoto = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erro ao enviar foto."), backgroundColor: Colors.red),
+          const SnackBar(
+            content: Text("Erro ao enviar foto."),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -137,7 +153,7 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -151,7 +167,10 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             }
           });
         },
-        label: const Text("Adicionar local", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        label: const Text(
+          "Adicionar local",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         icon: const Icon(Icons.add_location_alt, color: Colors.white),
         backgroundColor: Colors.black,
       ),
@@ -166,7 +185,7 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             isUploading: _enviandoFoto,
             onCameraTap: _alterarFotoPerfil,
           ),
-          
+
           // 2. Barra de Abas Fixa
           SliverPersistentHeader(
             delegate: SliverAppBarDelegate(
@@ -191,13 +210,10 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
               controller: _tabController,
               children: [
                 // Aba 1: Avaliações (Com a média no topo)
-                TabAvaliacoes(idUsuario: int.parse(idUsuario!)), 
-                
+                TabAvaliacoes(idUsuario: int.parse(idUsuario!)),
+
                 // Aba 2: Meus Locais
-                TabMeusLocais(
-                  key: _meusLocaisKey, 
-                  idUsuario: idUsuario!
-                ),
+                TabMeusLocais(key: _meusLocaisKey, idUsuario: idUsuario!),
               ],
             ),
           ),

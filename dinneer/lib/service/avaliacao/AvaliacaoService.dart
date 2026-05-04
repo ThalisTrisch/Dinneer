@@ -3,12 +3,19 @@ import '../http/HttpService.dart';
 import '../../config/api_config.dart';
 
 class AvaliacaoService {
-  static final endpoint = ApiConfig.getEndpoint("avaliacao/AvaliacaoController.php");
+  static final endpoint = ApiConfig.getEndpoint(
+    "avaliacao/AvaliacaoController.php",
+  );
   static final httpService = HttpService();
 
-  static Future<dynamic> avaliar(int idUsuario, int idEncontro, int idTipoAvaliacao, double nota) async {
+  static Future<dynamic> avaliar(
+    int idUsuario,
+    int idEncontro,
+    int idTipoAvaliacao,
+    double nota,
+  ) async {
     return await httpService.post(
-      endpoint, 
+      endpoint,
       "createAvaliacao",
       body: {
         "id_usuario": idUsuario.toString(),
@@ -20,21 +27,23 @@ class AvaliacaoService {
   }
 
   static Future<Map<String, dynamic>> getMediaUsuario(int idUsuario) async {
-    debugPrint("--- AVALIACAO: Buscando média para o usuário ID $idUsuario ---");
+    debugPrint(
+      "--- AVALIACAO: Buscando média para o usuário ID $idUsuario ---",
+    );
     try {
       final resposta = await httpService.get(
-        endpoint, 
-        "getMediaUsuario", 
-        queryParams: {"id_usuario": idUsuario.toString()}
+        endpoint,
+        "getMediaUsuario",
+        queryParams: {"id_usuario": idUsuario.toString()},
       );
-      
+
       debugPrint("--- AVALIACAO: Resposta do servidor: $resposta ---");
 
       if (resposta != null && resposta['dados'] != null) {
-        final dados = (resposta['dados'] is List) 
-            ? (resposta['dados'] as List).first 
+        final dados = (resposta['dados'] is List)
+            ? (resposta['dados'] as List).first
             : resposta['dados'];
-            
+
         return {
           "media": double.tryParse(dados['media'].toString()) ?? 0.0,
           "total": int.tryParse(dados['total'].toString()) ?? 0,

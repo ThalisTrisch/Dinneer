@@ -3,7 +3,9 @@ import 'package:dinneer/config/api_config.dart';
 
 class UsuarioService {
   // Remove .php quando usar Node.js backend
-  static final endpoint = ApiConfig.getEndpoint("usuario/UsuarioController.php");
+  static final endpoint = ApiConfig.getEndpoint(
+    "usuario/UsuarioController.php",
+  );
   static final httpService = HttpService();
 
   UsuarioService();
@@ -12,11 +14,8 @@ class UsuarioService {
     return await httpService.get(endpoint, "getUsuarios");
   }
 
-   static Future<dynamic> login(String email, String senha) async {
-    final body = {
-      'vl_email': email,
-      'vl_senha': senha,
-    };
+  static Future<dynamic> login(String email, String senha) async {
+    final body = {'vl_email': email, 'vl_senha': senha};
     return await httpService.post(endpoint, "loginUsuario", body: body);
   }
 
@@ -24,11 +23,11 @@ class UsuarioService {
     return await httpService.post(endpoint, "createUsuario", body: dados);
   }
 
-  static Future<dynamic> atualizarFotoPerfil(dynamic idUsuario, String novaUrl) async {
-    final body = {
-      'id_usuario': idUsuario.toString(),
-      'vl_foto': novaUrl,
-    };
+  static Future<dynamic> atualizarFotoPerfil(
+    dynamic idUsuario,
+    String novaUrl,
+  ) async {
+    final body = {'id_usuario': idUsuario.toString(), 'vl_foto': novaUrl};
     return await httpService.post(endpoint, "atualizarFotoPerfil", body: body);
   }
 }

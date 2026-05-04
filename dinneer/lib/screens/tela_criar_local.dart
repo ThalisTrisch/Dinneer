@@ -20,7 +20,9 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
 
   void _criarLocal() async {
     if (_cepController.text.isEmpty || _numeroController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("CEP e Número são obrigatórios.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("CEP e Número são obrigatórios.")),
+      );
       return;
     }
 
@@ -36,11 +38,16 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
 
     try {
       final res = await LocalService.createLocal(dados);
-      
+
       // Verifica sucesso
       if (res != null && (res['registros'] == 1 || (res['dados'] != null))) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Local adicionado!"), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Local adicionado!"),
+              backgroundColor: Colors.green,
+            ),
+          );
           Navigator.pop(context, true); // Retorna true para atualizar a lista
         }
       } else {
@@ -54,14 +61,20 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
   }
 
   void _mostrarErro(String msg) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted)
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Adicionar Novo Local", style: TextStyle(color: Colors.black)),
+        title: const Text(
+          "Adicionar Novo Local",
+          style: TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -72,27 +85,48 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text("Endereço", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Endereço",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             CampoDeTextoCustomizado(controller: _cepController, dica: "CEP"),
             const SizedBox(height: 12),
-            CampoDeTextoCustomizado(controller: _numeroController, dica: "Número da Casa"),
+            CampoDeTextoCustomizado(
+              controller: _numeroController,
+              dica: "Número da Casa",
+            ),
             const SizedBox(height: 12),
-            CampoDeTextoCustomizado(controller: _complementoController, dica: "Complemento (Ex: Casa de fundos)"),
+            CampoDeTextoCustomizado(
+              controller: _complementoController,
+              dica: "Complemento (Ex: Casa de fundos)",
+            ),
             const SizedBox(height: 12),
-            CampoDeTextoCustomizado(controller: _cnpjController, dica: "CNPJ (Opcional)"),
+            CampoDeTextoCustomizado(
+              controller: _cnpjController,
+              dica: "CNPJ (Opcional)",
+            ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _estaCarregando ? null : _criarLocal,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: _estaCarregando 
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white))
-                : const Text("SALVAR LOCAL", style: TextStyle(fontWeight: FontWeight.bold)),
-            )
+              child: _estaCarregando
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : const Text(
+                      "SALVAR LOCAL",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+            ),
           ],
         ),
       ),

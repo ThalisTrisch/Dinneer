@@ -10,11 +10,9 @@ class LocalService {
     debugPrint("LocalService: Buscando locais para o ID $idUsuario...");
 
     return await httpService.get(
-      endpoint, 
-      "getMeusLocais", 
-      queryParams: {
-        "id_usuario": idUsuario,
-      }
+      endpoint,
+      "getMeusLocais",
+      queryParams: {"id_usuario": idUsuario},
     );
   }
 
