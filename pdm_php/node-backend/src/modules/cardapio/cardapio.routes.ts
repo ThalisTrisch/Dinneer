@@ -29,6 +29,19 @@ router.get('/disponiveis', async (req, res, next) => {
   cardapioController.handle(req, res, next);
 });
 
+// GET /api/v1/cardapio/categoria/:categoria - Filtrar por categoria de comida
+router.get('/categoria/:categoria', async (req, res, next) => {
+  req.query.operacao = 'getCardapiosPorCategoria';
+  req.query.categoria = req.params.categoria;
+  cardapioController.handle(req, res, next);
+});
+
+// GET /api/v1/cardapio/categorias - Listar todas as categorias disponíveis
+router.get('/categorias/listar', async (req, res, next) => {
+  req.query.operacao = 'getCategorias';
+  cardapioController.handle(req, res, next);
+});
+
 // GET /api/v1/cardapio/meu/:id_local - Buscar cardápio do local
 router.get('/meu/:id_local', async (req, res, next) => {
   req.query.operacao = 'getMeuCardapio';

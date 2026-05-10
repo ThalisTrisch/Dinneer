@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/campo_de_texto.dart';
 import '../service/usuario/UsuarioService.dart';
-import 'package:dinneer/service/sessao/SessionService.dart';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -25,6 +24,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
   final _cpfController = TextEditingController();
 
   File? _imagemSelecionada;
+
+  bool _emailPermitido(String email) {
+    final regex = RegExp(r'^[^\s@]+@[^\s@]+$');
+    return regex.hasMatch(email.trim());
+  }
 
   // Seleciona e PADRONIZA a imagem
   Future<void> _escolherImagem() async {
@@ -72,10 +76,21 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _proximaEtapa() {
-    if (_emailController.text.isEmpty || _senhaController.text.isEmpty) {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty || _senhaController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Preencha email e senha.')));
+      return;
+    }
+    if (!_emailPermitido(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Informe um email com @ e domínio.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
       return;
     }
     if (_senhaController.text == _confirmarSenhaController.text) {
@@ -148,10 +163,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _mostrarErro(String mensagem) {
-    if (mounted)
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(mensagem), backgroundColor: Colors.redAccent),
       );
+    }
   }
 
   @override

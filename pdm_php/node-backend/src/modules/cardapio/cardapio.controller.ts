@@ -23,6 +23,16 @@ export class CardapioController {
           await cardapioService.getCardapiosDisponiveis();
           break;
 
+        case 'getCardapiosPorCategoria':
+          const categoria = req.query.categoria as string || req.body.categoria;
+          if (!categoria) throw new Error('categoria não informada');
+          await cardapioService.getCardapiosPorCategoria(categoria);
+          break;
+
+        case 'getCategorias':
+          await cardapioService.getCategorias();
+          break;
+
         case 'createJantar':
         case 'createJantarCompleto':
           const createData = {
