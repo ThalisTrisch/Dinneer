@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../service/chat/chat_service.dart';
 import '../service/sessao/SessionService.dart';
+import '../service/notification/notification_service.dart';
 
 class TelaChat extends StatefulWidget {
   final int encontroId;
@@ -17,7 +18,7 @@ class TelaChat extends StatefulWidget {
   State<TelaChat> createState() => _TelaChatState();
 }
 
-class _TelaChatState extends State<TelaChat> {
+class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
   final ChatService _chatService = ChatService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -28,7 +29,15 @@ class _TelaChatState extends State<TelaChat> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadUserData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _userId != null) {
+      _chatService.markAsRead(widget.encontroId, _userId!);
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -40,6 +49,10 @@ class _TelaChatState extends State<TelaChat> {
           _userId = dadosUsuario['id_usuario']?.toString();
           _userName = dadosUsuario['nm_usuario'] ?? 'Usuário';
         });
+
+        if (_userId != null) {
+          _chatService.markAsRead(widget.encontroId, _userId!);
+        }
       }
     } catch (erro) {
       debugPrint('Erro ao carregar dados do usuário: $erro');
@@ -68,6 +81,13 @@ class _TelaChatState extends State<TelaChat> {
         senderId: _userId!,
         senderName: _userName!,
         text: textoMensagem,
+      );
+
+      NotificationService.sendChatNotification(
+        encontroId: widget.encontroId,
+        senderId: _userId!,
+        senderName: _userName!,
+        messageText: textoMensagem,
       );
 
       // Scroll para o final após enviar mensagem
@@ -300,6 +320,7 @@ class _TelaChatState extends State<TelaChat> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
