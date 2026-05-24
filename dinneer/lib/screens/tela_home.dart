@@ -66,7 +66,7 @@ class _TelaHomeState extends State<TelaHome> {
       return dados
           .map((item) {
             if (item is Map<String, dynamic>) {
-              return item['categoria']?.toString() ?? '';
+              return item['nm_categoria']?.toString() ?? '';
             }
             return item.toString();
           })

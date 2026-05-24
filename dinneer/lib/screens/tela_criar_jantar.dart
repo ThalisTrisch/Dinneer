@@ -30,6 +30,25 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   TimeOfDay? _horaSelecionada;
   File? _imagemSelecionada;
   bool _estaCarregando = false;
+  String? _categoriaSelecionada;
+  late Future<List<String>> _categoriasFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriasFuture = _carregarCategorias();
+  }
+
+  Future<List<String>> _carregarCategorias() async {
+    try {
+      final res = await CardapioService.getCategorias();
+      if (res == null || res['dados'] == null) return [];
+      final list = res['dados'] as List;
+      return list.map<String>((e) => e['nm_categoria'] as String).toList();
+    } catch (_) {
+      return [];
+    }
+  }
 
   Future<void> _escolherImagem() async {
     final ImagePicker picker = ImagePicker();
@@ -127,8 +146,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       'preco_refeicao': _precoController.text.replaceAll(',', '.'),
       'nu_max_convidados': _vagasController.text,
       'hr_encontro': dataHora.toIso8601String(),
-      'vl_foto': urlFoto ?? '', // Envia string vazia se não houver foto
+      'vl_foto': urlFoto ?? '',
       'id_local': widget.idLocalPreSelecionado.toString(),
+      if (_categoriaSelecionada != null) 'nm_categoria': _categoriaSelecionada!,
     };
 
     try {
@@ -218,6 +238,47 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
             CampoDeTextoCustomizado(
               controller: _descricaoController,
               dica: "Descrição",
+            ),
+            const SizedBox(height: 16),
+
+            const Text(
+              "Categoria",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            FutureBuilder<List<String>>(
+              future: _categoriasFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: snapshot.data!.map((cat) {
+                    final selecionado = _categoriaSelecionada == cat;
+                    return ChoiceChip(
+                      label: Text(cat),
+                      selected: selecionado,
+                      onSelected: (_) => setState(() {
+                        _categoriaSelecionada = selecionado ? null : cat;
+                      }),
+                      selectedColor: Colors.black,
+                      labelStyle: TextStyle(
+                        color: selecionado ? Colors.white : Colors.black87,
+                        fontSize: 13,
+                      ),
+                      backgroundColor: Colors.grey[200],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: selecionado ? Colors.black : Colors.grey.shade300,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
             ),
             const SizedBox(height: 12),
             Row(

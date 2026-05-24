@@ -46,6 +46,7 @@ export class CardapioController {
             nu_casa: req.body.nu_casa || null,
             vl_foto: req.body.vl_foto || null,
             id_local: req.body.id_local || null,
+            nm_categoria: req.body.nm_categoria || null,
           };
 
           // Validações
