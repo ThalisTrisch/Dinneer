@@ -117,11 +117,16 @@ class ChatService {
           .child(userId)
           .set(DateTime.now().millisecondsSinceEpoch);
 
+      // Reset notification counter so the next messages trigger FCM again
+      await _database
+          .child('unread_counts')
+          .child(encontroId.toString())
+          .child(userId)
+          .set(0);
+
       debugPrint('Mensagens marcadas como lidas para usuário $userId');
     } catch (e) {
       debugPrint('Erro ao marcar mensagens como lidas: $e');
-      // Não repassa o erro porque marcar como lido é uma operação
-      // secundária que não deve bloquear o fluxo principal
     }
   }
 }
