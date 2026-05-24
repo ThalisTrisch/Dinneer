@@ -8,7 +8,12 @@ dist/
 .env
 
 # Firebase service account key (NEVER commit this)
-serviceAccountKey.json
+dinneer-19ada-firebase-adminsdk-fbsvc-abd36b91f0.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!jest.config.js
 
 # Logs
 logs/
