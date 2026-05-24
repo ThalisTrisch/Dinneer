@@ -10,6 +10,30 @@ export class CardapioService extends BaseService {
     super(banco);
   }
 
+  private readonly categoriasComida = [
+    'Brasileira',
+    'Italiana',
+    'Japonesa',
+    'Mexicana',
+    'Árabe',
+    'Vegetariana',
+    'Churrasco',
+    'Massa',
+    'Doce',
+  ];
+
+  private readonly palavrasPorCategoria: Record<string, string[]> = {
+    brasileira: ['Brasileira', 'Brasileiro', 'Feijoada', 'Moqueca'],
+    italiana: ['Italiana', 'Italiano', 'Massa', 'Carbonara', 'Pizza'],
+    japonesa: ['Japonesa', 'Japones', 'Sushi', 'Sashimi', 'Temaki'],
+    mexicana: ['Mexicana', 'Mexicano', 'Taco', 'Burrito', 'Nachos'],
+    árabe: ['Árabe', 'Arabe', 'Kibe', 'Esfiha', 'Falafel'],
+    vegetariana: ['Vegetariana', 'Vegetariano', 'Veggie', 'Legumes'],
+    churrasco: ['Churrasco', 'Carne', 'Assado'],
+    massa: ['Massa', 'Macarrao', 'Macarrão', 'Pasta'],
+    doce: ['Doce', 'Sobremesa', 'Bolo', 'Torta'],
+  };
+
   /**
    * Busca um cardápio específico pelo ID
    */
@@ -65,6 +89,70 @@ export class CardapioService extends BaseService {
     if (result.rows.length === 0) {
       this.banco.setDados(0, []);
     }
+  }
+
+  /**
+   * Filtra cardápios disponíveis por categoria de comida.
+   * O schema local ainda não possui coluna/tabela de categoria, então a busca
+   * usa nome e descrição do cardápio mantendo o mesmo retorno da listagem.
+   */
+  async getCardapiosPorCategoria(categoria: string): Promise<void> {
+    const termoCategoria = categoria.trim();
+
+    if (!termoCategoria) {
+      this.banco.setDados(0, []);
+      return;
+    }
+
+    const chaveCategoria = termoCategoria.toLowerCase();
+    const palavrasBusca = this.palavrasPorCategoria[chaveCategoria] || [termoCategoria];
+    const filtros = palavrasBusca.map((palavra) => `%${palavra}%`);
+
+    const sql = `
+      SELECT 
+        c.id_usuario,
+        c.nm_usuario || ' ' || c.nm_sobrenome as nm_usuario_anfitriao,
+        c.vl_foto as vl_foto_usuario,
+        a.id_cardapio,
+        a.nm_cardapio,
+        a.ds_cardapio,
+        a.preco_refeicao,
+        a.vl_foto_cardapio,
+        d.hr_encontro,
+        d.nu_max_convidados,
+        d.id_encontro,
+        a.id_local,
+        b.nu_cep,
+        b.nu_casa,
+        (
+          SELECT COALESCE(SUM(1 + eu.nu_dependentes), 0)
+          FROM tb_encontro_usuario_dn eu
+          WHERE eu.id_encontro = d.id_encontro
+        ) as nu_convidados_confirmados
+      FROM tb_cardapio_dn a 
+      INNER JOIN tb_local_dn b ON a.id_local = b.id_local
+      INNER JOIN tb_usuario_dn c ON b.id_usuario = c.id_usuario
+      INNER JOIN tb_encontro_dn d ON b.id_local = d.id_local
+      WHERE d.hr_encontro > now()
+        AND (
+          a.nm_cardapio ILIKE ANY($1::text[])
+          OR a.ds_cardapio ILIKE ANY($1::text[])
+        )
+      ORDER BY d.hr_encontro ASC
+    `;
+
+    const result = await this.conexao.query(sql, [filtros]);
+
+    this.banco.setDados(result.rows.length, result.rows);
+
+    if (result.rows.length === 0) {
+      this.banco.setDados(0, []);
+    }
+  }
+
+  async getCategorias(): Promise<void> {
+    const dados = this.categoriasComida.map((categoria) => ({ categoria }));
+    this.banco.setDados(dados.length, dados);
   }
 
   /**

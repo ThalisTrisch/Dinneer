@@ -2,7 +2,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart'; // Importante
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'screens/tela_login.dart';
+
+// Top-level handler required by FCM for background/terminated state
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +31,8 @@ void main() async {
     // For mobile platforms (uses google-services.json / GoogleService-Info.plist)
     await Firebase.initializeApp();
   }
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await initializeDateFormatting('pt_BR', null);
 

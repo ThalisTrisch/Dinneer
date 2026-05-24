@@ -21,6 +21,18 @@ class CardapioService {
     return resposta;
   }
 
+  static Future<dynamic> getCardapiosPorCategoria(String categoria) async {
+    return await httpService.get(
+      endpoint,
+      "getCardapiosPorCategoria",
+      queryParams: {"categoria": categoria},
+    );
+  }
+
+  static Future<dynamic> getCategorias() async {
+    return await httpService.get(endpoint, "getCategorias");
+  }
+
   static Future<dynamic> updateJantar(Map<String, dynamic> dados) async {
     return await httpService.post(endpoint, "updateJantar", body: dados);
   }
