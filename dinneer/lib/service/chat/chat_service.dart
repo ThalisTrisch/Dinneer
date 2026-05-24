@@ -129,4 +129,37 @@ class ChatService {
       debugPrint('Erro ao marcar mensagens como lidas: $e');
     }
   }
+
+  /// Envia um emote em resposta a uma mensagem de outro usuário
+  ///
+  /// O emote é salvo dentro do nó chats/{encontroId}/emotes/
+  /// com uma chave gerada automaticamente pelo Firebase
+  Future<void> sendEmote({
+    required int encontroId,
+    required String messageId,
+    required String emote,
+    required String senderId,
+    required String senderName,
+  }) async {
+    try {
+      final emoteRef = _database
+          .child('chats')
+          .child(encontroId.toString())
+          .child('emotes')
+          .push();
+
+      await emoteRef.set({
+        'messageId': messageId,
+        'emote': emote,
+        'senderId': senderId,
+        'senderName': senderName,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      debugPrint('Emote "$emote" enviado com sucesso para mensagem $messageId');
+    } catch (e) {
+      debugPrint('Erro ao enviar emote: $e');
+      rethrow;
+    }
+  }
 }
