@@ -10,29 +10,6 @@ export class CardapioService extends BaseService {
     super(banco);
   }
 
-  private readonly categoriasComida = [
-    'Brasileira',
-    'Italiana',
-    'Japonesa',
-    'Mexicana',
-    'Árabe',
-    'Vegetariana',
-    'Churrasco',
-    'Massa',
-    'Doce',
-  ];
-
-  private readonly palavrasPorCategoria: Record<string, string[]> = {
-    brasileira: ['Brasileira', 'Brasileiro', 'Feijoada', 'Moqueca'],
-    italiana: ['Italiana', 'Italiano', 'Massa', 'Carbonara', 'Pizza'],
-    japonesa: ['Japonesa', 'Japones', 'Sushi', 'Sashimi', 'Temaki'],
-    mexicana: ['Mexicana', 'Mexicano', 'Taco', 'Burrito', 'Nachos'],
-    árabe: ['Árabe', 'Arabe', 'Kibe', 'Esfiha', 'Falafel'],
-    vegetariana: ['Vegetariana', 'Vegetariano', 'Veggie', 'Legumes'],
-    churrasco: ['Churrasco', 'Carne', 'Assado'],
-    massa: ['Massa', 'Macarrao', 'Macarrão', 'Pasta'],
-    doce: ['Doce', 'Sobremesa', 'Bolo', 'Torta'],
-  };
 
   /**
    * Busca um cardápio específico pelo ID
@@ -74,28 +51,23 @@ export class CardapioService extends BaseService {
           FROM tb_encontro_usuario_dn eu
           WHERE eu.id_encontro = d.id_encontro
         ) as nu_convidados_confirmados
-      FROM tb_cardapio_dn a 
+      FROM tb_cardapio_dn a
       INNER JOIN tb_local_dn b ON a.id_local = b.id_local
       INNER JOIN tb_usuario_dn c ON b.id_usuario = c.id_usuario
-      INNER JOIN tb_encontro_dn d ON b.id_local = d.id_local
+      INNER JOIN tb_encontro_dn d ON a.id_cardapio = d.id_cardapio
       WHERE d.hr_encontro > now()
       ORDER BY d.hr_encontro ASC
     `;
-    
+
     const result = await this.conexao.query(sql);
-    
+
     this.banco.setDados(result.rows.length, result.rows);
-    
+
     if (result.rows.length === 0) {
       this.banco.setDados(0, []);
     }
   }
 
-  /**
-   * Filtra cardápios disponíveis por categoria de comida.
-   * O schema local ainda não possui coluna/tabela de categoria, então a busca
-   * usa nome e descrição do cardápio mantendo o mesmo retorno da listagem.
-   */
   async getCardapiosPorCategoria(categoria: string): Promise<void> {
     const termoCategoria = categoria.trim();
 
@@ -104,12 +76,8 @@ export class CardapioService extends BaseService {
       return;
     }
 
-    const chaveCategoria = termoCategoria.toLowerCase();
-    const palavrasBusca = this.palavrasPorCategoria[chaveCategoria] || [termoCategoria];
-    const filtros = palavrasBusca.map((palavra) => `%${palavra}%`);
-
     const sql = `
-      SELECT 
+      SELECT
         c.id_usuario,
         c.nm_usuario || ' ' || c.nm_sobrenome as nm_usuario_anfitriao,
         c.vl_foto as vl_foto_usuario,
@@ -129,19 +97,17 @@ export class CardapioService extends BaseService {
           FROM tb_encontro_usuario_dn eu
           WHERE eu.id_encontro = d.id_encontro
         ) as nu_convidados_confirmados
-      FROM tb_cardapio_dn a 
+      FROM tb_cardapio_dn a
+      INNER JOIN tb_categoria_dn cat ON a.id_categoria = cat.id_categoria
       INNER JOIN tb_local_dn b ON a.id_local = b.id_local
       INNER JOIN tb_usuario_dn c ON b.id_usuario = c.id_usuario
-      INNER JOIN tb_encontro_dn d ON b.id_local = d.id_local
+      INNER JOIN tb_encontro_dn d ON a.id_cardapio = d.id_cardapio
       WHERE d.hr_encontro > now()
-        AND (
-          a.nm_cardapio ILIKE ANY($1::text[])
-          OR a.ds_cardapio ILIKE ANY($1::text[])
-        )
+        AND cat.nm_categoria ILIKE $1
       ORDER BY d.hr_encontro ASC
     `;
 
-    const result = await this.conexao.query(sql, [filtros]);
+    const result = await this.conexao.query(sql, [termoCategoria]);
 
     this.banco.setDados(result.rows.length, result.rows);
 
@@ -151,8 +117,9 @@ export class CardapioService extends BaseService {
   }
 
   async getCategorias(): Promise<void> {
-    const dados = this.categoriasComida.map((categoria) => ({ categoria }));
-    this.banco.setDados(dados.length, dados);
+    const sql = 'SELECT id_categoria, nm_categoria FROM tb_categoria_dn ORDER BY nm_categoria';
+    const result = await this.conexao.query(sql);
+    this.banco.setDados(result.rows.length, result.rows);
   }
 
   /**
@@ -170,6 +137,7 @@ export class CardapioService extends BaseService {
     nu_casa?: string;
     vl_foto?: string;
     id_local?: number | string;
+    nm_categoria?: string;
   }): Promise<void> {
     try {
       await this.conexao.query('BEGIN');
@@ -198,6 +166,18 @@ export class CardapioService extends BaseService {
         await this.conexao.query(sqlLocal, [idLocal, dados.id_usuario, dados.nu_cep, dados.nu_casa]);
       }
 
+      // Resolve id_categoria se fornecido
+      let idCategoria: number | null = null;
+      if (dados.nm_categoria) {
+        const resCategoria = await this.conexao.query(
+          'SELECT id_categoria FROM tb_categoria_dn WHERE nm_categoria ILIKE $1',
+          [dados.nm_categoria]
+        );
+        if (resCategoria.rows.length > 0) {
+          idCategoria = resCategoria.rows[0].id_categoria;
+        }
+      }
+
       // Cria cardápio
       const sqlSeqC = 'SELECT id_sequence FROM tb_sequence_dn ORDER BY id_sequence DESC LIMIT 1';
       const resSeqC = await this.conexao.query(sqlSeqC);
@@ -206,8 +186,8 @@ export class CardapioService extends BaseService {
       await this.conexao.query('INSERT INTO tb_sequence_dn (id_sequence, nm_sequence) VALUES ($1, $2)', [idCardapio, 'C']);
 
       const sqlCard = `
-        INSERT INTO tb_cardapio_dn (id_cardapio, id_local, nm_cardapio, ds_cardapio, preco_refeicao, vl_foto_cardapio) 
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO tb_cardapio_dn (id_cardapio, id_local, nm_cardapio, ds_cardapio, preco_refeicao, vl_foto_cardapio, id_categoria)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
       `;
       await this.conexao.query(sqlCard, [
         idCardapio,
@@ -215,7 +195,8 @@ export class CardapioService extends BaseService {
         dados.nm_cardapio,
         dados.ds_cardapio,
         dados.preco_refeicao,
-        dados.vl_foto && dados.vl_foto.trim() !== '' ? dados.vl_foto : null
+        dados.vl_foto && dados.vl_foto.trim() !== '' ? dados.vl_foto : null,
+        idCategoria,
       ]);
 
       // Cria encontro
