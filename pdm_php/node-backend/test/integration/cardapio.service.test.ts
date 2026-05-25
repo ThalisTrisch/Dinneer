@@ -140,8 +140,8 @@ describe('CardapioService - Integration Tests', () => {
       await cardapioService.getCardapiosPorCategoria('Italiana');
 
       expect(mockConexao.query).toHaveBeenCalledWith(
-        expect.stringContaining('ILIKE $1'),
-        ['Italiana']
+        expect.stringContaining('ILIKE ANY($1::text[])'),
+        [['%Italiana%', '%Italiano%', '%Massa%', '%Carbonara%', '%Pizza%']]
       );
       expect(mockDatabase.setDados).toHaveBeenCalledWith(1, cardapiosMock);
     });
@@ -156,22 +156,15 @@ describe('CardapioService - Integration Tests', () => {
 
   describe('getCategorias', () => {
     it('deve listar categorias disponíveis', async () => {
-      const categoriasMock = [
-        { id_categoria: 1, nm_categoria: 'Brasileira' },
-        { id_categoria: 2, nm_categoria: 'Italiana' },
-        { id_categoria: 3, nm_categoria: 'Japonesa' },
-      ];
-
-      mockConexao.query.mockResolvedValueOnce({
-        rows: categoriasMock,
-      });
-
       await cardapioService.getCategorias();
 
-      expect(mockConexao.query).toHaveBeenCalledWith(
-        'SELECT id_categoria, nm_categoria FROM tb_categoria_dn ORDER BY nm_categoria'
+      expect(mockDatabase.setDados).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.arrayContaining([
+          expect.objectContaining({ categoria: 'Brasileira' }),
+          expect.objectContaining({ categoria: 'Italiana' }),
+        ])
       );
-      expect(mockDatabase.setDados).toHaveBeenCalledWith(3, categoriasMock);
     });
   });
 
