@@ -30,24 +30,6 @@ CREATE TABLE IF NOT EXISTS tb_local_dn (
     FOREIGN KEY (id_usuario) REFERENCES tb_usuario_dn(id_usuario) ON DELETE CASCADE
 );
 
--- Tabela de categorias de comida
-CREATE TABLE IF NOT EXISTS tb_categoria_dn (
-    id_categoria SERIAL PRIMARY KEY,
-    nm_categoria VARCHAR(50) NOT NULL UNIQUE
-);
-
-INSERT INTO tb_categoria_dn (nm_categoria) VALUES
-    ('Brasileira'),
-    ('Italiana'),
-    ('Japonesa'),
-    ('Mexicana'),
-    ('Árabe'),
-    ('Vegetariana'),
-    ('Churrasco'),
-    ('Massa'),
-    ('Doce')
-ON CONFLICT (nm_categoria) DO NOTHING;
-
 -- Tabela de cardápios
 CREATE TABLE IF NOT EXISTS tb_cardapio_dn (
     id_cardapio INTEGER PRIMARY KEY,
@@ -56,7 +38,6 @@ CREATE TABLE IF NOT EXISTS tb_cardapio_dn (
     ds_cardapio TEXT NOT NULL,
     preco_refeicao DECIMAL(10,2) NOT NULL,
     vl_foto_cardapio VARCHAR(255),
-    id_categoria INTEGER REFERENCES tb_categoria_dn(id_categoria),
     FOREIGN KEY (id_local) REFERENCES tb_local_dn(id_local) ON DELETE CASCADE
 );
 
