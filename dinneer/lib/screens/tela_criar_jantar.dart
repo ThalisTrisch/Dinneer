@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/storage/StorageService.dart';
 
@@ -130,12 +131,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
       if (res != null && (res['registros'] == 1 || res['dados'] != null)) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Jantar publicado!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Jantar publicado!");
           Navigator.pop(context, true);
         }
       } else {
@@ -149,10 +145,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   }
 
   void _mostrarErro(String msg) {
-    if (mounted)
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted) Mensagens.erro(context, msg);
   }
 
   @override

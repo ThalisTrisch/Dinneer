@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/refeicao/Cardapio.dart';
 import '../service/storage/StorageService.dart';
@@ -94,9 +95,7 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
 
       if (res != null && (res['registros'] == 1 || res['dados'] != null)) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Jantar atualizado!")));
+          Mensagens.neutra(context, "Jantar atualizado!");
           Navigator.pop(
             context,
             true,
@@ -106,10 +105,7 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
         throw Exception("Erro no servidor.");
       }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.red),
-        );
+      if (mounted) Mensagens.erro(context, "Erro: $e");
     } finally {
       if (mounted) setState(() => _estaCarregando = false);
     }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../widgets/mensagens.dart';
 import '../service/usuario/UsuarioService.dart';
 import '../service/storage/StorageService.dart';
 import 'cadastro/components/etapa_credenciais.dart';
@@ -67,9 +68,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty || _senhaController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Preencha email e senha.')));
+      Mensagens.neutra(context, 'Preencha email e senha.');
       return;
     }
     if (!_emailPermitido(email)) {
@@ -130,12 +129,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
       if (resposta != null &&
           (resposta['dados'] != null || resposta['Mensagem'] == 'Sucesso')) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Cadastro realizado com sucesso."),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Cadastro realizado com sucesso.");
           Navigator.of(context).pop();
         }
       } else {

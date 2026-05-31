@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
 import '../service/local/LocalService.dart';
 
 class TelaCriarLocal extends StatefulWidget {
@@ -20,9 +21,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
 
   void _criarLocal() async {
     if (_cepController.text.isEmpty || _numeroController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("CEP e Número são obrigatórios.")),
-      );
+      Mensagens.neutra(context, "CEP e Número são obrigatórios.");
       return;
     }
 
@@ -42,12 +41,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
       // Verifica sucesso
       if (res != null && (res['registros'] == 1 || (res['dados'] != null))) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Local adicionado!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Local adicionado!");
           Navigator.pop(context, true); // Retorna true para atualizar a lista
         }
       } else {
@@ -61,10 +55,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
   }
 
   void _mostrarErro(String msg) {
-    if (mounted)
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted) Mensagens.erro(context, msg);
   }
 
   @override

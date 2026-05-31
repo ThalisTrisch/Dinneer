@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/service/usuario/UsuarioService.dart';
 import 'package:dinneer/service/storage/StorageService.dart';
+import 'package:dinneer/widgets/mensagens.dart';
 
 import 'package:dinneer/screens/tela_criar_local.dart';
 
@@ -109,23 +110,13 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           fotoUrlAtual = novaUrl;
           _enviandoFoto = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Foto atualizada!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        Mensagens.sucesso(context, "Foto atualizada!");
       }
     } catch (e) {
       debugPrint("Erro upload: $e");
       if (mounted) {
         setState(() => _enviandoFoto = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Erro ao enviar foto."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        Mensagens.erro(context, "Erro ao enviar foto.");
       }
     }
   }
