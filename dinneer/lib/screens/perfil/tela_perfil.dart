@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/service/usuario/UsuarioService.dart';
+import 'package:dinneer/service/storage/StorageService.dart';
 
 import 'package:dinneer/screens/tela_criar_local.dart';
 
@@ -74,18 +73,18 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     }
   }
 
+  final StorageService _storage = StorageService();
+
   Future<void> _alterarFotoPerfil() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? imagem = await picker.pickImage(
-        source: ImageSource.gallery,
+      final imagem = await _storage.escolherImagem(
         imageQuality: 80,
         maxWidth: 1080,
       );
 
       if (imagem != null) {
         setState(() => _enviandoFoto = true);
-        await _uploadEAtualizarFoto(File(imagem.path));
+        await _uploadEAtualizarFoto(imagem);
       }
     } catch (e) {
       setState(() => _enviandoFoto = false);
@@ -94,26 +93,12 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
   Future<void> _uploadEAtualizarFoto(File imagem) async {
     try {
-      String nomeArquivo =
-          "perfil_${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = FirebaseStorage.instance.ref().child(
-        'perfis/$nomeArquivo',
+      String novaUrl = await _storage.uploadImagem(
+        imagem,
+        pasta: 'perfis',
+        prefixo: 'perfil',
+        timeout: const Duration(seconds: 15),
       );
-
-      final metadata = SettableMetadata(contentType: "image/jpeg");
-
-      UploadTask task = ref.putFile(imagem, metadata);
-
-      await task
-          .whenComplete(() {})
-          .timeout(
-            const Duration(seconds: 15),
-            onTimeout: () {
-              throw Exception("Tempo limite excedido.");
-            },
-          );
-
-      String novaUrl = await ref.getDownloadURL();
 
       if (idUsuario != null) {
         await UsuarioService.atualizarFotoPerfil(idUsuario!, novaUrl);
