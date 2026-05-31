@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:dinneer/widgets/campo_de_texto.dart';
+import 'package:dinneer/widgets/botao_primario.dart';
 import 'link_login.dart';
 
 /// Etapa 2 do cadastro: foto de perfil (opcional), nome, sobrenome e CPF,
@@ -69,29 +70,10 @@ class EtapaDadosPessoais extends StatelessWidget {
           dica: 'CPF (apenas números)',
         ),
         const SizedBox(height: 30),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: estaCarregando ? null : onCadastrar,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: estaCarregando
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(color: Colors.black),
-                  )
-                : const Text(
-                    'CADASTRAR',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-          ),
+        BotaoPrimario(
+          texto: 'CADASTRAR',
+          onPressed: onCadastrar,
+          estaCarregando: estaCarregando,
         ),
         const SizedBox(height: 24),
         const LinkLogin(),

@@ -72,23 +72,13 @@ class _TelaCadastroState extends State<TelaCadastro> {
       return;
     }
     if (!_emailPermitido(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Informe um email com @ e domínio.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      Mensagens.erro(context, 'Informe um email com @ e domínio.');
       return;
     }
     if (_senhaController.text == _confirmarSenhaController.text) {
       setState(() => _etapaAtual = 2);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('As senhas não coincidem.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      Mensagens.erro(context, 'As senhas não coincidem.');
     }
   }
 
@@ -145,11 +135,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _mostrarErro(String mensagem) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensagem), backgroundColor: Colors.redAccent),
-      );
-    }
+    if (mounted) Mensagens.erro(context, mensagem);
   }
 
   @override

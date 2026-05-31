@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../widgets/campo_de_texto.dart';
 import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/refeicao/Cardapio.dart';
 import '../service/storage/StorageService.dart';
@@ -162,22 +163,10 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
             ),
             const SizedBox(height: 12),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _estaCarregando ? null : _salvarAlteracoes,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _estaCarregando
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      "SALVAR ALTERAÇÕES",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            BotaoPrimario(
+              texto: "SALVAR ALTERAÇÕES",
+              onPressed: _salvarAlteracoes,
+              estaCarregando: _estaCarregando,
             ),
           ],
         ),

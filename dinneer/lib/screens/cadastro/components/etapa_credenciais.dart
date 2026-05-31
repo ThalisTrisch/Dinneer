@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:dinneer/widgets/campo_de_texto.dart';
+import 'package:dinneer/widgets/botao_primario.dart';
 import 'link_login.dart';
 
 /// Etapa 1 do cadastro: e-mail, senha e confirmação, com o botão "Continuar".
@@ -51,24 +52,7 @@ class EtapaCredenciais extends StatelessWidget {
           textoObscuro: true,
         ),
         const SizedBox(height: 30),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: onContinuar,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'CONTINUAR',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
+        BotaoPrimario(texto: 'CONTINUAR', onPressed: onContinuar),
         const SizedBox(height: 24),
         const LinkLogin(),
       ],
