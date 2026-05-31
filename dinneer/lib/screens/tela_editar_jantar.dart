@@ -6,6 +6,7 @@ import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/refeicao/Cardapio.dart';
 import '../service/storage/StorageService.dart';
+import 'criar_jantar/components/seletor_imagem.dart';
 
 class TelaEditarJantar extends StatefulWidget {
   final Cardapio jantar;
@@ -125,31 +126,10 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: _escolherImagem,
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                  image: _novaImagem != null
-                      ? DecorationImage(
-                          image: FileImage(_novaImagem!),
-                          fit: BoxFit.cover,
-                        )
-                      : (widget.jantar.urlFoto != null
-                            ? DecorationImage(
-                                image: NetworkImage(widget.jantar.urlFoto!),
-                                fit: BoxFit.cover,
-                              )
-                            : null),
-                ),
-                child: (_novaImagem == null && widget.jantar.urlFoto == null)
-                    ? const Center(
-                        child: Icon(Icons.camera_alt, color: Colors.grey),
-                      )
-                    : null,
-              ),
+            SeletorImagem(
+              imagemLocal: _novaImagem,
+              urlRede: widget.jantar.urlFoto,
+              onTocar: _escolherImagem,
             ),
             const SizedBox(height: 24),
             CampoDeTextoCustomizado(

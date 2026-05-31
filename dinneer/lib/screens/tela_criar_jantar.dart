@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../widgets/campo_de_texto.dart';
 import '../widgets/mensagens.dart';
 import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/storage/StorageService.dart';
+import 'criar_jantar/components/seletor_imagem.dart';
+import 'criar_jantar/components/seletores_data_hora.dart';
 
 class TelaCriarJantar extends StatefulWidget {
   final String idUsuario;
@@ -167,34 +168,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GestureDetector(
-              onTap: _escolherImagem,
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                  image: _imagemSelecionada != null
-                      ? DecorationImage(
-                          image: FileImage(_imagemSelecionada!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: _imagemSelecionada == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text(
-                            "Toque para adicionar foto",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      )
-                    : null,
-              ),
+            SeletorImagem(
+              imagemLocal: _imagemSelecionada,
+              onTocar: _escolherImagem,
             ),
             const SizedBox(height: 24),
 
@@ -227,32 +203,11 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
             ),
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selecionarData,
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(
-                      _dataSelecionada == null
-                          ? "Data"
-                          : DateFormat('dd/MM').format(_dataSelecionada!),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selecionarHora,
-                    icon: const Icon(Icons.access_time),
-                    label: Text(
-                      _horaSelecionada == null
-                          ? "Hora"
-                          : _horaSelecionada!.format(context),
-                    ),
-                  ),
-                ),
-              ],
+            SeletoresDataHora(
+              data: _dataSelecionada,
+              hora: _horaSelecionada,
+              onSelecionarData: _selecionarData,
+              onSelecionarHora: _selecionarHora,
             ),
 
             const SizedBox(height: 32),
