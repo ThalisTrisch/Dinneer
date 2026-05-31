@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/campo_de_texto.dart';
 import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/storage/StorageService.dart';
 
@@ -255,28 +256,10 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
             ),
 
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _estaCarregando ? null : _criarJantar,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _estaCarregando
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text(
-                      "PUBLICAR JANTAR",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            BotaoPrimario(
+              texto: "PUBLICAR JANTAR",
+              onPressed: _criarJantar,
+              estaCarregando: _estaCarregando,
             ),
           ],
         ),
