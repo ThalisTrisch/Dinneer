@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/campo_de_texto.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/refeicao/Cardapio.dart';
+import '../service/storage/StorageService.dart';
 
 class TelaEditarJantar extends StatefulWidget {
   final Cardapio jantar;
@@ -28,6 +27,8 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
   File? _novaImagem;
   bool _estaCarregando = false;
 
+  final StorageService _storage = StorageService();
+
   @override
   void initState() {
     super.initState();
@@ -49,26 +50,18 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
   }
 
   Future<void> _escolherImagem() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? imagem = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 70,
-    );
-    if (imagem != null) setState(() => _novaImagem = File(imagem.path));
+    final imagem = await _storage.escolherImagem(imageQuality: 70);
+    if (imagem != null) setState(() => _novaImagem = imagem);
   }
 
   Future<String> _uploadNovaImagem() async {
     if (_novaImagem == null) return widget.jantar.urlFoto ?? "";
 
-    String nomeArquivo =
-        "jantar_edit_${DateTime.now().millisecondsSinceEpoch}.jpg";
-    Reference ref = FirebaseStorage.instance.ref().child(
-      'jantares/$nomeArquivo',
+    return await _storage.uploadImagem(
+      _novaImagem!,
+      pasta: 'jantares',
+      prefixo: 'jantar_edit',
     );
-    final metadata = SettableMetadata(contentType: "image/jpeg");
-    UploadTask task = ref.putFile(_novaImagem!, metadata);
-    await task.whenComplete(() {});
-    return await ref.getDownloadURL();
   }
 
   void _salvarAlteracoes() async {

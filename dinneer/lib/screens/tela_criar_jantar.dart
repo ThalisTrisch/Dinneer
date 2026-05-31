@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/campo_de_texto.dart';
 import '../service/refeicao/cardapioService.dart';
+import '../service/storage/StorageService.dart';
 
 class TelaCriarJantar extends StatefulWidget {
   final String idUsuario;
@@ -31,16 +30,16 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   File? _imagemSelecionada;
   bool _estaCarregando = false;
 
+  final StorageService _storage = StorageService();
+
   Future<void> _escolherImagem() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? imagem = await picker.pickImage(
-        source: ImageSource.gallery,
+      final imagem = await _storage.escolherImagem(
         imageQuality: 80,
         maxWidth: 1080,
       );
       if (imagem != null) {
-        setState(() => _imagemSelecionada = File(imagem.path));
+        setState(() => _imagemSelecionada = imagem);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -49,17 +48,12 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
   Future<String?> _uploadImagemFirebase(File imagem) async {
     try {
-      String nomeArquivo =
-          "jantar_${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = FirebaseStorage.instance.ref().child(
-        'jantares/$nomeArquivo',
+      return await _storage.uploadImagem(
+        imagem,
+        pasta: 'jantares',
+        prefixo: 'jantar',
+        timeout: const Duration(seconds: 20),
       );
-      final metadata = SettableMetadata(contentType: "image/jpeg");
-
-      UploadTask task = ref.putFile(imagem, metadata);
-      await task.whenComplete(() {}).timeout(const Duration(seconds: 20));
-
-      return await ref.getDownloadURL();
     } catch (e) {
       return null;
     }
