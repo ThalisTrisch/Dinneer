@@ -48,39 +48,51 @@ class ChatService {
   /// Retorna um Stream de mensagens de um encontro
   ///
   /// Usa Stream para atualização em tempo real - quando qualquer usuário
-  /// envia uma mensagem, todos os participantes recebem automaticamente
+  /// envia uma mensagem, todos os participantes recebem automaticamente.
+  /// Os emotes de cada mensagem são associados pelo messageId.
   Stream<List<Message>> getMessages(int encontroId) {
     return _database
         .child('chats')
         .child(encontroId.toString())
-        .orderByChild('timestamp')
         .onValue
         .map((event) {
           final mensagens = <Message>[];
 
           try {
             if (event.snapshot.value != null) {
-              final dadosMensagens = Map<dynamic, dynamic>.from(
+              final dadosChat = Map<dynamic, dynamic>.from(
                 event.snapshot.value as Map,
               );
 
-              dadosMensagens.forEach((chave, valor) {
+              // Extrai os emotes do nó separado e agrupa por messageId
+              final Map<String, List<String>> emotesPorMensagem = {};
+              if (dadosChat.containsKey('emotes')) {
+                final dadosEmotes = Map<dynamic, dynamic>.from(dadosChat['emotes']);
+                dadosEmotes.forEach((chave, valor) {
+                  final emoteData = Map<dynamic, dynamic>.from(valor);
+                  final msgId = emoteData['messageId']?.toString() ?? '';
+                  final emote = emoteData['emote']?.toString() ?? '';
+                  if (msgId.isNotEmpty && emote.isNotEmpty) {
+                    emotesPorMensagem.putIfAbsent(msgId, () => []).add(emote);
+                  }
+                });
+              }
+
+              // Processa as mensagens ignorando o nó 'emotes'
+              dadosChat.forEach((chave, valor) {
+                if (chave == 'emotes') return; // pula o nó de emotes
                 try {
-                  mensagens.add(Message.fromJson(chave, valor));
+                  final emotesDaMensagem = emotesPorMensagem[chave.toString()] ?? [];
+                  mensagens.add(Message.fromJson(chave, valor, emotes: emotesDaMensagem));
                 } catch (e) {
                   debugPrint('Erro ao parsear mensagem $chave: $e');
-                  // Continua processando outras mensagens mesmo se uma falhar
                 }
               });
 
-              // Ordena por timestamp (mais recente primeiro) para exibir
-              // as mensagens mais novas no topo da lista
               mensagens.sort((a, b) => b.timestamp.compareTo(a.timestamp));
             }
           } catch (e) {
-            debugPrint(
-              'Erro ao processar mensagens do encontro $encontroId: $e',
-            );
+            debugPrint('Erro ao processar mensagens do encontro $encontroId: $e');
           }
 
           return mensagens;
@@ -131,10 +143,10 @@ class ChatService {
   /// com uma chave gerada automaticamente pelo Firebase
   Future<void> sendEmote({
     required int encontroId,
-    required String messageId,
     required String emote,
     required String senderId,
     required String senderName,
+    required String messageId,
   }) async {
     try {
       final emoteRef = _database

@@ -303,6 +303,9 @@ class _TelaChatState extends State<TelaChat> {
                       mensagem: mensagem,
                       ehMinhaMensagem: ehMinhaMensagem,
                       formatTime: _formatTime,
+                      userId: _userId,
+                      userName: _userName,
+                      encontroId: widget.encontroId,
                     );
                   },
                 );
@@ -400,11 +403,17 @@ class _MessageBubble extends StatefulWidget {
   final Message mensagem;
   final bool ehMinhaMensagem;
   final String Function(DateTime) formatTime;
+  final String? userId;
+  final String? userName;
+  final int encontroId;
 
   const _MessageBubble({
     required this.mensagem,
     required this.ehMinhaMensagem,
     required this.formatTime,
+    required this.userId,
+    required this.userName,
+    required this.encontroId,
   });
 
   @override
@@ -414,11 +423,116 @@ class _MessageBubble extends StatefulWidget {
 class _MessageBubbleState extends State<_MessageBubble> {
   // Controla se o botão de emote está visível para esta mensagem
   bool _mostrarEmote = false;
+  final ChatService _chatService = ChatService();
 
   void _toggleEmote() {
     setState(() {
       _mostrarEmote = !_mostrarEmote;
     });
+  }
+
+  /// Exibe o balão de seleção de emojis próximo ao botão de emote
+  void _showEmotePicker(BuildContext context) {
+    // Lista dos 4 emojis disponíveis: 2 na linha de cima, 2 na de baixo
+    const emojis = ['❤️', '😂', '😮', '👏'];
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent, // fundo transparente para parecer um balão flutuante
+      builder: (context) => GestureDetector(
+        // Fecha ao tocar fora do balão
+        onTap: () => Navigator.of(context).pop(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: widget.ehMinhaMensagem
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: widget.ehMinhaMensagem ? 60 : 0,
+                left: widget.ehMinhaMensagem ? 0 : 60,
+              ),
+              child: GestureDetector(
+                // Impede que o toque no balão feche o dialog
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Linha de cima: 2 emojis
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildEmojiItem(context, emojis[0]),
+                          const SizedBox(width: 4),
+                          _buildEmojiItem(context, emojis[1]),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      // Linha de baixo: 2 emojis
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildEmojiItem(context, emojis[2]),
+                          const SizedBox(width: 4),
+                          _buildEmojiItem(context, emojis[3]),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Constrói cada emoji clicável dentro do balão
+  Widget _buildEmojiItem(BuildContext context, String emoji) {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.of(context).pop(); // fecha o picker
+        setState(() => _mostrarEmote = false); // esconde o botão de emote
+
+        try {
+          await _chatService.sendEmote(
+            encontroId: widget.encontroId,
+            messageId: widget.mensagem.id,
+            emote: emoji,
+            senderId: widget.userId ?? '',
+            senderName: widget.userName ?? 'Usuário',
+          );
+        } catch (e) {
+          debugPrint('Erro ao enviar emote: $e');
+        }
+      },
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey[100],
+        ),
+        child: Center(
+          child: Text(emoji, style: const TextStyle(fontSize: 24)),
+        ),
+      ),
+    );
   }
 
   void _showImagePreview(String imageUrl) {
@@ -470,9 +584,13 @@ class _MessageBubbleState extends State<_MessageBubble> {
             : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Indicador fixo de emotes — aparece à esquerda das minhas mensagens
+          if (widget.ehMinhaMensagem && widget.mensagem.emotes.isNotEmpty)
+            _EmoteIndicator(emotes: widget.mensagem.emotes),
+
           // Botão de emote à esquerda (apenas para mensagens próprias)
           if (widget.ehMinhaMensagem && _mostrarEmote)
-            _EmoteButton(onTap: () {}),
+            _EmoteButton(onTap: () => _showEmotePicker(context)),
 
           // Balão da mensagem — GestureDetector captura o toque
           GestureDetector(
@@ -626,7 +744,11 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
           // Botão de emote à direita (apenas para mensagens de outros)
           if (!widget.ehMinhaMensagem && _mostrarEmote)
-            _EmoteButton(onTap: () {}),
+            _EmoteButton(onTap: () => _showEmotePicker(context)),
+
+          // Indicador fixo de emotes — aparece à direita das mensagens de outros
+          if (!widget.ehMinhaMensagem && widget.mensagem.emotes.isNotEmpty)
+            _EmoteIndicator(emotes: widget.mensagem.emotes),
         ],
       ),
     );
@@ -660,8 +782,68 @@ class _EmoteButton extends StatelessWidget {
             ],
           ),
           child: const Center(
-            child: Text('😊', style: TextStyle(fontSize: 16)),
+            child: Text('😶', style: TextStyle(fontSize: 16)),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Indicador fixo que exibe os emotes recebidos em uma mensagem.
+/// Aparece à esquerda das minhas mensagens e à direita das mensagens de outros.
+class _EmoteIndicator extends StatelessWidget {
+  final List<String> emotes;
+
+  const _EmoteIndicator({required this.emotes});
+
+  @override
+  Widget build(BuildContext context) {
+    // Agrupa emotes iguais e conta quantos de cada
+    final Map<String, int> contagem = {};
+    for (final emote in emotes) {
+      contagem[emote] = (contagem[emote] ?? 0) + 1;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: contagem.entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(entry.key, style: const TextStyle(fontSize: 14)),
+                  if (entry.value > 1) ...[
+                    const SizedBox(width: 2),
+                    Text(
+                      '${entry.value}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
