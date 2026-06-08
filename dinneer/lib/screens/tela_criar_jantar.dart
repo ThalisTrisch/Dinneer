@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
+import '../service/storage/StorageService.dart';
+import 'criar_jantar/components/seletor_imagem.dart';
+import 'criar_jantar/components/seletores_data_hora.dart';
 
 class TelaCriarJantar extends StatefulWidget {
   final String idUsuario;
@@ -31,16 +33,16 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   File? _imagemSelecionada;
   bool _estaCarregando = false;
 
+  final StorageService _storage = StorageService();
+
   Future<void> _escolherImagem() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? imagem = await picker.pickImage(
-        source: ImageSource.gallery,
+      final imagem = await _storage.escolherImagem(
         imageQuality: 80,
         maxWidth: 1080,
       );
       if (imagem != null) {
-        setState(() => _imagemSelecionada = File(imagem.path));
+        setState(() => _imagemSelecionada = imagem);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -49,17 +51,12 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
   Future<String?> _uploadImagemFirebase(File imagem) async {
     try {
-      String nomeArquivo =
-          "jantar_${DateTime.now().millisecondsSinceEpoch}.jpg";
-      Reference ref = FirebaseStorage.instance.ref().child(
-        'jantares/$nomeArquivo',
+      return await _storage.uploadImagem(
+        imagem,
+        pasta: 'jantares',
+        prefixo: 'jantar',
+        timeout: const Duration(seconds: 20),
       );
-      final metadata = SettableMetadata(contentType: "image/jpeg");
-
-      UploadTask task = ref.putFile(imagem, metadata);
-      await task.whenComplete(() {}).timeout(const Duration(seconds: 20));
-
-      return await ref.getDownloadURL();
     } catch (e) {
       return null;
     }
@@ -136,12 +133,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
       if (res != null && (res['registros'] == 1 || res['dados'] != null)) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Jantar publicado!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Jantar publicado!");
           Navigator.pop(context, true);
         }
       } else {
@@ -155,10 +147,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   }
 
   void _mostrarErro(String msg) {
-    if (mounted)
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted) Mensagens.erro(context, msg);
   }
 
   @override
@@ -179,34 +168,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GestureDetector(
-              onTap: _escolherImagem,
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                  image: _imagemSelecionada != null
-                      ? DecorationImage(
-                          image: FileImage(_imagemSelecionada!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: _imagemSelecionada == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text(
-                            "Toque para adicionar foto",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      )
-                    : null,
-              ),
+            SeletorImagem(
+              imagemLocal: _imagemSelecionada,
+              onTocar: _escolherImagem,
             ),
             const SizedBox(height: 24),
 
@@ -239,57 +203,18 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
             ),
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selecionarData,
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(
-                      _dataSelecionada == null
-                          ? "Data"
-                          : DateFormat('dd/MM').format(_dataSelecionada!),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selecionarHora,
-                    icon: const Icon(Icons.access_time),
-                    label: Text(
-                      _horaSelecionada == null
-                          ? "Hora"
-                          : _horaSelecionada!.format(context),
-                    ),
-                  ),
-                ),
-              ],
+            SeletoresDataHora(
+              data: _dataSelecionada,
+              hora: _horaSelecionada,
+              onSelecionarData: _selecionarData,
+              onSelecionarHora: _selecionarHora,
             ),
 
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _estaCarregando ? null : _criarJantar,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _estaCarregando
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text(
-                      "PUBLICAR JANTAR",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            BotaoPrimario(
+              texto: "PUBLICAR JANTAR",
+              onPressed: _criarJantar,
+              estaCarregando: _estaCarregando,
             ),
           ],
         ),

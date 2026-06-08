@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:dinneer/service/refeicao/Cardapio.dart';
 import 'package:dinneer/service/encontro/EncontroService.dart';
@@ -9,6 +8,12 @@ import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/service/refeicao/cardapioService.dart';
 import 'package:dinneer/screens/tela_editar_jantar.dart';
 import 'package:dinneer/widgets/modal_avaliacao.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/cabecalho_imagem.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/info_anfitriao.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/detalhes_adicionais.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/mapa_localizacao.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/barra_acoes_detalhes.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/modal_agendamento.dart';
 
 class TelaDetalhesJantar extends StatefulWidget {
   final Cardapio refeicao;
@@ -273,69 +278,40 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
-        final TextEditingController dependentesController =
-            TextEditingController();
-        return Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Agendamento",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                const Text("Quantas pessoas irão jantar com você?"),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: dependentesController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: "Número de convidados extras (0 se for só você)",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final int dependentes =
-                          int.tryParse(dependentesController.text) ?? 0;
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Enviando solicitação..."),
-                        ),
-                      );
-                      _realizarReserva(dependentes);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "ENVIAR SOLICITAÇÃO",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (_) => ModalAgendamento(
+        onEnviar: (dependentes) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Enviando solicitação...")),
+          );
+          _realizarReserva(dependentes);
+        },
+      ),
+    );
+  }
+
+  Future<void> _editarJantar() async {
+    final atualizou = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TelaEditarJantar(jantar: widget.refeicao),
+      ),
+    );
+    if (atualizou == true && mounted) Navigator.pop(context, true);
+  }
+
+  void _mostrarModalAvaliacao() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => ModalAvaliacao(
+        idUsuario: _idUsuarioLogado!,
+        idEncontro: widget.refeicao.idEncontro,
+        onAvaliacaoConcluida: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Obrigado pela avaliação!")),
+          );
+        },
+      ),
     );
   }
 
@@ -358,54 +334,23 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
             )
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: souOAnfitriao
-                  ? _buildBotoesAnfitriao()
-                  : _buildBotaoConvidado(estaLotado),
+              child: BarraAcoesDetalhes(
+                refeicao: widget.refeicao,
+                souOAnfitriao: souOAnfitriao,
+                estaLotado: estaLotado,
+                jaReservei: _jaReservei,
+                statusReserva: _statusReserva,
+                onEditar: _editarJantar,
+                onExcluir: _confirmarExclusao,
+                onCancelarReserva: _confirmarCancelamentoReserva,
+                onSolicitarReserva: () => _mostrarModalAgendamento(context),
+                onAvaliar: _mostrarModalAvaliacao,
+              ),
             ),
 
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            expandedHeight: 280.0,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            pinned: true,
-            stretch: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: ClipPath(
-                clipper: AppBarClipper(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    image:
-                        (widget.refeicao.urlFoto != null &&
-                            widget.refeicao.urlFoto!.isNotEmpty)
-                        ? DecorationImage(
-                            image: NetworkImage(widget.refeicao.urlFoto!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child:
-                      (widget.refeicao.urlFoto == null ||
-                          widget.refeicao.urlFoto!.isEmpty)
-                      ? const Icon(
-                          Icons.restaurant,
-                          size: 100,
-                          color: Colors.white,
-                        )
-                      : null,
-                ),
-              ),
-            ),
-            leading: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.8),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-          ),
+          CabecalhoImagemJantar(urlFoto: widget.refeicao.urlFoto),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -429,7 +374,10 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoUsuario(),
+                  InfoAnfitriao(
+                    nomeAnfitriao: widget.refeicao.nmUsuarioAnfitriao,
+                    urlFotoAnfitriao: widget.refeicao.urlFotoAnfitriao,
+                  ),
                   const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 16),
@@ -449,7 +397,7 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildDetalhesAdicionais(),
+                  DetalhesAdicionais(refeicao: widget.refeicao),
                   const SizedBox(height: 24),
                   const Text(
                     "Localização",
@@ -478,7 +426,10 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _buildMapa(),
+                  MapaLocalizacao(
+                    coordenadasFuture: _coordenadasFuture,
+                    nuCep: widget.refeicao.nuCep,
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -488,368 +439,4 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
       ),
     );
   }
-
-  Widget _buildBotoesAnfitriao() {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () async {
-              final atualizou = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      TelaEditarJantar(jantar: widget.refeicao),
-                ),
-              );
-              if (atualizou == true && mounted) Navigator.pop(context, true);
-            },
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              side: const BorderSide(color: Colors.black),
-            ),
-            child: const Text(
-              "EDITAR",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: _confirmarExclusao,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              "CANCELAR",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBotaoConvidado(bool estaLotado) {
-    final bool jantarJaPassou = widget.refeicao.hrEncontro.isBefore(
-      DateTime.now(),
-    );
-
-    if (_jaReservei) {
-      if (jantarJaPassou) {
-        return ElevatedButton(
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder: (_) => ModalAvaliacao(
-                idUsuario: _idUsuarioLogado!,
-                idEncontro: widget.refeicao.idEncontro,
-                onAvaliacaoConcluida: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Obrigado pela avaliação!")),
-                  );
-                },
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.amber,
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: const Text(
-            "AVALIAR EXPERIÊNCIA",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-        );
-      }
-
-      if (_statusReserva == 'P') {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade100,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: const [
-              Icon(Icons.access_time, color: Colors.orange, size: 30),
-              SizedBox(height: 8),
-              Text(
-                "Solicitação Pendente",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-              Text(
-                "Aguarde o anfitrião aceitar.",
-                style: TextStyle(fontSize: 12),
-              ),
-            ],
-          ),
-        );
-      }
-
-      return ElevatedButton(
-        onPressed: _confirmarCancelamentoReserva,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade50,
-          foregroundColor: Colors.red,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Colors.red),
-          ),
-          elevation: 0,
-        ),
-        child: const Text(
-          "CANCELAR RESERVA",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      );
-    }
-
-    if (jantarJaPassou) {
-      return ElevatedButton(
-        onPressed: null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: const Text(
-          "JANTAR ENCERRADO",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      );
-    }
-
-    return ElevatedButton(
-      onPressed: estaLotado ? null : () => _mostrarModalAgendamento(context),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: estaLotado ? Colors.grey : Colors.black,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-      ),
-      child: Text(
-        estaLotado ? 'JANTAR LOTADO' : 'SOLICITAR RESERVA',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
-    );
-  }
-
-  Widget _buildMapa() {
-    return FutureBuilder<LatLng?>(
-      future: _coordenadasFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            height: 250,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(color: Colors.black),
-            ),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          return Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_off, color: Colors.grey, size: 40),
-                const SizedBox(height: 8),
-                Text(
-                  "Endereço não localizado: ${widget.refeicao.nuCep}",
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          );
-        }
-        final coordenadas = snapshot.data!;
-        return Container(
-          height: 250,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: coordenadas,
-                initialZoom: 16.0,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-                ),
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.dinneer',
-                ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: coordenadas,
-                      width: 80,
-                      height: 80,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoUsuario() {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 26,
-          backgroundColor: Colors.grey[300],
-          backgroundImage:
-              (widget.refeicao.urlFotoAnfitriao != null &&
-                  widget.refeicao.urlFotoAnfitriao!.isNotEmpty)
-              ? NetworkImage(widget.refeicao.urlFotoAnfitriao!)
-              : null,
-          child:
-              (widget.refeicao.urlFotoAnfitriao == null ||
-                  widget.refeicao.urlFotoAnfitriao!.isEmpty)
-              ? const Icon(Icons.person, color: Colors.white)
-              : null,
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Anfitrião",
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-            Text(
-              widget.refeicao.nmUsuarioAnfitriao,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const Row(
-              children: [
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-                Icon(Icons.star, color: Colors.amber, size: 16),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetalhesAdicionais() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildInfoRow(Icons.calendar_today, widget.refeicao.dataFormatada),
-          Container(width: 1, height: 24, color: Colors.grey[300]),
-          _buildInfoRow(
-            Icons.people_alt_outlined,
-            '${widget.refeicao.nuConvidadosConfirmados}/${widget.refeicao.nuMaxConvidados} vagas',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.black87),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class AppBarClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    const curveHeight = 40.0;
-    path.moveTo(0, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height - curveHeight);
-    path.quadraticBezierTo(
-      size.width / 2,
-      size.height,
-      0,
-      size.height - curveHeight,
-    );
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dinneer/service/refeicao/cardapioService.dart';
 import 'package:flutter/material.dart';
 import '../service/refeicao/Cardapio.dart';
@@ -14,24 +16,64 @@ class TelaHome extends StatefulWidget {
 
 class _TelaHomeState extends State<TelaHome> {
   late Future<List<Cardapio>> _refeicoesFuture;
+  late Future<List<String>> _categoriasFuture;
+  final TextEditingController _buscaController = TextEditingController();
+  Timer? _buscaDebounce;
+  String? _categoriaSelecionada;
+  String _termoBusca = '';
 
   @override
   void initState() {
     super.initState();
     _refeicoesFuture = _carregarRefeicoes();
+    _categoriasFuture = _carregarCategorias();
+  }
+
+  @override
+  void dispose() {
+    _buscaDebounce?.cancel();
+    _buscaController.dispose();
+    super.dispose();
   }
 
   Future<List<Cardapio>> _carregarRefeicoes() async {
     try {
-      final resposta = await CardapioService.getCardapiosDisponiveis();
+      final resposta = _categoriaSelecionada == null
+          ? await CardapioService.getCardapiosDisponiveis()
+          : await CardapioService.getCardapiosPorCategoria(
+              _categoriaSelecionada!,
+            );
+
       if (resposta['dados'] != null) {
         final dados = List<dynamic>.from(resposta['dados']);
-        return dados.map((item) => Cardapio.fromMap(item)).toList();
+        final refeicoes = dados.map((item) => Cardapio.fromMap(item)).toList();
+        return _filtrarPorBusca(refeicoes);
       } else {
         return [];
       }
     } catch (e) {
       debugPrint("Erro ao carregar refeições: $e");
+      return [];
+    }
+  }
+
+  Future<List<String>> _carregarCategorias() async {
+    try {
+      final resposta = await CardapioService.getCategorias();
+      if (resposta['dados'] == null) return [];
+
+      final dados = List<dynamic>.from(resposta['dados']);
+      return dados
+          .map((item) {
+            if (item is Map<String, dynamic>) {
+              return item['categoria']?.toString() ?? '';
+            }
+            return item.toString();
+          })
+          .where((categoria) => categoria.isNotEmpty)
+          .toList();
+    } catch (e) {
+      debugPrint("Erro ao carregar categorias: $e");
       return [];
     }
   }
@@ -42,11 +84,56 @@ class _TelaHomeState extends State<TelaHome> {
     });
   }
 
+  void _selecionarCategoria(String? categoria) {
+    setState(() {
+      _categoriaSelecionada = categoria;
+      _refeicoesFuture = _carregarRefeicoes();
+    });
+  }
+
+  void _alterarBusca(String texto) {
+    _buscaDebounce?.cancel();
+    _buscaDebounce = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+
+      setState(() {
+        _termoBusca = texto.trim();
+        _refeicoesFuture = _carregarRefeicoes();
+      });
+    });
+  }
+
+  void _limparBusca() {
+    _buscaDebounce?.cancel();
+    _buscaController.clear();
+    setState(() {
+      _termoBusca = '';
+      _refeicoesFuture = _carregarRefeicoes();
+    });
+  }
+
+  List<Cardapio> _filtrarPorBusca(List<Cardapio> refeicoes) {
+    final termo = _termoBusca.toLowerCase();
+    if (termo.isEmpty) return refeicoes;
+
+    return refeicoes.where((refeicao) {
+      final camposBusca = [
+        refeicao.nmCardapio,
+        refeicao.dsCardapio,
+        refeicao.nmUsuarioAnfitriao,
+        refeicao.nuCep,
+        refeicao.nuCasa,
+        refeicao.precoFormatado,
+      ].join(' ').toLowerCase();
+
+      return camposBusca.contains(termo);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: RefreshIndicator(
         onRefresh: _atualizarLista,
         color: Colors.black,
@@ -96,7 +183,7 @@ class _TelaHomeState extends State<TelaHome> {
                         final refeicao = refeicoes[index];
                         return CardRefeicao(
                           refeicao: refeicao,
-                          onRecarregar: _atualizarLista, // <--- O PULO DO GATO
+                          onRecarregar: _atualizarLista,
                         );
                       },
                     );
@@ -112,10 +199,18 @@ class _TelaHomeState extends State<TelaHome> {
 
   Widget _buildSearchBar() {
     return TextField(
+      controller: _buscaController,
+      onChanged: _alterarBusca,
       decoration: InputDecoration(
         hintText: 'Buscar por prato, cidade...',
         hintStyle: TextStyle(color: Colors.grey[500]),
         prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+        suffixIcon: _buscaController.text.isEmpty
+            ? null
+            : IconButton(
+                icon: Icon(Icons.close, color: Colors.grey[500]),
+                onPressed: _limparBusca,
+              ),
         filled: true,
         fillColor: Colors.grey[100],
         border: OutlineInputBorder(
@@ -128,20 +223,48 @@ class _TelaHomeState extends State<TelaHome> {
   }
 
   Widget _buildFilterButtons() {
-    return Row(
-      children: [
-        _buildFilterChip('Data'),
-        const SizedBox(width: 8),
-        _buildFilterChip('Preço'),
-        const SizedBox(width: 8),
-        _buildFilterChip('Tipo'),
-      ],
+    return FutureBuilder<List<String>>(
+      future: _categoriasFuture,
+      builder: (context, snapshot) {
+        final categorias = snapshot.data ?? [];
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildFilterChip(
+                'Todos',
+                isSelected: _categoriaSelecionada == null,
+                onSelected: () => _selecionarCategoria(null),
+              ),
+              for (final categoria in categorias) ...[
+                const SizedBox(width: 8),
+                _buildFilterChip(
+                  categoria,
+                  isSelected: _categoriaSelecionada == categoria,
+                  onSelected: () => _selecionarCategoria(categoria),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    return Chip(
-      label: Text(label, style: const TextStyle(color: Colors.black54)),
+  Widget _buildFilterChip(
+    String label, {
+    required bool isSelected,
+    required VoidCallback onSelected,
+  }) {
+    return ChoiceChip(
+      label: Text(
+        label,
+        style: TextStyle(color: isSelected ? Colors.white : Colors.black54),
+      ),
+      selected: isSelected,
+      onSelected: (_) => onSelected(),
+      selectedColor: Colors.black,
       backgroundColor: Colors.grey[100],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       side: BorderSide.none,

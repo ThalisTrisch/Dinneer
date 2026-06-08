@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:dinneer/service/usuario/UsuarioService.dart';
 import 'package:dinneer/service/sessao/SessionService.dart'; // <--- Importante!
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import 'tela_cadastro.dart';
 import '../screens/tela_principal.dart';
+import '../service/notification/notification_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -51,6 +55,11 @@ class _TelaLoginState extends State<TelaLogin> {
             usuarioLogado,
           ); // Salva dados completos
           debugPrint('Sessão salva para o ID: $id');
+
+          await NotificationService.initialize(id.toString());
+          
+          // 🧪 TESTE: Enviar notificação de teste ao fazer login
+          _enviarNotificacaoTeste();
         }
         // ---------------------------------------
 
@@ -76,10 +85,39 @@ class _TelaLoginState extends State<TelaLogin> {
   }
 
   void _mostrarMensagemErro(String mensagem) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensagem), backgroundColor: Colors.redAccent),
-      );
+    if (mounted) Mensagens.erro(context, mensagem);
+  }
+
+  // 🧪 TESTE: Envia notificação local para testar o sistema
+  void _enviarNotificacaoTeste() async {
+    try {
+      debugPrint('🧪 Enviando notificação de teste...');
+      
+      // Aguarda 2 segundos para dar tempo do app inicializar
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Obtém o token FCM atual
+      final token = await FirebaseMessaging.instance.getToken();
+      debugPrint('🔑 FCM Token: $token');
+      
+      if (token != null) {
+        debugPrint('✅ Token FCM obtido com sucesso!');
+        debugPrint('📱 Notificações estão configuradas corretamente');
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Notificações configuradas! Token salvo no Firebase.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        debugPrint('❌ Não foi possível obter o token FCM');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao testar notificações: $e');
     }
   }
 
@@ -168,36 +206,10 @@ class _TelaLoginState extends State<TelaLogin> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _estaCarregando ? null : _fazerLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _estaCarregando
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.black,
-                              strokeWidth: 3,
-                            ),
-                          )
-                        : const Text(
-                            'LOGIN',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ),
+                BotaoPrimario(
+                  texto: 'LOGIN',
+                  onPressed: _fazerLogin,
+                  estaCarregando: _estaCarregando,
                 ),
                 const SizedBox(height: 40),
               ],

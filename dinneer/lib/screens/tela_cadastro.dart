@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
 import '../service/usuario/UsuarioService.dart';
-import 'package:dinneer/service/sessao/SessionService.dart';
+import '../service/storage/StorageService.dart';
+import 'cadastro/components/etapa_credenciais.dart';
+import 'cadastro/components/etapa_dados_pessoais.dart';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -24,20 +24,25 @@ class _TelaCadastroState extends State<TelaCadastro> {
   final _sobrenomeController = TextEditingController();
   final _cpfController = TextEditingController();
 
+  final StorageService _storage = StorageService();
+
   File? _imagemSelecionada;
+
+  bool _emailPermitido(String email) {
+    final regex = RegExp(r'^[^\s@]+@[^\s@]+$');
+    return regex.hasMatch(email.trim());
+  }
 
   // Seleciona e PADRONIZA a imagem
   Future<void> _escolherImagem() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? imagem = await picker.pickImage(
-        source: ImageSource.gallery,
+      final imagem = await _storage.escolherImagem(
         imageQuality: 80, // Qualidade 80%
         maxWidth: 1080, // Largura máxima HD
       );
       if (imagem != null) {
         setState(() {
-          _imagemSelecionada = File(imagem.path);
+          _imagemSelecionada = imagem;
         });
       }
     } catch (e) {
@@ -47,23 +52,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
 
   Future<String?> _uploadImagemFirebase(File imagem) async {
     try {
-      final String nomeArquivo = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-      final Reference ref = FirebaseStorage.instance.ref().child(
-        "perfis/$nomeArquivo",
+      return await _storage.uploadImagem(
+        imagem,
+        pasta: 'perfis',
+        prefixo: 'perfil',
       );
-
-      final metadata = SettableMetadata(contentType: "image/jpeg");
-
-      debugPrint("Iniciando upload da imagem para: perfis/$nomeArquivo");
-
-      final UploadTask task = ref.putFile(imagem, metadata);
-      final TaskSnapshot snap = await task.whenComplete(() {});
-
-      final String url = await snap.ref.getDownloadURL();
-
-      debugPrint("Upload concluído. URL: $url");
-
-      return url;
     } catch (e, stack) {
       debugPrint("ERRO CRÍTICO NO UPLOAD: $e");
       debugPrint(stack.toString());
@@ -72,21 +65,20 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _proximaEtapa() {
-    if (_emailController.text.isEmpty || _senhaController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Preencha email e senha.')));
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty || _senhaController.text.isEmpty) {
+      Mensagens.neutra(context, 'Preencha email e senha.');
+      return;
+    }
+    if (!_emailPermitido(email)) {
+      Mensagens.erro(context, 'Informe um email com @ e domínio.');
       return;
     }
     if (_senhaController.text == _confirmarSenhaController.text) {
       setState(() => _etapaAtual = 2);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('As senhas não coincidem.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      Mensagens.erro(context, 'As senhas não coincidem.');
     }
   }
 
@@ -127,12 +119,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
       if (resposta != null &&
           (resposta['dados'] != null || resposta['Mensagem'] == 'Sucesso')) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Cadastro realizado com sucesso."),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Cadastro realizado com sucesso.");
           Navigator.of(context).pop();
         }
       } else {
@@ -148,10 +135,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _mostrarErro(String mensagem) {
-    if (mounted)
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensagem), backgroundColor: Colors.redAccent),
-      );
+    if (mounted) Mensagens.erro(context, mensagem);
   }
 
   @override
@@ -181,154 +165,25 @@ class _TelaCadastroState extends State<TelaCadastro> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: _etapaAtual == 1 ? _buildEtapa1() : _buildEtapa2(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEtapa1() {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Icon(Icons.restaurant_menu, size: 80, color: Colors.black54),
-        const SizedBox(height: 20),
-        const Text(
-          'DINNEER',
-          style: TextStyle(
-            fontFamily: 'serif',
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-          ),
-        ),
-        const SizedBox(height: 40),
-        CampoDeTextoCustomizado(controller: _emailController, dica: 'Email'),
-        const SizedBox(height: 16),
-        CampoDeTextoCustomizado(
-          controller: _senhaController,
-          dica: 'Senha',
-          textoObscuro: true,
-        ),
-        const SizedBox(height: 16),
-        CampoDeTextoCustomizado(
-          controller: _confirmarSenhaController,
-          dica: 'Confirmar Senha',
-          textoObscuro: true,
-        ),
-        const SizedBox(height: 30),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _proximaEtapa,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'CONTINUAR',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        _buildLinkLogin(),
-      ],
-    );
-  }
-
-  Widget _buildEtapa2() {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.grey[200],
-              backgroundImage: _imagemSelecionada != null
-                  ? FileImage(_imagemSelecionada!)
-                  : null,
-              child: _imagemSelecionada == null
-                  ? Icon(Icons.person, size: 60, color: Colors.grey[400])
-                  : null,
-            ),
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.black,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: _escolherImagem,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 40),
-        CampoDeTextoCustomizado(controller: _nomeController, dica: 'Nome'),
-        const SizedBox(height: 16),
-        CampoDeTextoCustomizado(
-          controller: _sobrenomeController,
-          dica: 'Sobrenome',
-        ),
-        const SizedBox(height: 16),
-        CampoDeTextoCustomizado(
-          controller: _cpfController,
-          dica: 'CPF (apenas números)',
-        ),
-        const SizedBox(height: 30),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _estaCarregando ? null : _fazerCadastro,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: _estaCarregando
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(color: Colors.black),
+            child: _etapaAtual == 1
+                ? EtapaCredenciais(
+                    emailController: _emailController,
+                    senhaController: _senhaController,
+                    confirmarSenhaController: _confirmarSenhaController,
+                    onContinuar: _proximaEtapa,
                   )
-                : const Text(
-                    'CADASTRAR',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                : EtapaDadosPessoais(
+                    nomeController: _nomeController,
+                    sobrenomeController: _sobrenomeController,
+                    cpfController: _cpfController,
+                    imagemSelecionada: _imagemSelecionada,
+                    estaCarregando: _estaCarregando,
+                    onEscolherImagem: _escolherImagem,
+                    onCadastrar: _fazerCadastro,
                   ),
           ),
         ),
-        const SizedBox(height: 24),
-        _buildLinkLogin(),
-      ],
-    );
-  }
-
-  Widget _buildLinkLogin() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text('Já tem login? ', style: TextStyle(color: Colors.grey)),
-        GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: const Text(
-            'Entre',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
