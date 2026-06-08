@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import '../service/refeicao/cardapioService.dart';
 import '../service/refeicao/Cardapio.dart';
+import '../service/storage/StorageService.dart';
+import 'criar_jantar/components/seletor_imagem.dart';
 
 class TelaEditarJantar extends StatefulWidget {
   final Cardapio jantar;
@@ -28,6 +30,8 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
   File? _novaImagem;
   bool _estaCarregando = false;
 
+  final StorageService _storage = StorageService();
+
   @override
   void initState() {
     super.initState();
@@ -49,26 +53,18 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
   }
 
   Future<void> _escolherImagem() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? imagem = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 70,
-    );
-    if (imagem != null) setState(() => _novaImagem = File(imagem.path));
+    final imagem = await _storage.escolherImagem(imageQuality: 70);
+    if (imagem != null) setState(() => _novaImagem = imagem);
   }
 
   Future<String> _uploadNovaImagem() async {
     if (_novaImagem == null) return widget.jantar.urlFoto ?? "";
 
-    String nomeArquivo =
-        "jantar_edit_${DateTime.now().millisecondsSinceEpoch}.jpg";
-    Reference ref = FirebaseStorage.instance.ref().child(
-      'jantares/$nomeArquivo',
+    return await _storage.uploadImagem(
+      _novaImagem!,
+      pasta: 'jantares',
+      prefixo: 'jantar_edit',
     );
-    final metadata = SettableMetadata(contentType: "image/jpeg");
-    UploadTask task = ref.putFile(_novaImagem!, metadata);
-    await task.whenComplete(() {});
-    return await ref.getDownloadURL();
   }
 
   void _salvarAlteracoes() async {
@@ -101,9 +97,7 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
 
       if (res != null && (res['registros'] == 1 || res['dados'] != null)) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Jantar atualizado!")));
+          Mensagens.neutra(context, "Jantar atualizado!");
           Navigator.pop(
             context,
             true,
@@ -113,10 +107,7 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
         throw Exception("Erro no servidor.");
       }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro: $e"), backgroundColor: Colors.red),
-        );
+      if (mounted) Mensagens.erro(context, "Erro: $e");
     } finally {
       if (mounted) setState(() => _estaCarregando = false);
     }
@@ -135,31 +126,10 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            GestureDetector(
-              onTap: _escolherImagem,
-              child: Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                  image: _novaImagem != null
-                      ? DecorationImage(
-                          image: FileImage(_novaImagem!),
-                          fit: BoxFit.cover,
-                        )
-                      : (widget.jantar.urlFoto != null
-                            ? DecorationImage(
-                                image: NetworkImage(widget.jantar.urlFoto!),
-                                fit: BoxFit.cover,
-                              )
-                            : null),
-                ),
-                child: (_novaImagem == null && widget.jantar.urlFoto == null)
-                    ? const Center(
-                        child: Icon(Icons.camera_alt, color: Colors.grey),
-                      )
-                    : null,
-              ),
+            SeletorImagem(
+              imagemLocal: _novaImagem,
+              urlRede: widget.jantar.urlFoto,
+              onTocar: _escolherImagem,
             ),
             const SizedBox(height: 24),
             CampoDeTextoCustomizado(
@@ -173,22 +143,10 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
             ),
             const SizedBox(height: 12),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _estaCarregando ? null : _salvarAlteracoes,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _estaCarregando
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      "SALVAR ALTERAÇÕES",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            BotaoPrimario(
+              texto: "SALVAR ALTERAÇÕES",
+              onPressed: _salvarAlteracoes,
+              estaCarregando: _estaCarregando,
             ),
           ],
         ),

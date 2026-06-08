@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/campo_de_texto.dart';
+import '../widgets/mensagens.dart';
+import '../widgets/botao_primario.dart';
 import '../service/local/LocalService.dart';
 
 class TelaCriarLocal extends StatefulWidget {
@@ -20,9 +22,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
 
   void _criarLocal() async {
     if (_cepController.text.isEmpty || _numeroController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("CEP e Número são obrigatórios.")),
-      );
+      Mensagens.neutra(context, "CEP e Número são obrigatórios.");
       return;
     }
 
@@ -42,12 +42,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
       // Verifica sucesso
       if (res != null && (res['registros'] == 1 || (res['dados'] != null))) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Local adicionado!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+          Mensagens.sucesso(context, "Local adicionado!");
           Navigator.pop(context, true); // Retorna true para atualizar a lista
         }
       } else {
@@ -61,10 +56,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
   }
 
   void _mostrarErro(String msg) {
-    if (mounted)
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    if (mounted) Mensagens.erro(context, msg);
   }
 
   @override
@@ -107,25 +99,10 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
               dica: "CNPJ (Opcional)",
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _estaCarregando ? null : _criarLocal,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: _estaCarregando
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : const Text(
-                      "SALVAR LOCAL",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            BotaoPrimario(
+              texto: "SALVAR LOCAL",
+              onPressed: _criarLocal,
+              estaCarregando: _estaCarregando,
             ),
           ],
         ),
