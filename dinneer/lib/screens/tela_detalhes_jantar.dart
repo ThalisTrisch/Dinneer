@@ -14,6 +14,8 @@ import 'package:dinneer/screens/detalhes_jantar/components/detalhes_adicionais.d
 import 'package:dinneer/screens/detalhes_jantar/components/mapa_localizacao.dart';
 import 'package:dinneer/screens/detalhes_jantar/components/barra_acoes_detalhes.dart';
 import 'package:dinneer/screens/detalhes_jantar/components/modal_agendamento.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/distancia_usuario.dart';
+import 'package:dinneer/service/localizacao/localizacao_service.dart';
 
 class TelaDetalhesJantar extends StatefulWidget {
   final Cardapio refeicao;
@@ -32,6 +34,10 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
   String? _statusReserva;
   String _enderecoLegivel = "";
 
+  final LocalizacaoService _localizacaoService = LocalizacaoService();
+  LatLng? _posicaoUsuario;
+  double? _distanciaKm;
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +45,26 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
         "CEP: ${widget.refeicao.nuCep}, Nº ${widget.refeicao.nuCasa}";
     _coordenadasFuture = _buscarCoordenadasPrecisa();
     _carregarDadosIniciais();
+    _carregarDistancia();
+  }
+
+  /// Obtém a posição do usuário e calcula a distância até o jantar.
+  /// Se a localização não estiver disponível (permissão negada, etc.),
+  /// a tela segue normal — apenas sem mostrar a distância nem o pino azul.
+  Future<void> _carregarDistancia() async {
+    final posicao = await _localizacaoService.posicaoAtual();
+    if (posicao == null) return;
+
+    final coordenadasJantar = await _coordenadasFuture;
+    if (coordenadasJantar == null || !mounted) return;
+
+    setState(() {
+      _posicaoUsuario = posicao;
+      _distanciaKm = _localizacaoService.distanciaKm(
+        posicao,
+        coordenadasJantar,
+      );
+    });
   }
 
   Future<void> _carregarDadosIniciais() async {
@@ -425,10 +451,12 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                       ),
                     ],
                   ),
+                  DistanciaUsuario(distanciaKm: _distanciaKm),
                   const SizedBox(height: 16),
                   MapaLocalizacao(
                     coordenadasFuture: _coordenadasFuture,
                     nuCep: widget.refeicao.nuCep,
+                    posicaoUsuario: _posicaoUsuario,
                   ),
                   const SizedBox(height: 20),
                 ],
