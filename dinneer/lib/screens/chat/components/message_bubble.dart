@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:dinneer/models/message_model.dart';
+import 'package:dinneer/service/chat/chat_service.dart';
 import 'emote_button.dart';
 
 /// Balão de uma mensagem do chat (texto e/ou imagem).
@@ -12,11 +13,17 @@ import 'emote_button.dart';
 class MessageBubble extends StatefulWidget {
   final Message mensagem;
   final bool ehMinhaMensagem;
+  final String? userId;
+  final String? userName;
+  final int encontroId;
 
   const MessageBubble({
     super.key,
     required this.mensagem,
     required this.ehMinhaMensagem,
+    required this.encontroId,
+    this.userId,
+    this.userName,
   });
 
   @override
@@ -24,27 +31,20 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
-  // Controla se o botão de emote está visível para esta mensagem
   bool _mostrarEmote = false;
+  final ChatService _chatService = ChatService();
 
   void _toggleEmote() {
-    setState(() {
-      _mostrarEmote = !_mostrarEmote;
-    });
+    setState(() => _mostrarEmote = !_mostrarEmote);
   }
 
-  /// Formata o timestamp da mensagem de forma amigável.
-  ///
-  /// Se for hoje, mostra apenas a hora; se for outro dia, mostra data + hora.
   String _formatTime(DateTime timestamp) {
     final agora = DateTime.now();
     final diferenca = agora.difference(timestamp);
-
     if (diferenca.inDays > 0) {
       return '${timestamp.day}/${timestamp.month} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    } else {
-      return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
     }
+    return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
   void _showImagePreview(String imageUrl) {
@@ -59,10 +59,7 @@ class _MessageBubbleState extends State<MessageBubble> {
             InteractiveViewer(
               minScale: 0.5,
               maxScale: 4.0,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.contain,
-              ),
+              child: CachedNetworkImage(imageUrl: imageUrl, fit: BoxFit.contain),
             ),
             Positioned(
               top: 40,
@@ -78,30 +75,129 @@ class _MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+  void _showEmotePicker(BuildContext context) {
+    const emojis = ['❤️', '😂', '😮', '👏'];
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: widget.ehMinhaMensagem
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Padding(
+              padding: EdgeInsets.only(
+                right: widget.ehMinhaMensagem ? 60 : 0,
+                left: widget.ehMinhaMensagem ? 0 : 60,
+              ),
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildEmojiItem(context, emojis[0]),
+                          const SizedBox(width: 4),
+                          _buildEmojiItem(context, emojis[1]),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildEmojiItem(context, emojis[2]),
+                          const SizedBox(width: 4),
+                          _buildEmojiItem(context, emojis[3]),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmojiItem(BuildContext context, String emoji) {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.of(context).pop();
+        setState(() => _mostrarEmote = false);
+        try {
+          await _chatService.sendEmote(
+            encontroId: widget.encontroId,
+            messageId: widget.mensagem.id,
+            emote: emoji,
+            senderId: widget.userId ?? '',
+            senderName: widget.userName ?? 'Usuário',
+          );
+        } catch (e) {
+          debugPrint('Erro ao enviar emote: $e');
+        }
+      },
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey[100],
+        ),
+        child: Center(
+          child: Text(emoji, style: const TextStyle(fontSize: 24)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool temImagem =
         widget.mensagem.imageUrl != null &&
         widget.mensagem.imageUrl!.isNotEmpty;
     final bool temTexto = widget.mensagem.text.isNotEmpty;
+    final bool temEmotes = widget.mensagem.emotes.isNotEmpty;
 
     return Align(
       alignment: widget.ehMinhaMensagem
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Row(
-        // Balões próprios ficam à direita, então o emote fica antes (esquerda)
-        // Balões de outros ficam à esquerda, então o emote fica depois (direita)
         mainAxisAlignment: widget.ehMinhaMensagem
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Botão de emote à esquerda (apenas para mensagens próprias)
-          if (widget.ehMinhaMensagem && _mostrarEmote)
-            EmoteButton(onTap: () {}),
+          // Indicador de emotes à esquerda (minhas mensagens)
+          if (widget.ehMinhaMensagem && temEmotes)
+            _EmoteIndicator(emotes: widget.mensagem.emotes),
 
-          // Balão da mensagem — GestureDetector captura o toque
+          // Botão para abrir o picker (minhas mensagens — lado esquerdo)
+          if (widget.ehMinhaMensagem && _mostrarEmote)
+            EmoteButton(onTap: () => _showEmotePicker(context)),
+
+          // Balão da mensagem
           GestureDetector(
             onTap: !widget.ehMinhaMensagem ? _toggleEmote : null,
             child: Container(
@@ -128,7 +224,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Imagem (se houver)
+                  // Imagem
                   if (temImagem) ...[
                     GestureDetector(
                       onTap: () => _showImagePreview(widget.mensagem.imageUrl!),
@@ -136,29 +232,21 @@ class _MessageBubbleState extends State<MessageBubble> {
                           ? Image.network(
                               widget.mensagem.imageUrl!,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
                                 return Container(
                                   height: 150,
                                   color: Colors.grey[300],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
+                                  child: const Center(child: CircularProgressIndicator()),
                                 );
                               },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 100,
-                                  color: Colors.grey[400],
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  ),
-                                );
-                              },
+                              errorBuilder: (context, error, _) => Container(
+                                height: 100,
+                                color: Colors.grey[400],
+                                child: const Center(
+                                  child: Icon(Icons.broken_image, color: Colors.white, size: 40),
+                                ),
+                              ),
                             )
                           : CachedNetworkImage(
                               imageUrl: widget.mensagem.imageUrl!,
@@ -167,35 +255,24 @@ class _MessageBubbleState extends State<MessageBubble> {
                               placeholder: (context, url) => Container(
                                 height: 150,
                                 color: Colors.grey[300],
-                                child: const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
+                                child: const Center(child: CircularProgressIndicator()),
                               ),
                               errorWidget: (context, url, error) => Container(
                                 height: 100,
                                 color: Colors.grey[400],
                                 child: const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
+                                  child: Icon(Icons.broken_image, color: Colors.white, size: 40),
                                 ),
                               ),
                             ),
                     ),
                     if (temTexto) const SizedBox(height: 8),
                   ],
-                  // Conteúdo de texto
+                  // Texto
                   if (temTexto || !temImagem)
                     Padding(
                       padding: temImagem
-                          ? const EdgeInsets.only(
-                              left: 12,
-                              right: 12,
-                              top: 8,
-                              bottom: 4,
-                            )
+                          ? const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4)
                           : EdgeInsets.zero,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,23 +291,17 @@ class _MessageBubbleState extends State<MessageBubble> {
                           Text(
                             widget.mensagem.text,
                             style: TextStyle(
-                              color: widget.ehMinhaMensagem
-                                  ? Colors.white
-                                  : Colors.black87,
+                              color: widget.ehMinhaMensagem ? Colors.white : Colors.black87,
                               fontSize: 15,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  // Nome do remetente para mensagens só de imagem
+                  // Nome do remetente em mensagens só de imagem
                   if (!widget.ehMinhaMensagem && temImagem && !temTexto)
                     Padding(
-                      padding: const EdgeInsets.only(
-                        left: 12,
-                        right: 12,
-                        top: 8,
-                      ),
+                      padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
                       child: Text(
                         widget.mensagem.senderName,
                         style: const TextStyle(
@@ -243,19 +314,12 @@ class _MessageBubbleState extends State<MessageBubble> {
                   // Timestamp
                   Padding(
                     padding: temImagem
-                        ? const EdgeInsets.only(
-                            left: 12,
-                            right: 12,
-                            bottom: 8,
-                            top: 4,
-                          )
+                        ? const EdgeInsets.only(left: 12, right: 12, bottom: 8, top: 4)
                         : EdgeInsets.zero,
                     child: Text(
                       _formatTime(widget.mensagem.timestamp),
                       style: TextStyle(
-                        color: widget.ehMinhaMensagem
-                            ? Colors.white70
-                            : Colors.black54,
+                        color: widget.ehMinhaMensagem ? Colors.white70 : Colors.black54,
                         fontSize: 11,
                       ),
                     ),
@@ -265,10 +329,72 @@ class _MessageBubbleState extends State<MessageBubble> {
             ),
           ),
 
-          // Botão de emote à direita (apenas para mensagens de outros)
+          // Botão para abrir o picker (mensagens de outros — lado direito)
           if (!widget.ehMinhaMensagem && _mostrarEmote)
-            EmoteButton(onTap: () {}),
+            EmoteButton(onTap: () => _showEmotePicker(context)),
+
+          // Indicador de emotes à direita (mensagens de outros)
+          if (!widget.ehMinhaMensagem && temEmotes)
+            _EmoteIndicator(emotes: widget.mensagem.emotes),
         ],
+      ),
+    );
+  }
+}
+
+/// Exibe os emojis recebidos agrupados com contagem.
+class _EmoteIndicator extends StatelessWidget {
+  final List<String> emotes;
+
+  const _EmoteIndicator({required this.emotes});
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, int> contagem = {};
+    for (final emote in emotes) {
+      contagem[emote] = (contagem[emote] ?? 0) + 1;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: contagem.entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(entry.key, style: const TextStyle(fontSize: 14)),
+                  if (entry.value > 1) ...[
+                    const SizedBox(width: 2),
+                    Text(
+                      '${entry.value}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
