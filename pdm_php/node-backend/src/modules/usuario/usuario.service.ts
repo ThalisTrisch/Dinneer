@@ -11,6 +11,10 @@ export class UsuarioService extends BaseService {
     super(banco);
   }
 
+  private emailPermitido(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+$/.test(email.trim());
+  }
+
   /**
    * Login do usuário
    */
@@ -88,6 +92,10 @@ export class UsuarioService extends BaseService {
     vl_senha: string;
     vl_foto?: string | null;
   }): Promise<void> {
+    if (!this.emailPermitido(dados.vl_email)) {
+      throw new Error('Informe um email com @ e domínio.');
+    }
+
     // Verifica se já existe CPF ou Email
     const sqlCheck = `
       SELECT COUNT(*) as total 

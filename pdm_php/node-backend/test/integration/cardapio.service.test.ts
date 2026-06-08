@@ -111,6 +111,63 @@ describe('CardapioService - Integration Tests', () => {
     });
   });
 
+  describe('getCardapiosPorCategoria', () => {
+    it('deve filtrar cardápios disponíveis por categoria', async () => {
+      const cardapiosMock = [
+        {
+          id_usuario: 5,
+          nm_usuario_anfitriao: 'Maria Santos',
+          vl_foto_usuario: null,
+          id_cardapio: 1,
+          nm_cardapio: 'Jantar Italiano',
+          ds_cardapio: 'Massa caseira',
+          preco_refeicao: 50.00,
+          vl_foto_cardapio: null,
+          hr_encontro: '2026-12-31 19:00:00',
+          nu_max_convidados: 10,
+          id_encontro: 1,
+          id_local: 10,
+          nu_cep: '12345678',
+          nu_casa: '100',
+          nu_convidados_confirmados: 3,
+        },
+      ];
+
+      mockConexao.query.mockResolvedValueOnce({
+        rows: cardapiosMock,
+      });
+
+      await cardapioService.getCardapiosPorCategoria('Italiana');
+
+      expect(mockConexao.query).toHaveBeenCalledWith(
+        expect.stringContaining('ILIKE ANY($1::text[])'),
+        [['%Italiana%', '%Italiano%', '%Massa%', '%Carbonara%', '%Pizza%']]
+      );
+      expect(mockDatabase.setDados).toHaveBeenCalledWith(1, cardapiosMock);
+    });
+
+    it('deve retornar vazio quando categoria não tem termo', async () => {
+      await cardapioService.getCardapiosPorCategoria('   ');
+
+      expect(mockConexao.query).not.toHaveBeenCalled();
+      expect(mockDatabase.setDados).toHaveBeenCalledWith(0, []);
+    });
+  });
+
+  describe('getCategorias', () => {
+    it('deve listar categorias disponíveis', async () => {
+      await cardapioService.getCategorias();
+
+      expect(mockDatabase.setDados).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.arrayContaining([
+          expect.objectContaining({ categoria: 'Brasileira' }),
+          expect.objectContaining({ categoria: 'Italiana' }),
+        ])
+      );
+    });
+  });
+
   describe('createJantarCompleto', () => {
     it('deve criar jantar completo com local novo', async () => {
       // Arrange

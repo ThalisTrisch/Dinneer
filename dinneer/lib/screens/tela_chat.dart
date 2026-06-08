@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/message_model.dart';
 import '../service/chat/chat_service.dart';
 import '../service/sessao/SessionService.dart';
+import '../service/notification/notification_service.dart';
+import 'chat/components/message_bubble.dart';
+import 'chat/components/campo_mensagem.dart';
 
 import 'dart:io';
 
@@ -25,7 +27,7 @@ class TelaChat extends StatefulWidget {
   State<TelaChat> createState() => _TelaChatState();
 }
 
-class _TelaChatState extends State<TelaChat> {
+class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
   final ChatService _chatService = ChatService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -37,7 +39,15 @@ class _TelaChatState extends State<TelaChat> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadUserData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _userId != null) {
+      _chatService.markAsRead(widget.encontroId, _userId!);
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -49,6 +59,10 @@ class _TelaChatState extends State<TelaChat> {
           _userId = dadosUsuario['id_usuario']?.toString();
           _userName = dadosUsuario['nm_usuario'] ?? 'Usuário';
         });
+
+        if (_userId != null) {
+          _chatService.markAsRead(widget.encontroId, _userId!);
+        }
       }
     } catch (erro) {
       debugPrint('Erro ao carregar dados do usuário: $erro');
@@ -62,6 +76,20 @@ class _TelaChatState extends State<TelaChat> {
         );
       }
     }
+  }
+
+  /// Rola a lista para o final (topo, pois a lista é invertida) após enviar.
+  /// O pequeno delay aguarda a mensagem ser adicionada à lista.
+  void _rolarParaFinal() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _sendMessage() async {
@@ -79,17 +107,14 @@ class _TelaChatState extends State<TelaChat> {
         text: textoMensagem,
       );
 
-      // Scroll para o final após enviar mensagem
-      // Delay necessário para aguardar a mensagem ser adicionada à lista
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+      NotificationService.sendChatNotification(
+        encontroId: widget.encontroId,
+        senderId: _userId!,
+        senderName: _userName!,
+        messageText: textoMensagem,
+      );
+
+      _rolarParaFinal();
     } catch (erro) {
       debugPrint('Erro ao enviar mensagem: $erro');
 
@@ -160,7 +185,8 @@ class _TelaChatState extends State<TelaChat> {
       }
 
       // 2. Prepara o arquivo para upload
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${_userId}.jpg';
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_$_userId.jpg';
       final Reference storageRef = FirebaseStorage.instance
           .ref()
           .child('chat_images')
@@ -169,7 +195,7 @@ class _TelaChatState extends State<TelaChat> {
 
       // 3. Faz upload para o Firebase Storage
       late final UploadTask uploadTask;
-      
+
       if (kIsWeb) {
         // Na Web, usa putData com bytes
         final bytes = await pickedFile.readAsBytes();
@@ -186,7 +212,6 @@ class _TelaChatState extends State<TelaChat> {
       final TaskSnapshot snapshot = await uploadTask;
       final String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      print(downloadUrl);
       // 4. Envia a mensagem com a URL da imagem
       await _chatService.sendMessage(
         encontroId: widget.encontroId,
@@ -199,17 +224,7 @@ class _TelaChatState extends State<TelaChat> {
       // Remove o indicador de carregamento
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-        // Scroll para o final após enviar
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
+        _rolarParaFinal();
       }
     } catch (e) {
       debugPrint('Erro ao enviar imagem: $e');
@@ -259,19 +274,13 @@ class _TelaChatState extends State<TelaChat> {
                         const SizedBox(height: 16),
                         Text(
                           'Erro ao carregar mensagens',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${snapshot.error}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                         ),
                       ],
                     ),
@@ -299,7 +308,7 @@ class _TelaChatState extends State<TelaChat> {
                     final mensagem = listaMensagens[index];
                     final ehMinhaMensagem = mensagem.senderId == _userId;
 
-                    return _MessageBubble(
+                    return MessageBubble(
                       mensagem: mensagem,
                       ehMinhaMensagem: ehMinhaMensagem,
                       formatTime: _formatTime,
@@ -314,82 +323,19 @@ class _TelaChatState extends State<TelaChat> {
           ),
 
           // Campo de entrada
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, -1),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: 'Digite uma mensagem...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                    ),
-                    maxLines: null,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Colors.grey[600],
-                  child: IconButton(
-                    icon: const Icon(Icons.attachment, color: Colors.white),
-                    onPressed: _sendImage,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Colors.grey[800],
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _sendMessage,
-                  ),
-                ),
-              ],
-            ),
+          CampoMensagem(
+            controller: _messageController,
+            onEnviar: _sendMessage,
+            onAnexar: _sendImage,
           ),
         ],
       ),
     );
   }
 
-  /// Formata o timestamp da mensagem de forma amigável
-  ///
-  /// Se for hoje, mostra apenas a hora
-  /// Se for outro dia, mostra data + hora
-  String _formatTime(DateTime timestamp) {
-    final agora = DateTime.now();
-    final diferenca = agora.difference(timestamp);
-
-    if (diferenca.inDays > 0) {
-      return '${timestamp.day}/${timestamp.month} ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    } else {
-      return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
-    }
-  }
-
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();

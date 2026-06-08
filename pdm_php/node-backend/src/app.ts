@@ -6,6 +6,7 @@ import cardapioRoutes from './modules/cardapio/cardapio.routes';
 import encontroRoutes from './modules/encontro/encontro.routes';
 import avaliacaoRoutes from './modules/avaliacao/avaliacao.routes';
 import imagemRoutes from './modules/imagem/imagem.routes';
+import notificationRoutes from './modules/notification/notification.routes';
 
 /**
  * Configuração do Express App
@@ -68,6 +69,9 @@ export class App {
 
     // Rotas de imagem
     this.app.use('/api/v1/imagem', imagemRoutes);
+
+    // Rotas de notificação (FCM push notifications)
+    this.app.use('/api/v1/notification', notificationRoutes);
 
     // Rota 404
     this.app.use((req: Request, res: Response) => {

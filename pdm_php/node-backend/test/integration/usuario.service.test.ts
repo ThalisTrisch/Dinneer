@@ -67,7 +67,7 @@ describe('UsuarioService - Integration Tests', () => {
         nu_cpf: '12345678900',
         nm_usuario: 'João',
         nm_sobrenome: 'Silva',
-        vl_email: 'joao@email.com',
+        vl_email: 'joao@empresa',
         vl_senha: 'senha123',
       };
 
@@ -88,6 +88,21 @@ describe('UsuarioService - Integration Tests', () => {
       expect(senhaCriptografada).not.toBe('senha123');
       expect(senhaCriptografada).toBeTruthy();
       expect(typeof senhaCriptografada).toBe('string');
+    });
+
+    it('deve recusar email sem arroba', async () => {
+      const novoUsuario = {
+        nu_cpf: '12345678900',
+        nm_usuario: 'João',
+        nm_sobrenome: 'Silva',
+        vl_email: 'joaoemail.com',
+        vl_senha: 'senha123',
+      };
+
+      await expect(usuarioService.createUsuario(novoUsuario)).rejects.toThrow(
+        'Informe um email com @ e domínio.'
+      );
+      expect(mockConexao.query).not.toHaveBeenCalled();
     });
   });
 
