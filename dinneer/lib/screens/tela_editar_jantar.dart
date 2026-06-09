@@ -52,6 +52,17 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
     _horaSelecionada = TimeOfDay.fromDateTime(widget.jantar.hrEncontro);
   }
 
+  @override
+  void dispose() {
+    _tituloController.dispose();
+    _descricaoController.dispose();
+    _precoController.dispose();
+    _vagasController.dispose();
+    _cepController.dispose();
+    _numeroController.dispose();
+    super.dispose();
+  }
+
   Future<void> _escolherImagem() async {
     final imagem = await _storage.escolherImagem(imageQuality: 70);
     if (imagem != null) setState(() => _novaImagem = imagem);
@@ -142,6 +153,15 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
               dica: "Descrição",
             ),
             const SizedBox(height: 12),
+            CampoDeTextoCustomizado(
+              controller: _cepController,
+              dica: "CEP",
+            ),
+            const SizedBox(height: 12),
+            CampoDeTextoCustomizado(
+              controller: _numeroController,
+              dica: "Número",
+            ),
             const SizedBox(height: 32),
             BotaoPrimario(
               texto: "SALVAR ALTERAÇÕES",
