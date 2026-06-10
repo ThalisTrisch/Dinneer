@@ -5,6 +5,7 @@ class Message {
   final String text;
   final DateTime timestamp;
   final String? imageUrl;
+  final List<String> emotes; // emojis recebidos nessa mensagem
 
   Message({
     required this.id,
@@ -13,6 +14,7 @@ class Message {
     required this.text,
     required this.timestamp,
     this.imageUrl,
+    this.emotes = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -25,7 +27,7 @@ class Message {
     };
   }
 
-  factory Message.fromJson(String id, Map<dynamic, dynamic> json) {
+  factory Message.fromJson(String id, Map<dynamic, dynamic> json, {List<String> emotes = const []}) {
     return Message(
       id: id,
       senderId: json['senderId'] ?? '',
@@ -33,6 +35,7 @@ class Message {
       text: json['text'] ?? '',
       timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp'] ?? 0),
       imageUrl: json['imageUrl'],
+      emotes: emotes,
     );
   }
 }
