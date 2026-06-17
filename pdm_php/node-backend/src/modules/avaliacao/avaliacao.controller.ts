@@ -10,7 +10,7 @@ export class AvaliacaoController {
   /**
    * Método principal que roteia as operações baseado no query param ?operacao=
    */
-  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, _next: NextFunction): Promise<void> {
     const banco = new Database();
     const avaliacaoService = new AvaliacaoService(banco);
 
@@ -42,6 +42,14 @@ export class AvaliacaoController {
           if (!id_usuario_media) throw new Error('Faltou id_usuario');
 
           await avaliacaoService.getMediaAvaliacaoUsuario(id_usuario_media);
+          break;
+
+        case 'getAvaliacoesPorDia':
+          const id_usuario_detalhes = parseInt(req.query.id_usuario as string);
+
+          if (!id_usuario_detalhes) throw new Error('Faltou id_usuario');
+
+          await avaliacaoService.getAvaliacoesPorDia(id_usuario_detalhes);
           break;
 
         default:

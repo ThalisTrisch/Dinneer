@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS tb_encontro_dn (
     FOREIGN KEY (id_local) REFERENCES tb_local_dn(id_local) ON DELETE CASCADE,
     FOREIGN KEY (id_cardapio) REFERENCES tb_cardapio_dn(id_cardapio) ON DELETE CASCADE
 );
+--join de tb_encontro_dn com a de avaliação , datas / notas encontros - linha do tempo de avaliação.
+--https://pub.dev/packages/syncfusion_flutter_charts
 
 -- Tabela de relação encontro-usuário (participantes)
 CREATE TABLE IF NOT EXISTS tb_encontro_usuario_dn (
@@ -71,7 +73,7 @@ CREATE TABLE IF NOT EXISTS tb_tipo_avaliacao_dn (
     nm_tipo_avaliacao VARCHAR(50) NOT NULL UNIQUE,
     fl_avaliador BOOLEAN DEFAULT true
 );
-
+--join tb_tipo_avaliacao_dn ON tb_avaliacao_encontro_dn.id_avaliacao = tb_tipo_avaliacao_dn.id_avaliacao
 -- Tabela de avaliações de encontros
 CREATE TABLE IF NOT EXISTS tb_avaliacao_encontro_dn (
     id_usuario INTEGER NOT NULL,
