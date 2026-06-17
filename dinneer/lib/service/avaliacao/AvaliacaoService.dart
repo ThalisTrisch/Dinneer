@@ -55,4 +55,49 @@ class AvaliacaoService {
       return {"media": 0.0, "total": 0};
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getAvaliacoesPorDia(
+    int idUsuario,
+  ) async {
+    debugPrint(
+      "--- AVALIACAO: Buscando avaliacoes por dia para o usuario ID $idUsuario ---",
+    );
+    try {
+      final resposta = await httpService.get(
+        endpoint,
+        "getAvaliacoesPorDia",
+        queryParams: {"id_usuario": idUsuario.toString()},
+      );
+
+      if (resposta != null && resposta['dados'] is List) {
+        return (resposta['dados'] as List).map<Map<String, dynamic>>((item) {
+          final encontros = item['encontros'] is List
+              ? (item['encontros'] as List).map<Map<String, dynamic>>((
+                  encontro,
+                ) {
+                  return {
+                    "id_encontro":
+                        int.tryParse(encontro['id_encontro'].toString()) ?? 0,
+                    "hora": encontro['hora']?.toString() ?? '',
+                    "media":
+                        double.tryParse(encontro['media'].toString()) ?? 0.0,
+                    "total": int.tryParse(encontro['total'].toString()) ?? 0,
+                  };
+                }).toList()
+              : <Map<String, dynamic>>[];
+
+          return {
+            "data": item['data']?.toString() ?? '',
+            "media": double.tryParse(item['media'].toString()) ?? 0.0,
+            "total": int.tryParse(item['total'].toString()) ?? 0,
+            "encontros": encontros,
+          };
+        }).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint("--- AVALIACAO: Erro ao buscar avaliacoes por dia: $e ---");
+      return [];
+    }
+  }
 }
