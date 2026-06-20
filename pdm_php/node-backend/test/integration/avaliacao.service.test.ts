@@ -236,4 +236,62 @@ describe('AvaliacaoService - Integration Tests', () => {
       });
     });
   });
+
+  describe('getAvaliacoesPorDia', () => {
+    it('deve listar medias de avaliacoes agrupadas pela data do encontro', async () => {
+      // Arrange
+      const id_anfitriao = 5;
+      const resultadoMock = [
+        {
+          dt_avaliacao: '2026-06-10',
+          media: '4.333',
+          total: '3',
+          encontros: [
+            { id_encontro: '10', hora: '2026-06-10T12:00:00.000Z', media: '4.0', total: '1' },
+            { id_encontro: '11', hora: '2026-06-10T20:00:00.000Z', media: '4.5', total: '2' },
+          ],
+        },
+        {
+          dt_avaliacao: '2026-06-12',
+          media: '5.0',
+          total: '2',
+          encontros: [
+            { id_encontro: '12', hora: '2026-06-12T20:00:00.000Z', media: '5.0', total: '2' },
+          ],
+        },
+      ];
+
+      mockConexao.query.mockResolvedValueOnce({
+        rows: resultadoMock,
+      });
+
+      // Act
+      await avaliacaoService.getAvaliacoesPorDia(id_anfitriao);
+
+      // Assert
+      expect(mockConexao.query).toHaveBeenCalledWith(
+        expect.stringContaining('JSON_AGG'),
+        [id_anfitriao]
+      );
+      expect(mockDatabase.setDados).toHaveBeenCalledWith(2, [
+        {
+          data: '2026-06-10',
+          media: 4.3,
+          total: 3,
+          encontros: [
+            { id_encontro: 10, hora: '2026-06-10T12:00:00.000Z', media: 4, total: 1 },
+            { id_encontro: 11, hora: '2026-06-10T20:00:00.000Z', media: 4.5, total: 2 },
+          ],
+        },
+        {
+          data: '2026-06-12',
+          media: 5,
+          total: 2,
+          encontros: [
+            { id_encontro: 12, hora: '2026-06-12T20:00:00.000Z', media: 5, total: 2 },
+          ],
+        },
+      ]);
+    });
+  });
 });

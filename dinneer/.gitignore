@@ -46,3 +46,9 @@ app.*.map.json
 
 
 .vscode
+
+# Documentação local
+ARQUITETURA_NOTIFICACOES.md
+
+# Arquivos temporários
+*.tmp

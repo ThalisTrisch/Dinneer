@@ -43,6 +43,14 @@ export class AvaliacaoController {
           await avaliacaoService.getMediaAvaliacaoUsuario(id_usuario_media);
           break;
 
+        case 'getAvaliacoesPorDia':
+          const id_usuario_detalhes = parseInt(req.query.id_usuario as string);
+
+          if (!id_usuario_detalhes) throw new Error('Faltou id_usuario');
+
+          await avaliacaoService.getAvaliacoesPorDia(id_usuario_detalhes);
+          break;
+
         default:
           banco.setMensagem(1, 'Operação não tratada: ' + operacao);
           break;
