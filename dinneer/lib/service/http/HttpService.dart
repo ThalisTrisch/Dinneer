@@ -1,13 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import '../../config/api_config.dart';
+import '../sessao/SessionService.dart';
 
 class HttpService {
-  // Usa ApiConfig para determinar a URL base
   String get baseUrl => ApiConfig.baseUrl;
 
   HttpService();
+
+  Future<Map<String, String>> _montarHeaders([
+    Map<String, String>? extras,
+  ]) async {
+    final headers = <String, String>{if (extras != null) ...extras};
+    final token = await SessionService.pegarToken();
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
 
   Future<dynamic> post(
     String endpoint,
@@ -16,23 +26,15 @@ class HttpService {
   }) async {
     final url = Uri.parse("$baseUrl$endpoint?operacao=$operacao");
 
-    debugPrint("--------------------");
-    debugPrint("POST Request URL: $url");
-    debugPrint("Request Body: $body");
-
     try {
-      print(body);
-
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        headers: await _montarHeaders({
+          "Content-Type": "application/x-www-form-urlencoded",
+        }),
         body: body,
         encoding: Encoding.getByName('utf-8'),
       );
-
-      debugPrint("Response Status Code: ${response.statusCode}");
-      debugPrint("Response Body: ${response.body}");
-      debugPrint("--------------------");
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) return null;
@@ -43,7 +45,6 @@ class HttpService {
         );
       }
     } catch (e) {
-      debugPrint("Falha na requisição: $e");
       throw Exception('Erro na requisição: $e');
     }
   }
@@ -61,7 +62,7 @@ class HttpService {
     final url = Uri.parse(baseUrl + endpoint).replace(queryParameters: params);
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(url, headers: await _montarHeaders());
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Rodapé "Já tem login? Entre" usado nas etapas do cadastro.
-/// Ao tocar em "Entre", volta para a tela anterior (login).
 class LinkLogin extends StatelessWidget {
   const LinkLogin({super.key});
 

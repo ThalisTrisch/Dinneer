@@ -33,12 +33,10 @@ class _TelaListaChatsState extends State<TelaListaChats> {
         return;
       }
 
-      // Busca reservas do usuário (como convidado)
       final reservas = await EncontroService.getMinhasReservas(
         int.parse(_userId!),
       );
 
-      // Busca jantares criados (como anfitrião)
       final jantares = await EncontroService.getMeusJantaresCriados(
         int.parse(_userId!),
       );

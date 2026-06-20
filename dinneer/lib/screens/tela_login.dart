@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/usuario/UsuarioService.dart';
-import 'package:dinneer/service/sessao/SessionService.dart'; // <--- Importante!
+import 'package:dinneer/service/sessao/SessionService.dart';
 import '../widgets/campo_de_texto.dart';
 import '../widgets/mensagens.dart';
 import '../widgets/botao_primario.dart';
@@ -44,24 +44,20 @@ class _TelaLoginState extends State<TelaLogin> {
           usuarioLogado = Map<String, dynamic>.from(resposta['dados']);
         }
 
-        debugPrint(
-          'LOGIN SUCESSO. Enviando dados para Principal: $usuarioLogado',
-        );
+        final token = usuarioLogado['token'];
+        if (token is String && token.isNotEmpty) {
+          await SessionService.salvarToken(token);
+        }
 
         if (usuarioLogado['id_usuario'] != null) {
           int id = int.tryParse(usuarioLogado['id_usuario'].toString()) ?? 0;
-          await SessionService.salvarUsuarioId(id); // <--- Salva no disco!
-          await SessionService.salvarUsuario(
-            usuarioLogado,
-          ); // Salva dados completos
-          debugPrint('Sessão salva para o ID: $id');
+          await SessionService.salvarUsuarioId(id);
+          await SessionService.salvarUsuario(usuarioLogado);
 
           await NotificationService.initialize(id.toString());
-          
-          // 🧪 TESTE: Enviar notificação de teste ao fazer login
+
           _enviarNotificacaoTeste();
         }
-        // ---------------------------------------
 
         if (mounted) {
           Navigator.pushReplacement(
@@ -88,22 +84,19 @@ class _TelaLoginState extends State<TelaLogin> {
     if (mounted) Mensagens.erro(context, mensagem);
   }
 
-  // 🧪 TESTE: Envia notificação local para testar o sistema
   void _enviarNotificacaoTeste() async {
     try {
       debugPrint('🧪 Enviando notificação de teste...');
-      
-      // Aguarda 2 segundos para dar tempo do app inicializar
+
       await Future.delayed(const Duration(seconds: 2));
-      
-      // Obtém o token FCM atual
+
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('🔑 FCM Token: $token');
-      
+
       if (token != null) {
         debugPrint('✅ Token FCM obtido com sucesso!');
         debugPrint('📱 Notificações estão configuradas corretamente');
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

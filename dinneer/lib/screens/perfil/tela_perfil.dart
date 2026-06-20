@@ -36,7 +36,6 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // Agora temos apenas 2 abas: Avaliações e Meus Locais
     _tabController = TabController(length: 2, vsync: this);
     _inicializarDadosUsuario();
   }
@@ -153,7 +152,6 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
       body: CustomScrollView(
         slivers: [
-          // 1. Cabeçalho (Componente Separado)
           PerfilHeader(
             nomeUsuario: nomeUsuario,
             emailUsuario: emailUsuario,
@@ -162,7 +160,6 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             onCameraTap: _alterarFotoPerfil,
           ),
 
-          // 2. Barra de Abas Fixa
           SliverPersistentHeader(
             delegate: SliverAppBarDelegate(
               TabBar(
@@ -180,15 +177,12 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             pinned: true,
           ),
 
-          // 3. Conteúdo das Abas
           SliverFillRemaining(
             child: TabBarView(
               controller: _tabController,
               children: [
-                // Aba 1: Avaliações (Com a média no topo)
                 TabAvaliacoes(idUsuario: int.parse(idUsuario!)),
 
-                // Aba 2: Meus Locais
                 TabMeusLocais(key: _meusLocaisKey, idUsuario: idUsuario!),
               ],
             ),

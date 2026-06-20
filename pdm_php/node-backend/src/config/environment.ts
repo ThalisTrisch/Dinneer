@@ -12,9 +12,17 @@ export const config = {
   },
   server: {
     port: parseInt(process.env.PORT || '3000'),
+    corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:8080')
+      .split(',')
+      .map((origem) => origem.trim())
+      .filter((origem) => origem.length > 0),
   },
   encryption: {
     key: process.env.ENCRYPTION_KEY || 'sua_chave_secreta_de_32_bytes',
     iv: process.env.ENCRYPTION_IV || '1234567891234567',
+  },
+  auth: {
+    secret: process.env.AUTH_SECRET || 'dinneer_dev_secret_troque_em_producao',
+    expiresInSeconds: parseInt(process.env.AUTH_EXPIRES_SECONDS || '604800'),
   },
 };

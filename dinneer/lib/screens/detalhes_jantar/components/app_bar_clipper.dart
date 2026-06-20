@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Recorta o cabeçalho da tela de detalhes com uma curva suave na base.
 class AppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

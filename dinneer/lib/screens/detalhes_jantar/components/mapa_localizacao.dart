@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-/// Mapa (OpenStreetMap) com marcador na localização do jantar.
-/// Trata os estados de carregamento e de endereço não encontrado.
 class MapaLocalizacao extends StatelessWidget {
   final Future<LatLng?> coordenadasFuture;
   final String nuCep;

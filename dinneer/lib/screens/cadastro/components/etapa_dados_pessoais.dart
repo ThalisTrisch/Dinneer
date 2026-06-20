@@ -5,10 +5,6 @@ import 'package:dinneer/widgets/campo_de_texto.dart';
 import 'package:dinneer/widgets/botao_primario.dart';
 import 'link_login.dart';
 
-/// Etapa 2 do cadastro: foto de perfil (opcional), nome, sobrenome e CPF,
-/// com o botão "Cadastrar" que exibe spinner enquanto [estaCarregando].
-///
-/// Toda a lógica (escolher imagem, enviar cadastro) é delegada via callbacks.
 class EtapaDadosPessoais extends StatelessWidget {
   final TextEditingController nomeController;
   final TextEditingController sobrenomeController;

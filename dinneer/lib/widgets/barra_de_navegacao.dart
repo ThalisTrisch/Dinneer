@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import '../theme/app_colors.dart';
 
 class BarraNavegacaoCustomizada extends StatelessWidget {
   final int index;
@@ -15,10 +16,10 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.marfim,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: AppColors.tinta.withValues(alpha: 0.08),
             spreadRadius: 1,
             blurRadius: 15,
             offset: const Offset(0, -1),
@@ -28,43 +29,39 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
       child: BottomNavyBar(
         selectedIndex: index,
         onItemSelected: onTap,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.marfim,
         itemCornerRadius: 12,
         curve: Curves.easeIn,
         items: <BottomNavyBarItem>[
-          // 0: Home
           BottomNavyBarItem(
             icon: const Icon(Icons.home_rounded),
-            title: const Text('Home'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
+            title: const Text('Início'),
+            activeColor: AppColors.terracota,
+            inactiveColor: AppColors.bege,
             textAlign: TextAlign.center,
           ),
 
-          // 1: Reservas
           BottomNavyBarItem(
             icon: const Icon(Icons.calendar_today_rounded),
             title: const Text('Reservas'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
+            activeColor: AppColors.terracota,
+            inactiveColor: AppColors.bege,
             textAlign: TextAlign.center,
           ),
 
-          // 2: Chat
           BottomNavyBarItem(
             icon: const Icon(Icons.chat_bubble_rounded),
-            title: const Text('Chat'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
+            title: const Text('Mensagens'),
+            activeColor: AppColors.terracota,
+            inactiveColor: AppColors.bege,
             textAlign: TextAlign.center,
           ),
 
-          // 3: Perfil
           BottomNavyBarItem(
             icon: const Icon(Icons.person_rounded),
             title: const Text('Perfil'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
+            activeColor: AppColors.terracota,
+            inactiveColor: AppColors.bege,
             textAlign: TextAlign.center,
           ),
         ],

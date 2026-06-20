@@ -10,7 +10,7 @@ export class ImagemController {
   /**
    * Método principal que roteia as operações baseado no query param ?operacao=
    */
-  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, _next: NextFunction): Promise<void> {
     const banco = new Database();
     const imagemService = new ImagemService(banco);
 

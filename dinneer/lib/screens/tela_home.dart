@@ -4,6 +4,10 @@ import 'package:dinneer/service/refeicao/cardapioService.dart';
 import 'package:flutter/material.dart';
 import '../service/refeicao/Cardapio.dart';
 import '../widgets/card_refeicao.dart';
+import '../widgets/card_destaque.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 
 class TelaHome extends StatefulWidget {
   final int idUsuarioLogado;
@@ -133,20 +137,28 @@ class _TelaHomeState extends State<TelaHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       body: RefreshIndicator(
         onRefresh: _atualizarLista,
-        color: Colors.black,
+        color: AppColors.terracota,
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pagina,
+                48,
+                AppSpacing.pagina,
+                0,
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _cabecalho(),
+                  const SizedBox(height: AppSpacing.lg),
                   _buildSearchBar(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   _buildFilterButtons(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.lg),
                 ],
               ),
             ),
@@ -155,11 +167,14 @@ class _TelaHomeState extends State<TelaHome> {
                 future: _refeicoesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: Colors.black),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text("Erro: ${snapshot.error}"));
+                    return Center(
+                      child: Text(
+                        "Erro: ${snapshot.error}",
+                        style: AppTypography.sans(color: AppColors.bege),
+                      ),
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return LayoutBuilder(
                       builder: (context, constraints) => SingleChildScrollView(
@@ -168,24 +183,43 @@ class _TelaHomeState extends State<TelaHome> {
                           constraints: BoxConstraints(
                             minHeight: constraints.maxHeight,
                           ),
-                          child: const Center(
-                            child: Text("Nenhum jantar disponível no momento."),
+                          child: Center(
+                            child: Text(
+                              "Nenhum jantar disponível no momento.",
+                              style: AppTypography.sans(color: AppColors.bege),
+                            ),
                           ),
                         ),
                       ),
                     );
                   } else {
                     final refeicoes = snapshot.data!;
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: refeicoes.length,
-                      itemBuilder: (context, index) {
-                        final refeicao = refeicoes[index];
-                        return CardRefeicao(
-                          refeicao: refeicao,
+                    return ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.pagina,
+                        AppSpacing.xs,
+                        AppSpacing.pagina,
+                        AppSpacing.lg,
+                      ),
+                      children: [
+                        _tituloSecao('Destaques de hoje'),
+                        const SizedBox(height: AppSpacing.md),
+                        CardDestaque(
+                          refeicao: refeicoes.first,
                           onRecarregar: _atualizarLista,
-                        );
-                      },
+                        ),
+                        if (refeicoes.length > 1) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          _tituloSecao('Próximas jantadas'),
+                          const SizedBox(height: AppSpacing.md),
+                          ...refeicoes.skip(1).map(
+                                (r) => CardRefeicao(
+                                  refeicao: r,
+                                  onRecarregar: _atualizarLista,
+                                ),
+                              ),
+                        ],
+                      ],
                     );
                   }
                 },
@@ -197,27 +231,108 @@ class _TelaHomeState extends State<TelaHome> {
     );
   }
 
+  Widget _cabecalho() {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'JANTARES PERTO DE',
+                style: AppTypography.sans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.bege,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              Row(
+                children: [
+                  Text(
+                    'São Paulo, SP',
+                    style: AppTypography.serif(fontSize: 20),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.tinta,
+                    size: 22,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: const BoxDecoration(
+            color: AppColors.marfim,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.terracota,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        const CircleAvatar(
+          radius: 22,
+          backgroundColor: AppColors.tan,
+          child: Icon(Icons.person, color: AppColors.tanTexto),
+        ),
+      ],
+    );
+  }
+
+  Widget _tituloSecao(String titulo) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(titulo, style: AppTypography.serif(fontSize: 18)),
+        Text(
+          'Ver todos',
+          style: AppTypography.sans(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.terracota,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSearchBar() {
     return TextField(
       controller: _buscaController,
       onChanged: _alterarBusca,
+      style: AppTypography.sans(fontSize: 14),
       decoration: InputDecoration(
-        hintText: 'Buscar por prato, cidade...',
-        hintStyle: TextStyle(color: Colors.grey[500]),
-        prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+        hintText: 'Buscar por prato, chef, cidade...',
+        prefixIcon: const Icon(Icons.search, color: AppColors.terracota),
         suffixIcon: _buscaController.text.isEmpty
             ? null
             : IconButton(
-                icon: Icon(Icons.close, color: Colors.grey[500]),
+                icon: const Icon(Icons.close, color: AppColors.bege),
                 onPressed: _limparBusca,
               ),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: AppColors.marfim,
+        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: AppColors.bordaSuave),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: const BorderSide(color: AppColors.bordaSuave),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: const BorderSide(color: AppColors.terracota, width: 1.5),
+        ),
       ),
     );
   }
@@ -260,15 +375,24 @@ class _TelaHomeState extends State<TelaHome> {
     return ChoiceChip(
       label: Text(
         label,
-        style: TextStyle(color: isSelected ? Colors.white : Colors.black54),
+        style: AppTypography.sans(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: isSelected ? Colors.white : AppColors.tanTexto,
+        ),
       ),
       selected: isSelected,
       onSelected: (_) => onSelected(),
-      selectedColor: Colors.black,
-      backgroundColor: Colors.grey[100],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      side: BorderSide.none,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      selectedColor: AppColors.terracota,
+      backgroundColor: AppColors.marfim,
+      showCheckmark: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        side: BorderSide(
+          color: isSelected ? AppColors.terracota : AppColors.bordaSuave,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
     );
   }
 }

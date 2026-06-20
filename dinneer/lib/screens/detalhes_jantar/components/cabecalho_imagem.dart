@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'app_bar_clipper.dart';
 
-/// Cabeçalho (SliverAppBar) com a foto do jantar ou um ícone padrão,
-/// recortado pela curva inferior, e o botão de voltar.
 class CabecalhoImagemJantar extends StatelessWidget {
   final String? urlFoto;
 

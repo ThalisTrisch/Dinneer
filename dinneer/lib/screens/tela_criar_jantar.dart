@@ -98,7 +98,6 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
     setState(() => _estaCarregando = true);
 
-    // Foto é opcional - só faz upload se foi selecionada
     String? urlFoto;
     if (_imagemSelecionada != null) {
       urlFoto = await _uploadImagemFirebase(_imagemSelecionada!);
@@ -124,7 +123,7 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       'preco_refeicao': _precoController.text.replaceAll(',', '.'),
       'nu_max_convidados': _vagasController.text,
       'hr_encontro': dataHora.toIso8601String(),
-      'vl_foto': urlFoto ?? '', // Envia string vazia se não houver foto
+      'vl_foto': urlFoto ?? '',
       'id_local': widget.idLocalPreSelecionado.toString(),
     };
 

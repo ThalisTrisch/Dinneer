@@ -33,12 +33,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
     return regex.hasMatch(email.trim());
   }
 
-  // Seleciona e PADRONIZA a imagem
   Future<void> _escolherImagem() async {
     try {
       final imagem = await _storage.escolherImagem(
-        imageQuality: 80, // Qualidade 80%
-        maxWidth: 1080, // Largura máxima HD
+        imageQuality: 80,
+        maxWidth: 1080,
       );
       if (imagem != null) {
         setState(() {

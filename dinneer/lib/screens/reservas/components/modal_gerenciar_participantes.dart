@@ -6,11 +6,6 @@ import 'package:dinneer/config/api_config.dart';
 import 'package:dinneer/screens/tela_perfil_publico.dart';
 import 'item_participante.dart';
 
-/// Bottom sheet que lista os participantes de um jantar e permite ao
-/// anfitrião aprovar ou rejeitar solicitações de reserva.
-///
-/// Faz as chamadas de rede via [HttpService] e notifica a tela de reservas
-/// através de [onAtualizar] quando o status de algum participante muda.
 class ModalGerenciarParticipantes extends StatefulWidget {
   final Cardapio jantar;
   final VoidCallback onAtualizar;

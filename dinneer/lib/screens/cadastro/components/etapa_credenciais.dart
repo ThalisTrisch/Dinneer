@@ -4,9 +4,6 @@ import 'package:dinneer/widgets/campo_de_texto.dart';
 import 'package:dinneer/widgets/botao_primario.dart';
 import 'link_login.dart';
 
-/// Etapa 1 do cadastro: e-mail, senha e confirmação, com o botão "Continuar".
-///
-/// Recebe os controllers da tela e delega a validação/avanço para [onContinuar].
 class EtapaCredenciais extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController senhaController;

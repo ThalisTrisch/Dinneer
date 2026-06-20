@@ -112,7 +112,7 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
           Navigator.pop(
             context,
             true,
-          ); // Retorna true para atualizar a tela anterior
+          );
         }
       } else {
         throw Exception("Erro no servidor.");

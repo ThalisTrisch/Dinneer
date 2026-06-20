@@ -10,6 +10,15 @@ export class LocalService extends BaseService {
   }
 
   /**
+   * Retorna o id_usuario dono de um local. Usado para autorizar exclusão.
+   */
+  async getIdDonoPorLocal(id_local: number): Promise<number | null> {
+    const sql = 'SELECT id_usuario FROM tb_local_dn WHERE id_local = $1';
+    const result = await this.conexao.query(sql, [id_local]);
+    return result.rows.length > 0 ? Number(result.rows[0].id_usuario) : null;
+  }
+
+  /**
    * Busca um local específico pelo ID
    */
   async getLocal(id_local: number): Promise<void> {

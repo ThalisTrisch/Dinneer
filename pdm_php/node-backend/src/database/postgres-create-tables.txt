@@ -44,7 +44,7 @@ CREATE TABLE tb_usuario (
                 vl_email VARCHAR(100) NOT NULL,
                 nm_sobrenome VARCHAR NOT NULL,
                 id_sequence INTEGER NOT NULL,
-                vl_senha VARCHAR(100) NOT NULL,
+                vl_senha VARCHAR(255) NOT NULL,
                 CONSTRAINT tb_usuario_pk PRIMARY KEY (id_usuario)
 );
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Linha com avatar, nome do anfitrião e avaliação (estrelas).
 class InfoAnfitriao extends StatelessWidget {
   final String nomeAnfitriao;
   final String? urlFotoAnfitriao;

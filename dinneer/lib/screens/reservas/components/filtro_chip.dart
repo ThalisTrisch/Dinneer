@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Chip de filtro selecionável usado nas abas de "Minhas Reservas".
-///
-/// Compara [value] com [groupValue] para definir o estado selecionado e
-/// dispara [onTap] com o próprio [value] ao ser tocado.
 class FiltroChip extends StatelessWidget {
   final String label;
   final int value;

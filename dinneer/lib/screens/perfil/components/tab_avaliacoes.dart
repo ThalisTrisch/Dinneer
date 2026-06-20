@@ -18,7 +18,6 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
   @override
   void initState() {
     super.initState();
-    print("--- TAB AVALIACOES: Iniciada para User ${widget.idUsuario} ---");
     _carregarNotas();
   }
 

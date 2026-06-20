@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:dinneer/service/refeicao/Cardapio.dart';
 
-/// Caixa com a data do jantar e a contagem de vagas (confirmados/máximo).
 class DetalhesAdicionais extends StatelessWidget {
   final Cardapio refeicao;
 

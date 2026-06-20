@@ -31,7 +31,7 @@ class PerfilHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 280, // Altura reduzida (sem estrelas)
+      expandedHeight: 280,
       backgroundColor: Colors.white,
       pinned: true,
       stretch: true,

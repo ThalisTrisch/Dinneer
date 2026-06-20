@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Botão circular de emote exibido ao lado de um balão de mensagem.
 class EmoteButton extends StatelessWidget {
   final VoidCallback onTap;
 

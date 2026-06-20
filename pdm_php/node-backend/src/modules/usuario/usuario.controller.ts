@@ -10,7 +10,7 @@ export class UsuarioController {
   /**
    * Método principal que roteia as operações baseado no query param ?operacao=
    */
-  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, _next: NextFunction): Promise<void> {
     const banco = new Database();
     const usuarioService = new UsuarioService(banco);
 
@@ -20,6 +20,7 @@ export class UsuarioController {
 
       switch (operacao) {
         case 'getUsuarios':
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           await usuarioService.getUsuarios();
           break;
 
@@ -52,9 +53,9 @@ export class UsuarioController {
           break;
 
         case 'deleteUsuario':
-          const id_delete = parseInt(req.body.id_usuario);
-          if (!id_delete) throw new Error('id_usuario não definido');
-          await usuarioService.deleteUsuario(id_delete);
+          // O usuário só pode excluir a própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
+          await usuarioService.deleteUsuario(req.usuarioId);
           break;
 
         case 'updateUsuario':
@@ -76,13 +77,12 @@ export class UsuarioController {
           break;
 
         case 'atualizarFotoPerfil':
-          const id_foto = parseInt(req.body.id_usuario);
+          // Só altera a foto da própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           const vl_foto = req.body.vl_foto;
-
-          if (!id_foto) throw new Error('id_usuario nao fornecido');
           if (!vl_foto) throw new Error('vl_foto nao fornecido');
 
-          await usuarioService.atualizarFotoPerfil(id_foto, vl_foto);
+          await usuarioService.atualizarFotoPerfil(req.usuarioId, vl_foto);
           break;
 
         default:

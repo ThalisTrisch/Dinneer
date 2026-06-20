@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Barra inferior de entrada do chat: campo de texto, botão de anexar
-/// imagem e botão de enviar. Sem regra de negócio — delega via callbacks.
 class CampoMensagem extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onEnviar;

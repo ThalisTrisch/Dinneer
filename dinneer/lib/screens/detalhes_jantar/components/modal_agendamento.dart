@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Conteúdo do modal de agendamento: coleta o número de convidados extras
-/// e dispara [onEnviar] com esse valor após fechar o modal.
 class ModalAgendamento extends StatefulWidget {
   final void Function(int dependentes) onEnviar;
 

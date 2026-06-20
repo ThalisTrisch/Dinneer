@@ -1,5 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import { config } from './config/environment';
+import { autenticacaoOpcional } from './middlewares/auth';
 import usuarioRoutes from './modules/usuario/usuario.routes';
 import localRoutes from './modules/local/local.routes';
 import cardapioRoutes from './modules/cardapio/cardapio.routes';
@@ -24,14 +26,27 @@ export class App {
    * Configura middlewares
    */
   private middlewares(): void {
-    // CORS - permite requisições do Flutter
-    this.app.use(cors());
+    // CORS - libera apps mobile (sem Origin) e origens web da allowlist
+    this.app.use(
+      cors({
+        origin: (origin, callback) => {
+          if (!origin || config.server.corsOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Origem não autorizada pelo CORS'));
+          }
+        },
+      })
+    );
 
     // Parse JSON
     this.app.use(express.json());
 
     // Parse URL-encoded (form data)
     this.app.use(express.urlencoded({ extended: true }));
+
+    // Popula req.usuarioId quando há um Bearer token válido
+    this.app.use(autenticacaoOpcional);
   }
 
   /**
@@ -39,7 +54,7 @@ export class App {
    */
   private routes(): void {
     // Rota raiz
-    this.app.get('/', (req: Request, res: Response) => {
+    this.app.get('/', (_req: Request, res: Response) => {
       res.json({
         message: 'Dinneer API - Node.js + TypeScript',
         version: '1.0.0',

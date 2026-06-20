@@ -2,16 +2,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-/// Centraliza a seleção de imagens da galeria e o upload para o Firebase
-/// Storage, eliminando a duplicação que existia em criar/editar jantar e perfil.
-///
-/// Cada chamador controla qualidade, dimensões, pasta de destino, prefixo do
-/// arquivo e timeout — mantendo o comportamento específico de cada tela.
 class StorageService {
   final ImagePicker _picker = ImagePicker();
 
-  /// Abre a galeria e retorna o arquivo selecionado, ou `null` se o usuário
-  /// cancelar. Não captura exceções — o chamador decide como tratá-las.
   Future<File?> escolherImagem({int imageQuality = 80, double? maxWidth}) async {
     final XFile? imagem = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -22,11 +15,6 @@ class StorageService {
     return File(imagem.path);
   }
 
-  /// Faz upload de [imagem] para `Storage/{pasta}/{prefixo}_{timestamp}.jpg`
-  /// e retorna a URL de download.
-  ///
-  /// Se [timeout] for informado, a conclusão do upload é limitada a esse tempo
-  /// (lança [TimeoutException] ao estourar). Propaga qualquer erro ao chamador.
   Future<String> uploadImagem(
     File imagem, {
     required String pasta,

@@ -1,11 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-/// Área tocável de 200px para escolher a foto do jantar.
-///
-/// Mostra a imagem local selecionada (se houver), senão uma imagem de rede
-/// existente ([urlRede], usada na edição), senão um placeholder. Ao tocar,
-/// dispara [onTocar].
 class SeletorImagem extends StatelessWidget {
   final File? imagemLocal;
   final String? urlRede;

@@ -17,7 +17,7 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
   final _cepController = TextEditingController();
   final _numeroController = TextEditingController();
   final _complementoController = TextEditingController();
-  final _cnpjController = TextEditingController(); // Opcional
+  final _cnpjController = TextEditingController();
   bool _estaCarregando = false;
 
   void _criarLocal() async {
@@ -39,11 +39,10 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
     try {
       final res = await LocalService.createLocal(dados);
 
-      // Verifica sucesso
       if (res != null && (res['registros'] == 1 || (res['dados'] != null))) {
         if (mounted) {
           Mensagens.sucesso(context, "Local adicionado!");
-          Navigator.pop(context, true); // Retorna true para atualizar a lista
+          Navigator.pop(context, true);
         }
       } else {
         _mostrarErro("Erro ao criar: ${res?['Mensagem']}");

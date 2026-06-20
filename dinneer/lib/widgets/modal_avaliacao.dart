@@ -86,7 +86,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
       ),
 
       child: Column(
-        mainAxisSize: MainAxisSize.min, // <--- AQUI É O LUGAR CERTO
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(

@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:dinneer/service/refeicao/Cardapio.dart';
 
-/// Barra inferior de ações da tela de detalhes do jantar.
-///
-/// Decide, a partir do contexto (anfitrião x convidado, status da reserva,
-/// jantar lotado ou já encerrado), qual conjunto de botões exibir e delega
-/// cada ação para os callbacks recebidos. Não contém regra de negócio.
 class BarraAcoesDetalhes extends StatelessWidget {
   final Cardapio refeicao;
   final bool souOAnfitriao;

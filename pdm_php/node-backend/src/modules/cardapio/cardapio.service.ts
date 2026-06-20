@@ -35,6 +35,21 @@ export class CardapioService extends BaseService {
   };
 
   /**
+   * Retorna o id_usuario do dono (anfitrião) de um cardápio, via local.
+   * Usado para autorizar edição/exclusão de jantares.
+   */
+  async getIdDonoPorCardapio(id_cardapio: number): Promise<number | null> {
+    const sql = `
+      SELECT l.id_usuario
+      FROM tb_cardapio_dn c
+      INNER JOIN tb_local_dn l ON c.id_local = l.id_local
+      WHERE c.id_cardapio = $1
+    `;
+    const result = await this.conexao.query(sql, [id_cardapio]);
+    return result.rows.length > 0 ? Number(result.rows[0].id_usuario) : null;
+  }
+
+  /**
    * Busca um cardápio específico pelo ID
    */
   async getCardapio(id_cardapio: number): Promise<void> {
@@ -77,7 +92,7 @@ export class CardapioService extends BaseService {
       FROM tb_cardapio_dn a 
       INNER JOIN tb_local_dn b ON a.id_local = b.id_local
       INNER JOIN tb_usuario_dn c ON b.id_usuario = c.id_usuario
-      INNER JOIN tb_encontro_dn d ON b.id_local = d.id_local
+      INNER JOIN tb_encontro_dn d ON a.id_cardapio = d.id_cardapio
       WHERE d.hr_encontro > now()
       ORDER BY d.hr_encontro ASC
     `;
@@ -132,7 +147,7 @@ export class CardapioService extends BaseService {
       FROM tb_cardapio_dn a 
       INNER JOIN tb_local_dn b ON a.id_local = b.id_local
       INNER JOIN tb_usuario_dn c ON b.id_usuario = c.id_usuario
-      INNER JOIN tb_encontro_dn d ON b.id_local = d.id_local
+      INNER JOIN tb_encontro_dn d ON a.id_cardapio = d.id_cardapio
       WHERE d.hr_encontro > now()
         AND (
           a.nm_cardapio ILIKE ANY($1::text[])

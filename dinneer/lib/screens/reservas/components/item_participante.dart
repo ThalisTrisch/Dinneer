@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Card de um participante/solicitante na lista de gerenciamento de convidados.
-///
-/// Recebe o registro bruto vindo da API (Map) e delega as ações para os
-/// callbacks; não contém regra de negócio nem chamadas de rede.
 class ItemParticipante extends StatelessWidget {
   final Map<String, dynamic> participante;
   final VoidCallback onAbrirPerfil;
