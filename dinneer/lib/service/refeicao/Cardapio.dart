@@ -18,6 +18,7 @@ class Cardapio {
   final String? urlFotoAnfitriao;
   final int nuSolicitacoesPendentes;
   final String? statusReserva;
+  final String? nmCategoria;
 
   Cardapio({
     required this.idUsuario,
@@ -37,6 +38,7 @@ class Cardapio {
     this.urlFotoAnfitriao,
     this.nuSolicitacoesPendentes = 0,
     this.statusReserva,
+    this.nmCategoria,
   });
 
   factory Cardapio.fromMap(Map<String, dynamic> map) {
@@ -76,6 +78,7 @@ class Cardapio {
           : 0,
 
       statusReserva: map['fl_status']?.toString(),
+      nmCategoria: map['nm_categoria']?.toString(),
     );
   }
 
@@ -121,6 +124,7 @@ class Cardapio {
   };
 
   String? get categoria {
+    if (nmCategoria != null && nmCategoria!.isNotEmpty) return nmCategoria;
     final texto = '$nmCardapio $dsCardapio'.toLowerCase();
     for (final entrada in _palavrasCategoria.entries) {
       if (entrada.value.any(texto.contains)) return entrada.key;

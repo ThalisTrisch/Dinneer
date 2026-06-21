@@ -78,6 +78,7 @@ export class CardapioService extends BaseService {
         a.ds_cardapio,
         a.preco_refeicao,
         a.vl_foto_cardapio,
+        a.nm_categoria,
         d.hr_encontro,
         d.nu_max_convidados,
         d.id_encontro,
@@ -133,6 +134,7 @@ export class CardapioService extends BaseService {
         a.ds_cardapio,
         a.preco_refeicao,
         a.vl_foto_cardapio,
+        a.nm_categoria,
         d.hr_encontro,
         d.nu_max_convidados,
         d.id_encontro,
@@ -150,13 +152,14 @@ export class CardapioService extends BaseService {
       INNER JOIN tb_encontro_dn d ON a.id_cardapio = d.id_cardapio
       WHERE d.hr_encontro > now()
         AND (
-          a.nm_cardapio ILIKE ANY($1::text[])
+          a.nm_categoria = $2
+          OR a.nm_cardapio ILIKE ANY($1::text[])
           OR a.ds_cardapio ILIKE ANY($1::text[])
         )
       ORDER BY d.hr_encontro ASC
     `;
 
-    const result = await this.conexao.query(sql, [filtros]);
+    const result = await this.conexao.query(sql, [filtros, termoCategoria]);
 
     this.banco.setDados(result.rows.length, result.rows);
 
@@ -185,6 +188,7 @@ export class CardapioService extends BaseService {
     nu_casa?: string;
     vl_foto?: string;
     id_local?: number | string;
+    categoria?: string;
   }): Promise<void> {
     try {
       await this.conexao.query('BEGIN');
@@ -221,8 +225,8 @@ export class CardapioService extends BaseService {
       await this.conexao.query('INSERT INTO tb_sequence_dn (id_sequence, nm_sequence) VALUES ($1, $2)', [idCardapio, 'C']);
 
       const sqlCard = `
-        INSERT INTO tb_cardapio_dn (id_cardapio, id_local, nm_cardapio, ds_cardapio, preco_refeicao, vl_foto_cardapio) 
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO tb_cardapio_dn (id_cardapio, id_local, nm_cardapio, ds_cardapio, preco_refeicao, vl_foto_cardapio, nm_categoria)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
       `;
       await this.conexao.query(sqlCard, [
         idCardapio,
@@ -230,7 +234,8 @@ export class CardapioService extends BaseService {
         dados.nm_cardapio,
         dados.ds_cardapio,
         dados.preco_refeicao,
-        dados.vl_foto && dados.vl_foto.trim() !== '' ? dados.vl_foto : null
+        dados.vl_foto && dados.vl_foto.trim() !== '' ? dados.vl_foto : null,
+        dados.categoria && dados.categoria.trim() !== '' ? dados.categoria : null
       ]);
 
       // Cria encontro

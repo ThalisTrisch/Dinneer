@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS tb_cardapio_dn (
     ds_cardapio TEXT NOT NULL,
     preco_refeicao DECIMAL(10,2) NOT NULL,
     vl_foto_cardapio VARCHAR(255),
+    nm_categoria VARCHAR(50),
     FOREIGN KEY (id_local) REFERENCES tb_local_dn(id_local) ON DELETE CASCADE
 );
 
