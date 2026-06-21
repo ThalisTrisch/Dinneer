@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dinneer/service/avaliacao/AvaliacaoService.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class TabAvaliacoes extends StatefulWidget {
   final int idUsuario;
@@ -42,9 +44,7 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
   @override
   Widget build(BuildContext context) {
     if (carregando) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.black),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return ListView(
@@ -54,23 +54,23 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           margin: const EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
-            color: Colors.amber.withValues(alpha: 0.1),
+            color: AppColors.terracotaSuave,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+            border: Border.all(color: AppColors.bordaSuave),
           ),
           child: Column(
             children: [
-              const Text(
+              Text(
                 "Média Geral",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: AppTypography.serif(fontSize: 16),
               ),
               const SizedBox(height: 8),
               Text(
                 mediaGeral.toStringAsFixed(1),
-                style: const TextStyle(
+                style: AppTypography.serif(
                   fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.terracota,
                 ),
               ),
               Row(
@@ -78,7 +78,7 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
                 children: List.generate(5, (index) {
                   return Icon(
                     index < mediaGeral.round() ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
+                    color: AppColors.terracota,
                     size: 24,
                   );
                 }),
@@ -86,15 +86,15 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
               const SizedBox(height: 4),
               Text(
                 "Baseado em $totalAvaliacoes avaliações",
-                style: const TextStyle(color: Colors.grey),
+                style: AppTypography.sans(color: AppColors.bege),
               ),
             ],
           ),
         ),
 
-        const Text(
-          "Avaliacoes por dia",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          "Avaliações por dia",
+          style: AppTypography.serif(fontSize: 18),
         ),
         const SizedBox(height: 10),
         _buildGraficoAvaliacoes(),
@@ -107,18 +107,18 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+          color: AppColors.marfim,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.bordaSuave),
         ),
-        child: const Column(
+        child: Column(
           children: [
-            Icon(Icons.bar_chart_rounded, color: Colors.grey, size: 42),
-            SizedBox(height: 8),
+            const Icon(Icons.bar_chart_rounded, color: AppColors.tan, size: 42),
+            const SizedBox(height: 8),
             Text(
-              "Ainda nao ha avaliacoes por dia para exibir.",
+              "Ainda não há avaliações por dia para exibir.",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: AppTypography.sans(color: AppColors.bege),
             ),
           ],
         ),
@@ -128,9 +128,9 @@ class _TabAvaliacoesState extends State<TabAvaliacoes> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.marfim,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.bordaSuave),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +232,7 @@ class _BarraAvaliacaoDia extends StatelessWidget {
     final labelData = data == null
         ? dados['data'].toString()
         : DateFormat('dd/MM', 'pt_BR').format(data);
-    final corBarra = destaque ? Colors.blueAccent : const Color(0xFF1F2D64);
+    final corBarra = destaque ? AppColors.terracota : AppColors.tanTexto;
     final tooltip = _buildTooltip(labelData, media, total);
 
     return Tooltip(
@@ -246,7 +246,7 @@ class _BarraAvaliacaoDia extends StatelessWidget {
             Text(
               media.toStringAsFixed(1),
               style: TextStyle(
-                color: destaque ? Colors.blueAccent : Colors.black87,
+                color: destaque ? AppColors.terracota : AppColors.tinta,
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               ),
@@ -269,7 +269,7 @@ class _BarraAvaliacaoDia extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: destaque ? Colors.blueAccent : Colors.grey.shade700,
+                color: destaque ? AppColors.terracota : AppColors.bege,
                 fontSize: 12,
                 fontWeight: destaque ? FontWeight.bold : FontWeight.w500,
               ),

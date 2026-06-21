@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class LinkLogin extends StatelessWidget {
   const LinkLogin({super.key});
@@ -8,12 +10,15 @@ class LinkLogin extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('Já tem login? ', style: TextStyle(color: Colors.grey)),
+        Text('Já tem login? ', style: AppTypography.sans(color: AppColors.bege)),
         GestureDetector(
           onTap: () => Navigator.of(context).pop(),
-          child: const Text(
+          child: Text(
             'Entre',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: AppTypography.sans(
+              fontWeight: FontWeight.w600,
+              color: AppColors.terracota,
+            ),
           ),
         ),
       ],

@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:dinneer/models/message_model.dart';
+import 'package:dinneer/theme/app_colors.dart';
 import 'emote_button.dart';
 
 class MessageBubble extends StatefulWidget {
@@ -102,8 +103,11 @@ class _MessageBubbleState extends State<MessageBubble> {
               ),
               decoration: BoxDecoration(
                 color: widget.ehMinhaMensagem
-                    ? Colors.grey[800]
-                    : Colors.grey[300],
+                    ? AppColors.terracota
+                    : AppColors.marfim,
+                border: widget.ehMinhaMensagem
+                    ? null
+                    : Border.all(color: AppColors.bordaSuave),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -192,7 +196,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
-                                color: Colors.black87,
+                                color: AppColors.terracota,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -202,7 +206,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                             style: TextStyle(
                               color: widget.ehMinhaMensagem
                                   ? Colors.white
-                                  : Colors.black87,
+                                  : AppColors.tinta,
                               fontSize: 15,
                             ),
                           ),
@@ -239,7 +243,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       style: TextStyle(
                         color: widget.ehMinhaMensagem
                             ? Colors.white70
-                            : Colors.black54,
+                            : AppColors.bege,
                         fontSize: 11,
                       ),
                     ),

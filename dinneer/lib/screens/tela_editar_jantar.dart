@@ -129,8 +129,6 @@ class _TelaEditarJantarState extends State<TelaEditarJantar> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Editar Jantar"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: SingleChildScrollView(

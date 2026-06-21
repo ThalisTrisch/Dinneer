@@ -5,6 +5,7 @@ import '../service/usuario/UsuarioService.dart';
 import '../service/storage/StorageService.dart';
 import 'cadastro/components/etapa_credenciais.dart';
 import 'cadastro/components/etapa_dados_pessoais.dart';
+import '../theme/app_colors.dart';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -141,10 +142,10 @@ class _TelaCadastroState extends State<TelaCadastro> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.creme,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back, color: AppColors.tinta),
           onPressed: () {
             if (_etapaAtual == 2) {
               setState(() => _etapaAtual = 1);
@@ -155,11 +156,11 @@ class _TelaCadastroState extends State<TelaCadastro> {
         ),
         title: Text(
           'Cadastro $_etapaAtual/2',
-          style: const TextStyle(color: Colors.black54),
+          style: const TextStyle(color: AppColors.tinta),
         ),
         centerTitle: true,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

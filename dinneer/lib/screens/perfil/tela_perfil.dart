@@ -11,6 +11,7 @@ import 'package:dinneer/screens/tela_criar_local.dart';
 import 'components/perfil_header.dart';
 import 'components/tab_avaliacoes.dart';
 import 'components/tab_meus_locais.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
 class TelaPerfil extends StatefulWidget {
   final Map<String, dynamic> dadosUsuario;
@@ -127,7 +128,7 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -147,7 +148,7 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         icon: const Icon(Icons.add_location_alt, color: Colors.white),
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.terracota,
       ),
 
       body: CustomScrollView(
@@ -164,9 +165,9 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             delegate: SliverAppBarDelegate(
               TabBar(
                 controller: _tabController,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.black,
+                labelColor: AppColors.terracota,
+                unselectedLabelColor: AppColors.bege,
+                indicatorColor: AppColors.terracota,
                 indicatorWeight: 3,
                 tabs: const [
                   Tab(text: "Avaliações"),

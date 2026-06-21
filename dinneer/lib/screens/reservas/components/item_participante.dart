@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class ItemParticipante extends StatelessWidget {
   final Map<String, dynamic> participante;
@@ -25,12 +27,14 @@ class ItemParticipante extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
       color: pendente
-          ? Colors.orange.withOpacity(0.08)
-          : Colors.grey.withOpacity(0.05),
+          ? Colors.orange.withValues(alpha: 0.1)
+          : AppColors.marfim,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: pendente ? Colors.orange.withOpacity(0.3) : Colors.transparent,
+          color: pendente
+              ? Colors.orange.withValues(alpha: 0.3)
+              : AppColors.bordaSuave,
         ),
       ),
       child: InkWell(
@@ -52,10 +56,7 @@ class ItemParticipante extends StatelessWidget {
                   children: [
                     Text(
                       nome,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: AppTypography.serif(fontSize: 16),
                     ),
                     Text(
                       pendente

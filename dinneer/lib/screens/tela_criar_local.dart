@@ -62,15 +62,9 @@ class _TelaCriarLocalState extends State<TelaCriarLocal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Adicionar Novo Local",
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
+        title: const Text("Adicionar Novo Local"),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

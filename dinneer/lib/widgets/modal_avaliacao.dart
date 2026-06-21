@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/avaliacao/AvaliacaoService.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class ModalAvaliacao extends StatefulWidget {
   final int idUsuario;
@@ -81,7 +83,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.creme,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
 
@@ -89,9 +91,9 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             "Avaliar Jantar",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: AppTypography.serif(fontSize: 20),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -119,7 +121,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
           ElevatedButton(
             onPressed: _enviando ? null : _enviarAvaliacoes,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: AppColors.terracota,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

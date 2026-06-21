@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
 import 'app_bar_clipper.dart';
 
@@ -13,7 +14,7 @@ class CabecalhoImagemJantar extends StatelessWidget {
 
     return SliverAppBar(
       expandedHeight: 280.0,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       elevation: 0,
       pinned: true,
       stretch: true,
@@ -22,7 +23,7 @@ class CabecalhoImagemJantar extends StatelessWidget {
           clipper: AppBarClipper(),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: AppColors.terracotaSuave,
               image: temFoto
                   ? DecorationImage(
                       image: NetworkImage(urlFoto!),
@@ -31,15 +32,15 @@ class CabecalhoImagemJantar extends StatelessWidget {
                   : null,
             ),
             child: !temFoto
-                ? const Icon(Icons.restaurant, size: 100, color: Colors.white)
+                ? const Icon(Icons.restaurant, size: 100, color: AppColors.terracota)
                 : null,
           ),
         ),
       ),
       leading: CircleAvatar(
-        backgroundColor: Colors.white.withOpacity(0.8),
+        backgroundColor: AppColors.marfim,
         child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.tinta),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

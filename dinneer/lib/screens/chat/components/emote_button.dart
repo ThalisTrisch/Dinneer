@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
 class EmoteButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -15,11 +16,11 @@ class EmoteButton extends StatelessWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: AppColors.marfim,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: AppColors.tinta.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),

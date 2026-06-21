@@ -8,6 +8,8 @@ import 'tela_cadastro.dart';
 import '../screens/tela_principal.dart';
 import '../service/notification/notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -125,11 +127,11 @@ class _TelaLoginState extends State<TelaLogin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.creme,
         elevation: 0,
         centerTitle: true,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -141,24 +143,22 @@ class _TelaLoginState extends State<TelaLogin> {
                 const Icon(
                   Icons.restaurant_menu,
                   size: 80,
-                  color: Colors.black54,
+                  color: AppColors.terracota,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'DINNEER',
-                  style: TextStyle(
-                    fontFamily: 'serif',
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+                Text(
+                  'Dinneer',
+                  style: AppTypography.serif(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'A MELHOR REFEIÇÃO DE SUA VIDA',
-                  style: TextStyle(
+                  style: AppTypography.sans(
                     fontSize: 12,
-                    color: Colors.black54,
+                    color: AppColors.bege,
                     letterSpacing: 1,
                   ),
                 ),
@@ -177,9 +177,9 @@ class _TelaLoginState extends State<TelaLogin> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Não tem uma conta? ',
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTypography.sans(color: AppColors.bege),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.push(
@@ -188,11 +188,11 @@ class _TelaLoginState extends State<TelaLogin> {
                           builder: (context) => const TelaCadastro(),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Cadastre-se',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                        style: AppTypography.sans(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.terracota,
                         ),
                       ),
                     ),

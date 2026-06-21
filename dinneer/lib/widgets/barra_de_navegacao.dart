@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 class BarraNavegacaoCustomizada extends StatelessWidget {
   final int index;
@@ -15,56 +15,73 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.marfim,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.tinta.withValues(alpha: 0.08),
-            spreadRadius: 1,
-            blurRadius: 15,
-            offset: const Offset(0, -1),
-          ),
-        ],
+        border: Border(top: BorderSide(color: AppColors.bordaSuave)),
       ),
-      child: BottomNavyBar(
-        selectedIndex: index,
-        onItemSelected: onTap,
-        backgroundColor: AppColors.marfim,
-        itemCornerRadius: 12,
-        curve: Curves.easeIn,
-        items: <BottomNavyBarItem>[
-          BottomNavyBarItem(
-            icon: const Icon(Icons.home_rounded),
-            title: const Text('Início'),
-            activeColor: AppColors.terracota,
-            inactiveColor: AppColors.bege,
-            textAlign: TextAlign.center,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _item(0, Icons.home_rounded, 'Início'),
+              _item(1, Icons.calendar_today_rounded, 'Reservas'),
+              _item(2, Icons.chat_bubble_rounded, 'Mensagens'),
+              _item(3, Icons.person_rounded, 'Perfil'),
+            ],
           ),
+        ),
+      ),
+    );
+  }
 
-          BottomNavyBarItem(
-            icon: const Icon(Icons.calendar_today_rounded),
-            title: const Text('Reservas'),
-            activeColor: AppColors.terracota,
-            inactiveColor: AppColors.bege,
-            textAlign: TextAlign.center,
-          ),
-
-          BottomNavyBarItem(
-            icon: const Icon(Icons.chat_bubble_rounded),
-            title: const Text('Mensagens'),
-            activeColor: AppColors.terracota,
-            inactiveColor: AppColors.bege,
-            textAlign: TextAlign.center,
-          ),
-
-          BottomNavyBarItem(
-            icon: const Icon(Icons.person_rounded),
-            title: const Text('Perfil'),
-            activeColor: AppColors.terracota,
-            inactiveColor: AppColors.bege,
-            textAlign: TextAlign.center,
-          ),
-        ],
+  Widget _item(int i, IconData icon, String label) {
+    final bool ativo = i == index;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onTap(i),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: ativo ? 16 : 12,
+          vertical: 9,
+        ),
+        decoration: BoxDecoration(
+          color: ativo ? AppColors.terracotaSuave : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: ativo ? AppColors.terracota : AppColors.bege,
+            ),
+            ClipRect(
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                child: ativo
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          label,
+                          style: AppTypography.sans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.terracota,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

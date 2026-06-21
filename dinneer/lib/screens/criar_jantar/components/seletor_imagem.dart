@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class SeletorImagem extends StatelessWidget {
   final File? imagemLocal;
@@ -37,19 +39,19 @@ class SeletorImagem extends StatelessWidget {
       child: Container(
         height: 200,
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: AppColors.terracotaSuave,
           borderRadius: BorderRadius.circular(16),
           image: imagem,
         ),
         child: semImagem
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                  SizedBox(height: 8),
+                children: [
+                  const Icon(Icons.camera_alt, size: 50, color: AppColors.terracota),
+                  const SizedBox(height: 8),
                   Text(
                     "Toque para adicionar foto",
-                    style: TextStyle(color: Colors.grey),
+                    style: AppTypography.sans(color: AppColors.terracota),
                   ),
                 ],
               )

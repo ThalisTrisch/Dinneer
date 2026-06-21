@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:dinneer/service/refeicao/cardapioService.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../service/refeicao/Cardapio.dart';
+import '../service/sessao/SessionService.dart';
 import '../widgets/card_refeicao.dart';
 import '../widgets/card_destaque.dart';
 import '../theme/app_colors.dart';
@@ -11,8 +13,9 @@ import '../theme/app_typography.dart';
 
 class TelaHome extends StatefulWidget {
   final int idUsuarioLogado;
+  final void Function(int)? aoTrocarAba;
 
-  const TelaHome({super.key, this.idUsuarioLogado = 0});
+  const TelaHome({super.key, this.idUsuarioLogado = 0, this.aoTrocarAba});
 
   @override
   State<TelaHome> createState() => _TelaHomeState();
@@ -25,12 +28,28 @@ class _TelaHomeState extends State<TelaHome> {
   Timer? _buscaDebounce;
   String? _categoriaSelecionada;
   String _termoBusca = '';
+  String? _primeiroNome;
+  String? _fotoUsuario;
 
   @override
   void initState() {
     super.initState();
     _refeicoesFuture = _carregarRefeicoes();
     _categoriasFuture = _carregarCategorias();
+    _carregarUsuario();
+  }
+
+  Future<void> _carregarUsuario() async {
+    final usuario = await SessionService.getUsuario();
+    if (!mounted) return;
+    final nome = usuario['nm_usuario']?.toString();
+    final foto = usuario['vl_foto']?.toString();
+    setState(() {
+      _primeiroNome =
+          (nome != null && nome.isNotEmpty) ? nome.split(' ').first : null;
+      _fotoUsuario =
+          (foto != null && foto.isNotEmpty && foto != 'null') ? foto : null;
+    });
   }
 
   @override
@@ -239,7 +258,7 @@ class _TelaHomeState extends State<TelaHome> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'JANTARES PERTO DE',
+                'OLÁ,',
                 style: AppTypography.sans(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -247,39 +266,41 @@ class _TelaHomeState extends State<TelaHome> {
                   letterSpacing: 0.6,
                 ),
               ),
-              Row(
-                children: [
-                  Text(
-                    'São Paulo, SP',
-                    style: AppTypography.serif(fontSize: 20),
-                  ),
-                  const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.tinta,
-                    size: 22,
-                  ),
-                ],
+              Text(
+                _primeiroNome ?? 'Bem-vindo',
+                style: AppTypography.serif(fontSize: 22, fontWeight: FontWeight.w600),
               ),
             ],
           ),
         ),
-        Container(
-          width: 44,
-          height: 44,
-          decoration: const BoxDecoration(
-            color: AppColors.marfim,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: AppColors.terracota,
+        GestureDetector(
+          onTap: () => widget.aoTrocarAba?.call(2),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: const BoxDecoration(
+              color: AppColors.marfim,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_none_rounded,
+              color: AppColors.terracota,
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const CircleAvatar(
-          radius: 22,
-          backgroundColor: AppColors.tan,
-          child: Icon(Icons.person, color: AppColors.tanTexto),
+        GestureDetector(
+          onTap: () => widget.aoTrocarAba?.call(3),
+          child: CircleAvatar(
+            radius: 22,
+            backgroundColor: AppColors.tan,
+            backgroundImage: _fotoUsuario != null
+                ? CachedNetworkImageProvider(_fotoUsuario!)
+                : null,
+            child: _fotoUsuario == null
+                ? const Icon(Icons.person, color: AppColors.tanTexto)
+                : null,
+          ),
         ),
       ],
     );

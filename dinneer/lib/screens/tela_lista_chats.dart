@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/encontro/EncontroService.dart';
 import 'package:dinneer/service/sessao/SessionService.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 import 'tela_chat.dart';
 
 class TelaListaChats extends StatefulWidget {
@@ -72,8 +74,8 @@ class _TelaListaChatsState extends State<TelaListaChats> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Conversas'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.creme,
+        foregroundColor: AppColors.tinta,
         elevation: 0,
         automaticallyImplyLeading: false,
       ),
@@ -84,21 +86,21 @@ class _TelaListaChatsState extends State<TelaListaChats> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.chat_bubble_outline,
                     size: 80,
-                    color: Colors.grey[400],
+                    color: AppColors.tan,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'Nenhuma conversa ainda',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    style: AppTypography.serif(fontSize: 18),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Participe de um jantar para começar a conversar',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    style: AppTypography.sans(fontSize: 14, color: AppColors.bege),
                   ),
                 ],
               ),
@@ -122,26 +124,29 @@ class _TelaListaChatsState extends State<TelaListaChats> {
     final idEncontro = encontro['id_encontro'];
     final dataHora = encontro['hr_encontro'] ?? '';
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: AppColors.marfim,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.bordaSuave),
+      ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey[300],
+        leading: const CircleAvatar(
+          backgroundColor: AppColors.tan,
           radius: 28,
-          child: Icon(Icons.restaurant, color: Colors.grey[700], size: 28),
+          child: Icon(Icons.restaurant, color: AppColors.tanTexto, size: 28),
         ),
         title: Text(
           nomeCardapio,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: AppTypography.serif(fontSize: 16),
         ),
         subtitle: Text(
           _formatarData(dataHora),
-          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          style: AppTypography.sans(color: AppColors.bege, fontSize: 14),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: const Icon(Icons.chevron_right, color: AppColors.bege),
         onTap: () {
           if (idEncontro != null) {
             Navigator.push(

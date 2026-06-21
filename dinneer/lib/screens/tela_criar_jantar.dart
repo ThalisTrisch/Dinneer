@@ -153,15 +153,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Criar Novo Jantar",
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
+        title: const Text("Criar Novo Jantar"),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

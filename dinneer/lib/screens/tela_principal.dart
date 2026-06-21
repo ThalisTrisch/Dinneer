@@ -29,7 +29,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     }
 
     _paginas = [
-      TelaHome(idUsuarioLogado: idUsuario),
+      TelaHome(idUsuarioLogado: idUsuario, aoTrocarAba: _onItemTapped),
       const TelaReservas(),
       const TelaListaChats(),
       TelaPerfil(dadosUsuario: widget.dadosUsuario),

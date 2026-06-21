@@ -4,6 +4,8 @@ import 'package:dinneer/service/refeicao/Cardapio.dart';
 import 'package:dinneer/service/http/HttpService.dart';
 import 'package:dinneer/config/api_config.dart';
 import 'package:dinneer/screens/tela_perfil_publico.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 import 'item_participante.dart';
 
 class ModalGerenciarParticipantes extends StatefulWidget {
@@ -101,7 +103,7 @@ class _ModalGerenciarParticipantesState
       height: MediaQuery.of(context).size.height * 0.75,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.creme,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -114,16 +116,14 @@ class _ModalGerenciarParticipantesState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Gerenciar Convidados",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                      style: AppTypography.sans(
+                          color: AppColors.bege, fontSize: 12),
                     ),
                     Text(
                       widget.jantar.nmCardapio,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTypography.serif(fontSize: 20),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -131,16 +131,14 @@ class _ModalGerenciarParticipantesState
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.grey),
+                icon: const Icon(Icons.close, color: AppColors.bege),
               ),
             ],
           ),
           const Divider(height: 30),
           Expanded(
             child: carregando
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.black),
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : participantes.isEmpty
                 ? const Center(child: Text("Lista de convidados vazia."))
                 : ListView.builder(

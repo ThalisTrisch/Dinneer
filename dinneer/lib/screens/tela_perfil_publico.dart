@@ -5,6 +5,8 @@ import 'package:dinneer/service/encontro/EncontroService.dart';
 import 'package:dinneer/service/refeicao/Cardapio.dart';
 import 'package:dinneer/config/api_config.dart';
 import 'package:dinneer/widgets/card_refeicao.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class TelaPerfilPublico extends StatefulWidget {
   final int idUsuario;
@@ -97,17 +99,17 @@ class _TelaPerfilPublicoState extends State<TelaPerfilPublico>
     String foto = dadosUsuario?['vl_foto'] ?? widget.fotoUrl;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.creme,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: AppColors.tinta),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: carregando
-          ? const Center(child: CircularProgressIndicator(color: Colors.black))
+          ? const Center(child: CircularProgressIndicator())
           : NestedScrollView(
               headerSliverBuilder: (context, _) {
                 return [
@@ -119,20 +121,22 @@ class _TelaPerfilPublicoState extends State<TelaPerfilPublico>
                           children: [
                             CircleAvatar(
                               radius: 50,
+                              backgroundColor: AppColors.tan,
                               backgroundImage:
                                   (foto.isNotEmpty && foto != 'null')
                                   ? NetworkImage(foto)
                                   : null,
                               child: (foto.isEmpty || foto == 'null')
-                                  ? const Icon(Icons.person, size: 50)
+                                  ? const Icon(Icons.person, size: 50,
+                                      color: AppColors.tanTexto)
                                   : null,
                             ),
                             const SizedBox(height: 16),
                             Text(
                               "$nomeExibicao $sobrenome",
-                              style: const TextStyle(
+                              style: AppTypography.serif(
                                 fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -142,20 +146,20 @@ class _TelaPerfilPublicoState extends State<TelaPerfilPublico>
                               children: [
                                 const Icon(
                                   Icons.star_rounded,
-                                  color: Colors.amber,
+                                  color: AppColors.terracota,
                                   size: 24,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   media.toStringAsFixed(1),
-                                  style: const TextStyle(
+                                  style: AppTypography.serif(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 Text(
                                   " ($totalAvaliacoes avaliações)",
-                                  style: TextStyle(color: Colors.grey[600]),
+                                  style: AppTypography.sans(color: AppColors.bege),
                                 ),
                               ],
                             ),
@@ -169,9 +173,9 @@ class _TelaPerfilPublicoState extends State<TelaPerfilPublico>
                     delegate: _SliverAppBarDelegate(
                       TabBar(
                         controller: _tabController,
-                        labelColor: Colors.black,
-                        unselectedLabelColor: Colors.grey,
-                        indicatorColor: Colors.black,
+                        labelColor: AppColors.terracota,
+                        unselectedLabelColor: AppColors.bege,
+                        indicatorColor: AppColors.terracota,
                         tabs: const [Tab(text: "Jantares Organizados")],
                       ),
                     ),
@@ -217,7 +221,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(color: Colors.white, child: _tabBar);
+    return Container(color: AppColors.creme, child: _tabBar);
   }
 
   @override

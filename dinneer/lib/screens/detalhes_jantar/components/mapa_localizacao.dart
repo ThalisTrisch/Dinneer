@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class MapaLocalizacao extends StatelessWidget {
   final Future<LatLng?> coordenadasFuture;
@@ -21,11 +23,11 @@ class MapaLocalizacao extends StatelessWidget {
           return Container(
             height: 250,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppColors.marfim,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
-              child: CircularProgressIndicator(color: Colors.black),
+              child: CircularProgressIndicator(),
             ),
           );
         }
@@ -34,17 +36,17 @@ class MapaLocalizacao extends StatelessWidget {
             height: 250,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppColors.marfim,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.location_off, color: Colors.grey, size: 40),
+                const Icon(Icons.location_off, color: AppColors.bege, size: 40),
                 const SizedBox(height: 8),
                 Text(
                   "Endereço não localizado: $nuCep",
-                  style: const TextStyle(color: Colors.grey),
+                  style: AppTypography.sans(color: AppColors.bege),
                 ),
               ],
             ),
@@ -55,10 +57,10 @@ class MapaLocalizacao extends StatelessWidget {
           height: 250,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.bordaSuave),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: AppColors.tinta.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

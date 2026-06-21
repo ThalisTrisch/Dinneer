@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class InfoAnfitriao extends StatelessWidget {
   final String nomeAnfitriao;
@@ -19,10 +21,10 @@ class InfoAnfitriao extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 26,
-          backgroundColor: Colors.grey[300],
+          backgroundColor: AppColors.tan,
           backgroundImage: temFoto ? NetworkImage(urlFotoAnfitriao!) : null,
           child: !temFoto
-              ? const Icon(Icons.person, color: Colors.white)
+              ? const Icon(Icons.person, color: AppColors.tanTexto)
               : null,
         ),
         const SizedBox(width: 12),
@@ -31,11 +33,11 @@ class InfoAnfitriao extends StatelessWidget {
           children: [
             Text(
               "Anfitrião",
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: AppTypography.sans(fontSize: 12, color: AppColors.bege),
             ),
             Text(
               nomeAnfitriao,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: AppTypography.serif(fontSize: 16),
             ),
             const Row(
               children: [

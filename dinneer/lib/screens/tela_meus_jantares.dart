@@ -68,8 +68,6 @@ class _TelaMeusJantaresState extends State<TelaMeusJantares> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meus Jantares"),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
       ),
       body: carregando
           ? const Center(child: CircularProgressIndicator())

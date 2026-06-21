@@ -8,6 +8,8 @@ import '../service/sessao/SessionService.dart';
 import '../service/notification/notification_service.dart';
 import 'chat/components/message_bubble.dart';
 import 'chat/components/campo_mensagem.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 import 'dart:io';
 
@@ -229,8 +231,8 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.encontroNome),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.creme,
+        foregroundColor: AppColors.tinta,
         elevation: 0,
       ),
       body: Column(
@@ -256,13 +258,15 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
                         const SizedBox(height: 16),
                         Text(
                           'Erro ao carregar mensagens',
-                          style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                          style: AppTypography.sans(
+                              fontSize: 16, color: AppColors.tinta),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${snapshot.error}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                          style: AppTypography.sans(
+                              fontSize: 12, color: AppColors.bege),
                         ),
                       ],
                     ),
@@ -272,11 +276,11 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
                 final listaMensagens = snapshot.data ?? [];
 
                 if (listaMensagens.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'Nenhuma mensagem ainda.\nSeja o primeiro a enviar!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTypography.sans(color: AppColors.bege),
                     ),
                   );
                 }
