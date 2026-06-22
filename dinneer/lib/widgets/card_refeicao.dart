@@ -48,11 +48,12 @@ class CardRefeicao extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: ConstrainedBox(
+                child: Container(
                   constraints: const BoxConstraints(minHeight: 130),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(

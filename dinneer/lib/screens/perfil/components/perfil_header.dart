@@ -7,16 +7,22 @@ class PerfilHeader extends StatelessWidget {
   final String nomeUsuario;
   final String emailUsuario;
   final String? fotoUrl;
+  final String? fotoCapaUrl;
   final bool isUploading;
+  final bool isUploadingCapa;
   final VoidCallback onCameraTap;
+  final VoidCallback onCoverTap;
 
   const PerfilHeader({
     super.key,
     required this.nomeUsuario,
     required this.emailUsuario,
     required this.fotoUrl,
+    required this.fotoCapaUrl,
     required this.isUploading,
+    required this.isUploadingCapa,
     required this.onCameraTap,
+    required this.onCoverTap,
   });
 
   void _fazerLogout(BuildContext context) async {
@@ -38,6 +44,20 @@ class PerfilHeader extends StatelessWidget {
       stretch: true,
 
       actions: [
+        IconButton(
+          icon: isUploadingCapa
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.tinta,
+                  ),
+                )
+              : const Icon(Icons.add_photo_alternate, color: AppColors.tinta),
+          tooltip: 'Alterar imagem de capa',
+          onPressed: isUploadingCapa ? null : onCoverTap,
+        ),
         IconButton(
           icon: const Icon(Icons.logout, color: AppColors.tinta),
           tooltip: 'Sair da conta',
@@ -73,16 +93,26 @@ class PerfilHeader extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: AppColors.terracotaSuave),
+            // Camada base: foto de capa (se houver) ou cor sólida
+            (fotoCapaUrl != null && fotoCapaUrl!.isNotEmpty)
+                ? Image.network(
+                    fotoCapaUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        Container(color: AppColors.terracotaSuave),
+                  )
+                : Container(color: AppColors.terracotaSuave),
+            // Gradiente para dar legibilidade ao conteúdo sobre a capa
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     AppColors.tinta.withValues(alpha: 0.55),
                     Colors.transparent,
+                    AppColors.tinta.withValues(alpha: 0.45),
                   ],
                   begin: Alignment.topCenter,
-                  end: Alignment.center,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),

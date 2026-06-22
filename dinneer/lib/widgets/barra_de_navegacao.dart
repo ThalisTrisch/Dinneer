@@ -67,22 +67,24 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
               color: ativo ? Colors.white : AppColors.bege,
             ),
           ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            child: ativo
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      label,
-                      style: AppTypography.sans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.terracota,
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+          const SizedBox(height: 3),
+          // Espaço do rótulo é sempre reservado (altura fixa); só a opacidade
+          // anima. Assim a barra nunca muda de tamanho ao trocar de aba.
+          SizedBox(
+            height: 13,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: ativo ? 1.0 : 0.0,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: AppTypography.sans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.terracota,
+                ),
+              ),
+            ),
           ),
         ],
       ),

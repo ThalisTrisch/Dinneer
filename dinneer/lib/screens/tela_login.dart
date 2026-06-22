@@ -128,14 +128,21 @@ class _TelaLoginState extends State<TelaLogin> {
 
     try {
       String emailGoogle;
+      String? nomeGoogle;
+      String? fotoGoogle;
 
       if (kIsWeb) {
         // --- Fluxo Web: usa popup direto do Firebase ---
         final googleProvider = GoogleAuthProvider();
+        // Força o popup a sempre mostrar o seletor de contas, em vez de
+        // reaproveitar silenciosamente a última conta usada.
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
         final userCredential =
             await FirebaseAuth.instance.signInWithPopup(googleProvider);
 
         emailGoogle = userCredential.user?.email ?? '';
+        nomeGoogle = userCredential.user?.displayName;
+        fotoGoogle = userCredential.user?.photoURL;
         if (emailGoogle.isEmpty) {
           await FirebaseAuth.instance.signOut();
           _mostrarMensagemErro('Não foi possível obter o email da conta Google.');
@@ -143,13 +150,19 @@ class _TelaLoginState extends State<TelaLogin> {
         }
       } else {
         // --- Fluxo Mobile: usa google_sign_in ---
-        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        final googleSignIn = GoogleSignIn();
+        // Limpa a conta em cache para que o seletor de contas apareça toda vez
+        // (permite escolher/cadastrar outra conta, não só reentrar na última).
+        await googleSignIn.signOut();
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
         if (googleUser == null) {
           // Usuário cancelou
           return;
         }
 
         emailGoogle = googleUser.email;
+        nomeGoogle = googleUser.displayName;
+        fotoGoogle = googleUser.photoUrl;
 
         final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
         final credential = GoogleAuthProvider.credential(
@@ -159,25 +172,24 @@ class _TelaLoginState extends State<TelaLogin> {
         await FirebaseAuth.instance.signInWithCredential(credential);
       }
 
-      // 2. Verifica se o email já tem cadastro no sistema
-      final respostaDados = await UsuarioService.verificarEmailExiste(emailGoogle);
+      // Separa nome e sobrenome a partir do nome da conta Google
+      final partesNome = (nomeGoogle ?? '').trim().split(RegExp(r'\s+'));
+      final primeiroNome = partesNome.isNotEmpty && partesNome.first.isNotEmpty
+          ? partesNome.first
+          : 'Usuário';
+      final sobrenome =
+          partesNome.length > 1 ? partesNome.sublist(1).join(' ') : '';
 
-      final dados = respostaDados['dados'];
-      final existe = dados != null &&
-          dados != false &&
-          (dados is! List || (dados as List).isNotEmpty);
+      // Login OU cadastro num passo só (cria a conta se ainda não existir)
+      final respostaDados = await UsuarioService.loginOuCadastroGoogle(
+        email: emailGoogle,
+        nome: primeiroNome,
+        sobrenome: sobrenome,
+        foto: fotoGoogle,
+      );
 
-      if (!existe) {
-        await FirebaseAuth.instance.signOut();
-        if (!kIsWeb) await GoogleSignIn().signOut();
-        _mostrarMensagemErro(
-          'Nenhuma conta encontrada para este email. Faça o cadastro primeiro.',
-        );
-        return;
-      }
-
-      if (respostaDados['dados'] == null) {
-        _mostrarMensagemErro('Não foi possível carregar os dados do usuário.');
+      if (respostaDados == null || respostaDados['dados'] == null) {
+        _mostrarMensagemErro('Não foi possível entrar com o Google.');
         return;
       }
 

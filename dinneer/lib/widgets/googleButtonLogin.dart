@@ -1,39 +1,46 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import '../theme/app_spacing.dart';
 
 class GoogleLoginButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const GoogleLoginButton({
-    super.key, 
+    super.key,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black87, // Cor do texto
-        backgroundColor: Colors.white,   // Fundo branco clássico do Google
-        minimumSize: const Size(double.infinity, 50), // Largura total e altura fixa
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          side: BorderSide(color: Colors.grey.shade300), // Borda sutil
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          foregroundColor: AppColors.tinta,
+          backgroundColor: AppColors.marfim,
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            side: const BorderSide(color: AppColors.bordaSuave),
+          ),
         ),
-        elevation: 1, // Sombra leve para destacar
-      ),
-      icon: Image.asset(
-        'assets/images/google_logo.png', // Caminho do seu asset
-        height: 24.0,
-      ),
-      label: const Text(
-        'Continuar com o Google',
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+        icon: Image.asset(
+          'assets/images/google_logo.png',
+          height: 22.0,
+        ),
+        label: Text(
+          'Continuar com o Google',
+          style: AppTypography.sans(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.tinta,
+            letterSpacing: 0.3,
+          ),
         ),
       ),
-      onPressed: onPressed,
     );
   }
 }

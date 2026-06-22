@@ -67,13 +67,21 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
       }
     } catch (e) {
       if (mounted) {
+        final msg = e.toString().replaceFirst('Exception: ', '');
+        final jaAvaliou = msg.toLowerCase().contains('já avaliou');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Erro ao avaliar. Tente novamente."),
+          SnackBar(
+            content: Text(
+              jaAvaliou ? "Você já avaliou este jantar." : "Erro ao avaliar. Tente novamente.",
+            ),
             backgroundColor: Colors.red,
           ),
         );
-        setState(() => _enviando = false);
+        if (jaAvaliou) {
+          Navigator.pop(context);
+        } else {
+          setState(() => _enviando = false);
+        }
       }
     }
   }

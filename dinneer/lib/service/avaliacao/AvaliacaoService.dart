@@ -14,7 +14,7 @@ class AvaliacaoService {
     int idTipoAvaliacao,
     double nota,
   ) async {
-    return await httpService.post(
+    final resposta = await httpService.post(
       endpoint,
       "createAvaliacao",
       body: {
@@ -24,6 +24,14 @@ class AvaliacaoService {
         "vl_avaliacao": nota.toInt().toString(),
       },
     );
+
+    // O backend responde sempre com HTTP 200; erros (ex.: avaliação já
+    // existente) vêm sinalizados por NumMens != 0. Convertemos isso em
+    // exceção para o chamador tratar de verdade, em vez de assumir sucesso.
+    if (resposta is Map && (resposta['NumMens'] ?? 0) != 0) {
+      throw Exception(resposta['Mensagem'] ?? 'Não foi possível registrar a avaliação.');
+    }
+    return resposta;
   }
 
   static Future<Map<String, dynamic>> getMediaUsuario(int idUsuario) async {

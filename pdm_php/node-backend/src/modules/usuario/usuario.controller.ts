@@ -85,6 +85,15 @@ export class UsuarioController {
           await usuarioService.atualizarFotoPerfil(req.usuarioId, vl_foto);
           break;
 
+        case 'atualizarFotoCapa':
+          // Só altera a capa da própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
+          const vl_foto_capa = req.body.vl_foto_capa;
+          if (!vl_foto_capa) throw new Error('vl_foto_capa nao fornecido');
+
+          await usuarioService.atualizarFotoCapa(req.usuarioId, vl_foto_capa);
+          break;
+
         case 'verificarEmailExiste':
           // Aceita tanto query param (GET) quanto body (POST)
           const emailVerificar = (req.query.vl_email as string) || req.body.vl_email;
@@ -92,6 +101,15 @@ export class UsuarioController {
           if (!emailVerificar) throw new Error('vl_email nao fornecido');
 
           await usuarioService.verificarEmailExiste(emailVerificar);
+          break;
+
+        case 'loginOuCadastroGoogle':
+          await usuarioService.loginOuCadastroGoogle({
+            vl_email: req.body.vl_email,
+            nm_usuario: req.body.nm_usuario,
+            nm_sobrenome: req.body.nm_sobrenome,
+            vl_foto: req.body.vl_foto || null,
+          });
           break;
 
         default:

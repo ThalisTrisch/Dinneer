@@ -10,12 +10,13 @@ CREATE TABLE IF NOT EXISTS tb_sequence_dn (
 -- Tabela de usuários
 CREATE TABLE IF NOT EXISTS tb_usuario_dn (
     id_usuario INTEGER PRIMARY KEY,
-    nu_cpf CHAR(11) NOT NULL UNIQUE,
+    nu_cpf CHAR(11) UNIQUE,
     nm_usuario VARCHAR(100) NOT NULL,
     nm_sobrenome VARCHAR(100) NOT NULL,
     vl_email VARCHAR(100) NOT NULL UNIQUE,
     vl_senha VARCHAR(255) NOT NULL,
     vl_foto VARCHAR(255),
+    vl_foto_capa VARCHAR(255),
     fl_anfitriao VARCHAR(10) DEFAULT 'false'
 );
 

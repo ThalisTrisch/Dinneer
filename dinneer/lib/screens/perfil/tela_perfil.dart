@@ -30,9 +30,11 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
   String? idUsuario;
   String? fotoUrlAtual;
+  String? fotoCapaUrlAtual;
   String nomeUsuario = "Usuário";
   String emailUsuario = "@usuario";
   bool _enviandoFoto = false;
+  bool _enviandoCapa = false;
 
   @override
   void initState() {
@@ -51,6 +53,13 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           rawFoto.toString().isNotEmpty &&
           rawFoto.toString() != 'null') {
         fotoUrlAtual = rawFoto.toString();
+      }
+
+      final rawCapa = widget.dadosUsuario['vl_foto_capa'];
+      if (rawCapa != null &&
+          rawCapa.toString().isNotEmpty &&
+          rawCapa.toString() != 'null') {
+        fotoCapaUrlAtual = rawCapa.toString();
       }
     });
 
@@ -121,6 +130,51 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _alterarFotoCapa() async {
+    try {
+      final imagem = await _storage.escolherImagem(
+        imageQuality: 80,
+        maxWidth: 1920,
+      );
+
+      if (imagem != null) {
+        setState(() => _enviandoCapa = true);
+        await _uploadEAtualizarCapa(imagem);
+      }
+    } catch (e) {
+      setState(() => _enviandoCapa = false);
+    }
+  }
+
+  Future<void> _uploadEAtualizarCapa(File imagem) async {
+    try {
+      String novaUrl = await _storage.uploadImagem(
+        imagem,
+        pasta: 'capas',
+        prefixo: 'capa',
+        timeout: const Duration(seconds: 15),
+      );
+
+      if (idUsuario != null) {
+        await UsuarioService.atualizarFotoCapa(idUsuario!, novaUrl);
+      }
+
+      if (mounted) {
+        setState(() {
+          fotoCapaUrlAtual = novaUrl;
+          _enviandoCapa = false;
+        });
+        Mensagens.sucesso(context, "Capa atualizada!");
+      }
+    } catch (e) {
+      debugPrint("Erro upload capa: $e");
+      if (mounted) {
+        setState(() => _enviandoCapa = false);
+        Mensagens.erro(context, "Erro ao enviar capa.");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (idUsuario == null) {
@@ -157,8 +211,11 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             nomeUsuario: nomeUsuario,
             emailUsuario: emailUsuario,
             fotoUrl: fotoUrlAtual,
+            fotoCapaUrl: fotoCapaUrlAtual,
             isUploading: _enviandoFoto,
+            isUploadingCapa: _enviandoCapa,
             onCameraTap: _alterarFotoPerfil,
+            onCoverTap: _alterarFotoCapa,
           ),
 
           SliverPersistentHeader(

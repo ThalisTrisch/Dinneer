@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { BaseService } from '../../database/BaseService';
 import { Database } from '../../database/Database';
 import { LoginData } from '../../types';
@@ -27,7 +28,7 @@ export class UsuarioService extends BaseService {
 
     // Busca usuário no banco
     const sql = `
-      SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_senha, vl_foto
+      SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_senha, vl_foto, vl_foto_capa
       FROM tb_usuario_dn
       WHERE vl_email = $1
     `;
@@ -79,7 +80,7 @@ export class UsuarioService extends BaseService {
       throw new Error('Email não fornecido.');
     }
 
-    const sql = 'SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_foto FROM tb_usuario_dn WHERE vl_email = $1';
+    const sql = 'SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_foto, vl_foto_capa FROM tb_usuario_dn WHERE vl_email = $1';
     const result = await this.conexao.query(sql, [vl_email]);
 
     // Anexa um token de sessão quando o usuário existe (login via Google),
@@ -90,6 +91,64 @@ export class UsuarioService extends BaseService {
     }));
 
     this.banco.setDados(linhas.length, linhas);
+  }
+
+  /**
+   * Login OU cadastro via Google: se o email já existe, retorna o usuário;
+   * se não, cria a conta a partir dos dados do Google (sem CPF, com senha
+   * aleatória — o acesso é pelo Google). Sempre devolve um token de sessão.
+   */
+  async loginOuCadastroGoogle(dados: {
+    vl_email: string;
+    nm_usuario?: string;
+    nm_sobrenome?: string;
+    vl_foto?: string | null;
+  }): Promise<void> {
+    if (!dados.vl_email || !this.emailPermitido(dados.vl_email)) {
+      throw new Error('Email do Google inválido.');
+    }
+
+    const sqlBusca = `
+      SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_foto, vl_foto_capa, fl_anfitriao
+      FROM tb_usuario_dn WHERE vl_email = $1
+    `;
+    let result = await this.conexao.query(sqlBusca, [dados.vl_email]);
+
+    let usuario: any;
+    if (result.rows.length > 0) {
+      usuario = result.rows[0];
+    } else {
+      // Cria a conta a partir do Google
+      const sqlSeq = 'SELECT id_sequence FROM tb_sequence_dn ORDER BY id_sequence DESC LIMIT 1';
+      const seqResult = await this.conexao.query(sqlSeq);
+      const maiorId = (seqResult.rows.length > 0 ? seqResult.rows[0].id_sequence : 0) + 1;
+      await this.conexao.query(
+        'INSERT INTO tb_sequence_dn (id_sequence, nm_sequence) VALUES ($1, $2)',
+        [maiorId, 'U']
+      );
+
+      const senhaAleatoria = hashPassword(crypto.randomBytes(24).toString('hex'));
+
+      await this.conexao.query(
+        `INSERT INTO tb_usuario_dn
+         (id_usuario, nu_cpf, nm_usuario, fl_anfitriao, vl_email, nm_sobrenome, vl_senha, vl_foto)
+         VALUES ($1, NULL, $2, 'false', $3, $4, $5, $6)`,
+        [
+          maiorId,
+          dados.nm_usuario && dados.nm_usuario.trim() !== '' ? dados.nm_usuario : 'Usuário',
+          dados.vl_email,
+          dados.nm_sobrenome || '',
+          senhaAleatoria,
+          dados.vl_foto || null,
+        ]
+      );
+
+      result = await this.conexao.query(sqlBusca, [dados.vl_email]);
+      usuario = result.rows[0];
+    }
+
+    usuario.token = gerarToken(Number(usuario.id_usuario));
+    this.banco.setDados(1, usuario);
   }
 
   /**
@@ -114,7 +173,7 @@ export class UsuarioService extends BaseService {
    */
   async getUsuario(id_usuario: number): Promise<void> {
     const sql = `
-      SELECT id_usuario, nm_usuario, nm_sobrenome, vl_foto, fl_anfitriao
+      SELECT id_usuario, nm_usuario, nm_sobrenome, vl_foto, vl_foto_capa, fl_anfitriao
       FROM tb_usuario_dn
       WHERE id_usuario = $1
     `;
@@ -218,7 +277,17 @@ export class UsuarioService extends BaseService {
   async atualizarFotoPerfil(id_usuario: number, vl_foto: string): Promise<void> {
     const sql = 'UPDATE tb_usuario_dn SET vl_foto = $1 WHERE id_usuario = $2';
     await this.conexao.query(sql, [vl_foto, id_usuario]);
-    
+
     this.banco.setDados(1, { Mensagem: 'Foto atualizada com sucesso' });
+  }
+
+  /**
+   * Atualiza foto de capa
+   */
+  async atualizarFotoCapa(id_usuario: number, vl_foto_capa: string): Promise<void> {
+    const sql = 'UPDATE tb_usuario_dn SET vl_foto_capa = $1 WHERE id_usuario = $2';
+    await this.conexao.query(sql, [vl_foto_capa, id_usuario]);
+
+    this.banco.setDados(1, { Mensagem: 'Foto de capa atualizada com sucesso' });
   }
 }
