@@ -74,6 +74,24 @@ export class UsuarioService extends BaseService {
     this.banco.setDados(1, usuario);
   }
 
+  async verificarEmailExiste(vl_email: String): Promise<void> {
+    if (!vl_email) {
+      throw new Error('Email não fornecido.');
+    }
+
+    const sql = 'SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_foto FROM tb_usuario_dn WHERE vl_email = $1';
+    const result = await this.conexao.query(sql, [vl_email]);
+
+    // Anexa um token de sessão quando o usuário existe (login via Google),
+    // para que ele também passe pelos endpoints protegidos.
+    const linhas = result.rows.map((u: any) => ({
+      ...u,
+      token: gerarToken(Number(u.id_usuario)),
+    }));
+
+    this.banco.setDados(linhas.length, linhas);
+  }
+
   /**
    * Lista todos os usuários
    */

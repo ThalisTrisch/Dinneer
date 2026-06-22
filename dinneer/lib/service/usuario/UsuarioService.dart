@@ -18,6 +18,21 @@ class UsuarioService {
     return await httpService.post(endpoint, "loginUsuario", body: body);
   }
 
+  static Future<dynamic> googleLogin(String email, String senha) async {
+    final body = {'vl_email': email, 'vl_senha': senha};
+    return await httpService.post(endpoint, "loginUsuario", body: body);
+  }
+
+  /// Verifica se um email já está cadastrado no sistema
+  static Future<dynamic> verificarEmailExiste(String email) async {
+    return await httpService.get(endpoint, "verificarEmailExiste", queryParams: {'vl_email': email});
+  }
+ 
+  /// Busca os dados completos de um usuário pelo email
+  static Future<dynamic> getUsuarioPorEmail(String email) async {
+    return await httpService.get(endpoint, "getUsuarioPorEmail", queryParams: {'vl_email': email});
+  }
+
   static Future<dynamic> createUsuario(Map<String, dynamic> dados) async {
     return await httpService.post(endpoint, "createUsuario", body: dados);
   }

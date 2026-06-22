@@ -35,6 +35,12 @@ router.get('/', async (req, res, next) => {
   usuarioController.handle(req, res, next);
 });
 
+// GET /api/v1/usuario/verificar-email?vl_email=... - Verificar se email existe (login com Google)
+router.get('/verificar-email', async (req, res, next) => {
+  req.query.operacao = 'verificarEmailExiste';
+  usuarioController.handle(req, res, next);
+});
+
 // GET /api/v1/usuario/:id - Buscar usuário por ID
 router.get('/:id', async (req, res, next) => {
   req.query.operacao = 'getUsuario';
