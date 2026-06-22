@@ -23,8 +23,8 @@ export class UsuarioService extends BaseService {
       throw new Error('Email ou senha não fornecidos.');
     }
 
-    // Criptografa a senha para comparar com o banco
-    const senhaCriptografada = encrypt(loginData.vl_senha);
+    // Garante que a senha seja string antes de criptografar
+    const senhaCriptografada = encrypt(String(loginData.vl_senha));
 
     // Busca usuário no banco
     const sql = `
@@ -51,6 +51,18 @@ export class UsuarioService extends BaseService {
 
     // Define os dados de retorno
     this.banco.setDados(1, usuario);
+  }
+
+  async verificarEmailExiste(vl_email: String): Promise<void> {
+    if (!vl_email) {
+      throw new Error('Email não fornecido.');
+    }
+
+    const sql = 'SELECT id_usuario, nm_usuario, nm_sobrenome, vl_email, vl_foto FROM tb_usuario_dn WHERE vl_email = $1';
+    const result = await this.conexao.query(sql, [vl_email]);
+
+    // Retorna os dados encontrados (lista vazia se não existir — sem lançar erro)
+    this.banco.setDados(result.rows.length, result.rows);
   }
 
   /**
@@ -122,7 +134,7 @@ export class UsuarioService extends BaseService {
     await this.conexao.query(sqlInsertSeq, [maiorId, 'U']);
 
     // Criptografa a senha
-    const senhaCriptografada = encrypt(dados.vl_senha);
+    const senhaCriptografada = encrypt(String(dados.vl_senha));
 
     // Insere o usuário
     const sqlUser = `

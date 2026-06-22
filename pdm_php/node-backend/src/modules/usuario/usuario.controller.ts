@@ -85,6 +85,15 @@ export class UsuarioController {
           await usuarioService.atualizarFotoPerfil(id_foto, vl_foto);
           break;
 
+        case 'verificarEmailExiste':
+          // Aceita tanto query param (GET) quanto body (POST)
+          const emailVerificar = (req.query.vl_email as string) || req.body.vl_email;
+
+          if (!emailVerificar) throw new Error('vl_email nao fornecido');
+
+          await usuarioService.verificarEmailExiste(emailVerificar);
+          break;
+
         default:
           banco.setMensagem(1, 'Operação informada não tratada. Operação=' + operacao);
           break;

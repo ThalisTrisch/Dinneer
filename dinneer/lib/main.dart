@@ -23,6 +23,7 @@ void main() async {
         appId: "1:832231555760:web:c01a009fe2f048bec7b175",
         messagingSenderId: "832231555760",
         projectId: "dinneer-19ada",
+        authDomain: "dinneer-19ada.firebaseapp.com",
         storageBucket: "dinneer-19ada.firebasestorage.app",
         databaseURL: "https://dinneer-19ada-default-rtdb.firebaseio.com",
       ),

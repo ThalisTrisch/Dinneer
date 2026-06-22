@@ -35,6 +35,8 @@ dependencies:
   intl: ^0.20.2
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
+  firebase_auth: ^6.5.3
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Adicione a seção assets aqui, alinhada com uses-material-design
+  assets:
+    - assets/images/google_logo.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

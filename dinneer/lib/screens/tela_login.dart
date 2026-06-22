@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dinneer/service/usuario/UsuarioService.dart';
 import 'package:dinneer/service/sessao/SessionService.dart'; // <--- Importante!
 import '../widgets/campo_de_texto.dart';
@@ -8,6 +9,9 @@ import 'tela_cadastro.dart';
 import '../screens/tela_principal.dart';
 import '../service/notification/notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../widgets/googleButtonLogin.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -21,6 +25,7 @@ class _TelaLoginState extends State<TelaLogin> {
   final _senhaController = TextEditingController();
 
   bool _estaCarregando = false;
+
 
   void _fazerLogin() async {
     if (_estaCarregando) return;
@@ -121,6 +126,98 @@ class _TelaLoginState extends State<TelaLogin> {
     }
   }
 
+  void _fazerLoginGoogle() async {
+    if (_estaCarregando) return;
+
+    setState(() => _estaCarregando = true);
+
+    try {
+      String emailGoogle;
+
+      if (kIsWeb) {
+        // --- Fluxo Web: usa popup direto do Firebase ---
+        final googleProvider = GoogleAuthProvider();
+        final userCredential =
+            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+        emailGoogle = userCredential.user?.email ?? '';
+        if (emailGoogle.isEmpty) {
+          await FirebaseAuth.instance.signOut();
+          _mostrarMensagemErro('Não foi possível obter o email da conta Google.');
+          return;
+        }
+      } else {
+        // --- Fluxo Mobile: usa google_sign_in ---
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) {
+          // Usuário cancelou
+          return;
+        }
+
+        emailGoogle = googleUser.email;
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+
+      // 2. Verifica se o email já tem cadastro no sistema
+      final respostaDados = await UsuarioService.verificarEmailExiste(emailGoogle);
+
+      final dados = respostaDados['dados'];
+      final existe = dados != null &&
+          dados != false &&
+          (dados is! List || (dados as List).isNotEmpty);
+
+      if (!existe) {
+        await FirebaseAuth.instance.signOut();
+        if (!kIsWeb) await GoogleSignIn().signOut();
+        _mostrarMensagemErro(
+          'Nenhuma conta encontrada para este email. Faça o cadastro primeiro.',
+        );
+        return;
+      }
+
+      if (respostaDados['dados'] == null) {
+        _mostrarMensagemErro('Não foi possível carregar os dados do usuário.');
+        return;
+      }
+
+      Map<String, dynamic> usuarioLogado;
+      if (respostaDados['dados'] is List) {
+        usuarioLogado =
+            Map<String, dynamic>.from(respostaDados['dados'][0]);
+      } else {
+        usuarioLogado = Map<String, dynamic>.from(respostaDados['dados']);
+      }
+
+      // 4. Salva sessão e navega para a tela principal
+      if (usuarioLogado['id_usuario'] != null) {
+        int id = int.tryParse(usuarioLogado['id_usuario'].toString()) ?? 0;
+        await SessionService.salvarUsuarioId(id);
+        await SessionService.salvarUsuario(usuarioLogado);
+        await NotificationService.initialize(id.toString());
+      }
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaPrincipal(dadosUsuario: usuarioLogado),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro no login com Google: $e');
+      _mostrarMensagemErro('Erro ao entrar com Google. Tente novamente.');
+    } finally {
+      if (mounted) setState(() => _estaCarregando = false);
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -212,6 +309,9 @@ class _TelaLoginState extends State<TelaLogin> {
                   estaCarregando: _estaCarregando,
                 ),
                 const SizedBox(height: 40),
+                GoogleLoginButton(
+                  onPressed: _fazerLoginGoogle,
+                ),
               ],
             ),
           ),
