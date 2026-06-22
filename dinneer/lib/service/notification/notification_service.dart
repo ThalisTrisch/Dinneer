@@ -21,8 +21,6 @@ class NotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   static Future<void> initialize(String userId) async {
-    // ⚠️ Push notifications are NOT supported on web
-    // Skip initialization to avoid service worker errors
     if (kIsWeb) {
       debugPrint('⚠️ Push notifications não são suportadas na web. Pulando inicialização.');
       return;
@@ -31,7 +29,6 @@ class NotificationService {
     try {
       await _messaging.requestPermission(alert: true, badge: true, sound: true);
 
-      // Create the Android notification channel before registering
       await _localNotifications
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
@@ -49,11 +46,10 @@ class NotificationService {
       _messaging.onTokenRefresh.listen((newToken) => _saveToken(userId, newToken));
 
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-      
+
       debugPrint('✅ Notificações push inicializadas com sucesso');
     } catch (e) {
       debugPrint('❌ Erro ao inicializar notificações: $e');
-      // Não propaga o erro para não quebrar o login
     }
   }
 

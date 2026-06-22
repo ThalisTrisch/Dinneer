@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/avaliacao/AvaliacaoService.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class ModalAvaliacao extends StatefulWidget {
   final int idUsuario;
@@ -65,13 +67,21 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
       }
     } catch (e) {
       if (mounted) {
+        final msg = e.toString().replaceFirst('Exception: ', '');
+        final jaAvaliou = msg.toLowerCase().contains('já avaliou');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Erro ao avaliar. Tente novamente."),
+          SnackBar(
+            content: Text(
+              jaAvaliou ? "Você já avaliou este jantar." : "Erro ao avaliar. Tente novamente.",
+            ),
             backgroundColor: Colors.red,
           ),
         );
-        setState(() => _enviando = false);
+        if (jaAvaliou) {
+          Navigator.pop(context);
+        } else {
+          setState(() => _enviando = false);
+        }
       }
     }
   }
@@ -81,17 +91,17 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.creme,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
 
       child: Column(
-        mainAxisSize: MainAxisSize.min, // <--- AQUI É O LUGAR CERTO
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             "Avaliar Jantar",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: AppTypography.serif(fontSize: 20),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -119,7 +129,7 @@ class _ModalAvaliacaoState extends State<ModalAvaliacao> {
           ElevatedButton(
             onPressed: _enviando ? null : _enviarAvaliacoes,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: AppColors.terracota,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

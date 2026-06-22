@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
-/// Chip de filtro selecionável usado nas abas de "Minhas Reservas".
-///
-/// Compara [value] com [groupValue] para definir o estado selecionado e
-/// dispara [onTap] com o próprio [value] ao ser tocado.
 class FiltroChip extends StatelessWidget {
   final String label;
   final int value;
@@ -27,13 +24,16 @@ class FiltroChip extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.grey[200],
+          color: isSelected ? AppColors.terracota : AppColors.marfim,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.terracota : AppColors.bordaSuave,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black54,
+            color: isSelected ? Colors.white : AppColors.tanTexto,
             fontWeight: FontWeight.bold,
           ),
         ),

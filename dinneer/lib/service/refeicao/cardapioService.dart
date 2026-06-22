@@ -8,7 +8,6 @@ class CardapioService {
   static final httpService = HttpService();
 
   static Future<dynamic> createJantar(Map<String, dynamic> dados) async {
-    // Node.js backend usa "createJantarCompleto" ao invés de "createJantar"
     final operacao = ApiConfig.useNodeBackend
         ? "createJantarCompleto"
         : "createJantar";
@@ -16,9 +15,7 @@ class CardapioService {
   }
 
   static Future<dynamic> getCardapiosDisponiveis() async {
-    final resposta = await httpService.get(endpoint, "getCardapiosDisponiveis");
-    print("DEBUG HOME: $resposta");
-    return resposta;
+    return await httpService.get(endpoint, "getCardapiosDisponiveis");
   }
 
   static Future<dynamic> getCardapiosPorCategoria(String categoria) async {
@@ -46,7 +43,6 @@ class CardapioService {
   }
 
   static Future<dynamic> deleteJantar(int idJantar) async {
-    // Node.js backend usa "deleteJantar" ao invés de "deleteCardapio"
     final operacao = ApiConfig.useNodeBackend
         ? "deleteJantar"
         : "deleteCardapio";

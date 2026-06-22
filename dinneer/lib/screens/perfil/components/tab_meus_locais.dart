@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/local/LocalService.dart';
 import 'package:dinneer/screens/tela_criar_jantar.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
 class TabMeusLocais extends StatefulWidget {
   final String idUsuario;
@@ -90,21 +92,19 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
   @override
   Widget build(BuildContext context) {
     if (carregandoLocais) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.black),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (meusLocais.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.location_off_outlined, size: 60, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.location_off_outlined, size: 60, color: AppColors.tan),
+            const SizedBox(height: 16),
             Text(
               "Você ainda não cadastrou nenhum local.",
-              style: TextStyle(color: Colors.grey),
+              style: AppTypography.sans(color: AppColors.bege),
             ),
           ],
         ),
@@ -119,10 +119,10 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
           elevation: 0,
-          color: Colors.white,
+          color: AppColors.marfim,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.shade200),
+            side: const BorderSide(color: AppColors.bordaSuave),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -135,12 +135,12 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: AppColors.terracotaSuave,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.location_on_rounded,
-                        color: Colors.black87,
+                        color: AppColors.terracota,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -150,26 +150,23 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                         children: [
                           Text(
                             "CEP: ${local['nu_cep']}",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTypography.serif(fontSize: 16),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Número: ${local['nu_casa']}",
-                            style: TextStyle(
+                            style: AppTypography.sans(
                               fontSize: 14,
-                              color: Colors.grey.shade600,
+                              color: AppColors.bege,
                             ),
                           ),
                           if (local['dc_complemento'] != null &&
                               local['dc_complemento'].toString().isNotEmpty)
                             Text(
                               "${local['dc_complemento']}",
-                              style: TextStyle(
+                              style: AppTypography.sans(
                                 fontSize: 12,
-                                color: Colors.grey.shade500,
+                                color: AppColors.bege,
                               ),
                             ),
                         ],
@@ -201,7 +198,7 @@ class TabMeusLocaisState extends State<TabMeusLocais> {
                       icon: const Icon(Icons.restaurant_menu, size: 18),
                       label: const Text("Novo Jantar"),
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.orange.shade800,
+                        foregroundColor: AppColors.terracota,
                       ),
                     ),
                     IconButton(

@@ -10,7 +10,7 @@ export class UsuarioController {
   /**
    * Método principal que roteia as operações baseado no query param ?operacao=
    */
-  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, _next: NextFunction): Promise<void> {
     const banco = new Database();
     const usuarioService = new UsuarioService(banco);
 
@@ -20,6 +20,7 @@ export class UsuarioController {
 
       switch (operacao) {
         case 'getUsuarios':
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           await usuarioService.getUsuarios();
           break;
 
@@ -52,9 +53,9 @@ export class UsuarioController {
           break;
 
         case 'deleteUsuario':
-          const id_delete = parseInt(req.body.id_usuario);
-          if (!id_delete) throw new Error('id_usuario não definido');
-          await usuarioService.deleteUsuario(id_delete);
+          // O usuário só pode excluir a própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
+          await usuarioService.deleteUsuario(req.usuarioId);
           break;
 
         case 'updateUsuario':
@@ -76,13 +77,39 @@ export class UsuarioController {
           break;
 
         case 'atualizarFotoPerfil':
-          const id_foto = parseInt(req.body.id_usuario);
+          // Só altera a foto da própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           const vl_foto = req.body.vl_foto;
-
-          if (!id_foto) throw new Error('id_usuario nao fornecido');
           if (!vl_foto) throw new Error('vl_foto nao fornecido');
 
-          await usuarioService.atualizarFotoPerfil(id_foto, vl_foto);
+          await usuarioService.atualizarFotoPerfil(req.usuarioId, vl_foto);
+          break;
+
+        case 'atualizarFotoCapa':
+          // Só altera a capa da própria conta (identidade vem do token)
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
+          const vl_foto_capa = req.body.vl_foto_capa;
+          if (!vl_foto_capa) throw new Error('vl_foto_capa nao fornecido');
+
+          await usuarioService.atualizarFotoCapa(req.usuarioId, vl_foto_capa);
+          break;
+
+        case 'verificarEmailExiste':
+          // Aceita tanto query param (GET) quanto body (POST)
+          const emailVerificar = (req.query.vl_email as string) || req.body.vl_email;
+
+          if (!emailVerificar) throw new Error('vl_email nao fornecido');
+
+          await usuarioService.verificarEmailExiste(emailVerificar);
+          break;
+
+        case 'loginOuCadastroGoogle':
+          await usuarioService.loginOuCadastroGoogle({
+            vl_email: req.body.vl_email,
+            nm_usuario: req.body.nm_usuario,
+            nm_sobrenome: req.body.nm_sobrenome,
+            vl_foto: req.body.vl_foto || null,
+          });
           break;
 
         default:

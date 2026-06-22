@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
-/// Botão de ação principal padronizado do app.
-///
-/// Encapsula o ElevatedButton repetido em várias telas (fundo preto, texto
-/// em maiúsculas, cantos arredondados) e o estado de carregamento: quando
-/// [estaCarregando] é true, mostra um spinner e desabilita o toque.
-///
-/// Cores são parametrizáveis para cobrir as variações existentes sem mudar
-/// o visual de cada tela.
 class BotaoPrimario extends StatelessWidget {
   final String texto;
   final VoidCallback onPressed;
@@ -15,8 +9,6 @@ class BotaoPrimario extends StatelessWidget {
   final Color corFundo;
   final Color corTexto;
 
-  /// Largura total (double.infinity) quando true; caso contrário, usa o
-  /// tamanho natural definido pelo contexto (ex.: dentro de um Expanded).
   final bool larguraTotal;
 
   const BotaoPrimario({
@@ -24,7 +16,7 @@ class BotaoPrimario extends StatelessWidget {
     required this.texto,
     required this.onPressed,
     this.estaCarregando = false,
-    this.corFundo = Colors.black,
+    this.corFundo = AppColors.terracota,
     this.corTexto = Colors.white,
     this.larguraTotal = true,
   });
@@ -36,8 +28,10 @@ class BotaoPrimario extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: corFundo,
         foregroundColor: corTexto,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
       ),
       child: estaCarregando
           ? SizedBox(

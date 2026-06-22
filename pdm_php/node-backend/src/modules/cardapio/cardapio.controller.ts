@@ -10,7 +10,7 @@ export class CardapioController {
   /**
    * Método principal que roteia as operações baseado no query param ?operacao=
    */
-  async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async handle(req: Request, res: Response, _next: NextFunction): Promise<void> {
     const banco = new Database();
     const cardapioService = new CardapioService(banco);
 
@@ -35,8 +35,9 @@ export class CardapioController {
 
         case 'createJantar':
         case 'createJantarCompleto':
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           const createData = {
-            id_usuario: parseInt(req.body.id_usuario),
+            id_usuario: req.usuarioId,
             nm_cardapio: req.body.nm_cardapio,
             ds_cardapio: req.body.ds_cardapio,
             preco_refeicao: parseFloat(req.body.preco_refeicao),
@@ -46,10 +47,10 @@ export class CardapioController {
             nu_casa: req.body.nu_casa || null,
             vl_foto: req.body.vl_foto || null,
             id_local: req.body.id_local || null,
+            categoria: req.body.categoria || null,
           };
 
           // Validações
-          if (!createData.id_usuario) throw new Error('Faltou id_usuario');
           if (!createData.nm_cardapio) throw new Error('Faltou titulo');
           if (!createData.ds_cardapio) throw new Error('Faltou descricao');
           if (!createData.preco_refeicao) throw new Error('Faltou preco');
@@ -67,12 +68,20 @@ export class CardapioController {
 
         case 'deleteCardapio':
         case 'deleteJantar':
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           const id_cardapio_delete = parseInt(req.body.id_cardapio);
           if (!id_cardapio_delete) throw new Error('id_cardapio faltando');
+
+          const donoDelete = await cardapioService.getIdDonoPorCardapio(id_cardapio_delete);
+          if (donoDelete !== req.usuarioId) {
+            throw new Error('Apenas o anfitrião pode excluir este jantar.');
+          }
+
           await cardapioService.deleteJantar(id_cardapio_delete);
           break;
 
         case 'updateJantar':
+          if (!req.usuarioId) throw new Error('Autenticação necessária.');
           const updateData = {
             id_cardapio: parseInt(req.body.id_cardapio),
             nm_cardapio: req.body.nm_cardapio,
@@ -86,6 +95,11 @@ export class CardapioController {
           };
 
           if (!updateData.id_cardapio) throw new Error('Faltou ID');
+
+          const donoUpdate = await cardapioService.getIdDonoPorCardapio(updateData.id_cardapio);
+          if (donoUpdate !== req.usuarioId) {
+            throw new Error('Apenas o anfitrião pode editar este jantar.');
+          }
 
           await cardapioService.updateJantar(updateData);
           break;

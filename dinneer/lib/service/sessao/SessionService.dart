@@ -17,6 +17,16 @@ class SessionService {
     await prefs.setString('usuario', jsonEncode(usuario));
   }
 
+  static Future<void> salvarToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+  }
+
+  static Future<String?> pegarToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   static Future<Map<String, dynamic>> getUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     final usuarioJson = prefs.getString('usuario');
@@ -32,5 +42,6 @@ class SessionService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('usuarioId');
     await prefs.remove('usuario');
+    await prefs.remove('token');
   }
 }

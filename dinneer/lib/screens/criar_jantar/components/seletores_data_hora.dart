@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-/// Par de botões para escolher data e hora do jantar.
-///
-/// Mostra os valores formatados quando já selecionados, ou os rótulos
-/// "Data"/"Hora" caso contrário. Delega a abertura dos pickers via callbacks.
 class SeletoresDataHora extends StatelessWidget {
   final DateTime? data;
   final TimeOfDay? hora;

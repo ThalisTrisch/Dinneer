@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/screens/tela_login.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
 class PerfilHeader extends StatelessWidget {
   final String nomeUsuario;
   final String emailUsuario;
   final String? fotoUrl;
+  final String? fotoCapaUrl;
   final bool isUploading;
+  final bool isUploadingCapa;
   final VoidCallback onCameraTap;
+  final VoidCallback onCoverTap;
 
   const PerfilHeader({
     super.key,
     required this.nomeUsuario,
     required this.emailUsuario,
     required this.fotoUrl,
+    required this.fotoCapaUrl,
     required this.isUploading,
+    required this.isUploadingCapa,
     required this.onCameraTap,
+    required this.onCoverTap,
   });
 
   void _fazerLogout(BuildContext context) async {
@@ -31,14 +38,28 @@ class PerfilHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 280, // Altura reduzida (sem estrelas)
-      backgroundColor: Colors.white,
+      expandedHeight: 280,
+      backgroundColor: AppColors.creme,
       pinned: true,
       stretch: true,
 
       actions: [
         IconButton(
-          icon: const Icon(Icons.logout, color: Colors.black),
+          icon: isUploadingCapa
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.tinta,
+                  ),
+                )
+              : const Icon(Icons.add_photo_alternate, color: AppColors.tinta),
+          tooltip: 'Alterar imagem de capa',
+          onPressed: isUploadingCapa ? null : onCoverTap,
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout, color: AppColors.tinta),
           tooltip: 'Sair da conta',
           onPressed: () {
             showDialog(
@@ -72,13 +93,26 @@ class PerfilHeader extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: Colors.grey[200]),
+            // Camada base: foto de capa (se houver) ou cor sólida
+            (fotoCapaUrl != null && fotoCapaUrl!.isNotEmpty)
+                ? Image.network(
+                    fotoCapaUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                        Container(color: AppColors.terracotaSuave),
+                  )
+                : Container(color: AppColors.terracotaSuave),
+            // Gradiente para dar legibilidade ao conteúdo sobre a capa
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                  colors: [
+                    AppColors.tinta.withValues(alpha: 0.55),
+                    Colors.transparent,
+                    AppColors.tinta.withValues(alpha: 0.45),
+                  ],
                   begin: Alignment.topCenter,
-                  end: Alignment.center,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),
@@ -95,20 +129,18 @@ class PerfilHeader extends StatelessWidget {
                         backgroundColor: Colors.white,
                         child: CircleAvatar(
                           radius: 54,
-                          backgroundColor: Colors.grey.shade300,
+                          backgroundColor: AppColors.tan,
                           backgroundImage:
                               (fotoUrl != null && fotoUrl!.isNotEmpty)
                               ? NetworkImage(fotoUrl!)
                               : null,
                           child: isUploading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.black,
-                                )
+                              ? const CircularProgressIndicator()
                               : (fotoUrl == null || fotoUrl!.isEmpty
                                     ? const Icon(
                                         Icons.person,
                                         size: 60,
-                                        color: Colors.white,
+                                        color: AppColors.tanTexto,
                                       )
                                     : null),
                         ),
@@ -118,7 +150,7 @@ class PerfilHeader extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black,
+                            color: AppColors.terracota,
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 2),
                           ),
@@ -174,7 +206,7 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(color: Colors.white, child: _tabBar);
+    return Container(color: AppColors.creme, child: _tabBar);
   }
 
   @override

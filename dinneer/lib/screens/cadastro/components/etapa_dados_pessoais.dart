@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:dinneer/widgets/campo_de_texto.dart';
 import 'package:dinneer/widgets/botao_primario.dart';
+import 'package:dinneer/theme/app_colors.dart';
 import 'link_login.dart';
 
-/// Etapa 2 do cadastro: foto de perfil (opcional), nome, sobrenome e CPF,
-/// com o botão "Cadastrar" que exibe spinner enquanto [estaCarregando].
-///
-/// Toda a lógica (escolher imagem, enviar cadastro) é delegada via callbacks.
 class EtapaDadosPessoais extends StatelessWidget {
   final TextEditingController nomeController;
   final TextEditingController sobrenomeController;
@@ -39,17 +36,17 @@ class EtapaDadosPessoais extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 60,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppColors.terracotaSuave,
               backgroundImage: imagemSelecionada != null
                   ? FileImage(imagemSelecionada!)
                   : null,
               child: imagemSelecionada == null
-                  ? Icon(Icons.person, size: 60, color: Colors.grey[400])
+                  ? const Icon(Icons.person, size: 60, color: AppColors.terracota)
                   : null,
             ),
             CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.black,
+              backgroundColor: AppColors.terracota,
               child: IconButton(
                 icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
                 onPressed: onEscolherImagem,

@@ -28,12 +28,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           int.tryParse(widget.dadosUsuario['id_usuario'].toString()) ?? 0;
     }
 
-    // A ORDEM AQUI TEM QUE SER IGUAL A DA BARRA
     _paginas = [
-      TelaHome(idUsuarioLogado: idUsuario), // 0: Home
-      const TelaReservas(), // 1: Reservas
-      const TelaListaChats(), // 2: Chat
-      TelaPerfil(dadosUsuario: widget.dadosUsuario), // 3: Perfil
+      TelaHome(idUsuarioLogado: idUsuario, aoTrocarAba: _onItemTapped),
+      const TelaReservas(),
+      const TelaListaChats(),
+      TelaPerfil(dadosUsuario: widget.dadosUsuario),
     ];
   }
 

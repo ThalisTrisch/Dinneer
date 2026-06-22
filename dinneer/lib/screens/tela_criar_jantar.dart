@@ -7,6 +7,9 @@ import '../service/refeicao/cardapioService.dart';
 import '../service/storage/StorageService.dart';
 import 'criar_jantar/components/seletor_imagem.dart';
 import 'criar_jantar/components/seletores_data_hora.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 
 class TelaCriarJantar extends StatefulWidget {
   final String idUsuario;
@@ -32,6 +35,18 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
   TimeOfDay? _horaSelecionada;
   File? _imagemSelecionada;
   bool _estaCarregando = false;
+  String? _categoriaSelecionada;
+
+  static const List<String> _categorias = [
+    'Brasileira',
+    'Italiana',
+    'Japonesa',
+    'Mexicana',
+    'Árabe',
+    'Vegetariana',
+    'Churrasco',
+    'Doce',
+  ];
 
   final StorageService _storage = StorageService();
 
@@ -89,6 +104,11 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       return;
     }
 
+    if (_categoriaSelecionada == null) {
+      _mostrarErro("Selecione uma categoria.");
+      return;
+    }
+
     if (widget.idLocalPreSelecionado == null) {
       _mostrarErro(
         "Erro: Local não identificado. Crie o jantar a partir da aba Meus Locais.",
@@ -98,7 +118,6 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
 
     setState(() => _estaCarregando = true);
 
-    // Foto é opcional - só faz upload se foi selecionada
     String? urlFoto;
     if (_imagemSelecionada != null) {
       urlFoto = await _uploadImagemFirebase(_imagemSelecionada!);
@@ -124,8 +143,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
       'preco_refeicao': _precoController.text.replaceAll(',', '.'),
       'nu_max_convidados': _vagasController.text,
       'hr_encontro': dataHora.toIso8601String(),
-      'vl_foto': urlFoto ?? '', // Envia string vazia se não houver foto
+      'vl_foto': urlFoto ?? '',
       'id_local': widget.idLocalPreSelecionado.toString(),
+      'categoria': _categoriaSelecionada ?? '',
     };
 
     try {
@@ -150,19 +170,58 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
     if (mounted) Mensagens.erro(context, msg);
   }
 
+  Widget _seletorCategoria() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Categoria',
+          style: AppTypography.sans(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.bege,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _categorias.map((cat) {
+            final bool sel = _categoriaSelecionada == cat;
+            return GestureDetector(
+              onTap: () => setState(() => _categoriaSelecionada = cat),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                decoration: BoxDecoration(
+                  color: sel ? AppColors.terracota : AppColors.marfim,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(
+                    color: sel ? AppColors.terracota : AppColors.bordaSuave,
+                  ),
+                ),
+                child: Text(
+                  cat,
+                  style: AppTypography.sans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: sel ? Colors.white : AppColors.tanTexto,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Criar Novo Jantar",
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
+        title: const Text("Criar Novo Jantar"),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -183,7 +242,9 @@ class _TelaCriarJantarState extends State<TelaCriarJantar> {
               controller: _descricaoController,
               dica: "Descrição",
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            _seletorCategoria(),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(

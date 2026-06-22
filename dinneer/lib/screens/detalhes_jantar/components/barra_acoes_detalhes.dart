@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:dinneer/service/refeicao/Cardapio.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
-/// Barra inferior de ações da tela de detalhes do jantar.
-///
-/// Decide, a partir do contexto (anfitrião x convidado, status da reserva,
-/// jantar lotado ou já encerrado), qual conjunto de botões exibir e delega
-/// cada ação para os callbacks recebidos. Não contém regra de negócio.
 class BarraAcoesDetalhes extends StatelessWidget {
   final Cardapio refeicao;
   final bool souOAnfitriao;
@@ -49,11 +45,14 @@ class BarraAcoesDetalhes extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              side: const BorderSide(color: Colors.black),
+              side: const BorderSide(color: AppColors.terracota),
             ),
             child: const Text(
               "EDITAR",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.terracota,
+              ),
             ),
           ),
         ),
@@ -169,7 +168,7 @@ class BarraAcoesDetalhes extends StatelessWidget {
     return ElevatedButton(
       onPressed: estaLotado ? null : onSolicitarReserva,
       style: ElevatedButton.styleFrom(
-        backgroundColor: estaLotado ? Colors.grey : Colors.black,
+        backgroundColor: estaLotado ? AppColors.bege : AppColors.terracota,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -83,4 +83,58 @@ export class AvaliacaoService extends BaseService {
       total: total,
     });
   }
+
+  /**
+   * Lista a evoluÃ§Ã£o das avaliaÃ§Ãµes recebidas pelo anfitriÃ£o agrupadas por dia.
+   * A data usada Ã© a do encontro, pois a tabela de avaliaÃ§Ã£o nÃ£o possui data prÃ³pria.
+   */
+  async getAvaliacoesPorDia(id_anfitriao: number): Promise<void> {
+    const sql = `
+      WITH avaliacoes_encontro AS (
+        SELECT
+          e.id_encontro,
+          e.hr_encontro,
+          DATE(e.hr_encontro) as dt_avaliacao,
+          COALESCE(AVG(av.vl_avaliacao), 0) as media_encontro,
+          COUNT(av.vl_avaliacao) as total_encontro
+        FROM tb_usuario_dn u
+        INNER JOIN tb_local_dn l ON u.id_usuario = l.id_usuario
+        INNER JOIN tb_encontro_dn e ON l.id_local = e.id_local
+        INNER JOIN tb_avaliacao_encontro_dn av ON e.id_encontro = av.id_encontro
+        WHERE u.id_usuario = $1
+        GROUP BY e.id_encontro, e.hr_encontro, DATE(e.hr_encontro)
+      )
+      SELECT
+        dt_avaliacao,
+        COALESCE(AVG(media_encontro), 0) as media,
+        COALESCE(SUM(total_encontro), 0) as total,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id_encontro', id_encontro,
+            'hora', hr_encontro,
+            'media', ROUND(media_encontro::numeric, 1),
+            'total', total_encontro
+          )
+          ORDER BY hr_encontro
+        ) as encontros
+      FROM avaliacoes_encontro
+      GROUP BY dt_avaliacao
+      ORDER BY dt_avaliacao
+    `;
+
+    const result = await this.conexao.query(sql, [id_anfitriao]);
+    const dados = result.rows.map((row) => ({
+      data: row.dt_avaliacao,
+      media: row.media ? Math.round(parseFloat(row.media) * 10) / 10 : 0,
+      total: row.total ? parseInt(row.total) : 0,
+      encontros: (row.encontros || []).map((encontro: any) => ({
+        id_encontro: parseInt(encontro.id_encontro),
+        hora: encontro.hora,
+        media: encontro.media ? parseFloat(encontro.media) : 0,
+        total: encontro.total ? parseInt(encontro.total) : 0,
+      })),
+    }));
+
+    this.banco.setDados(dados.length, dados);
+  }
 }

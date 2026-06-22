@@ -3,12 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:dinneer/models/message_model.dart';
+import 'package:dinneer/theme/app_colors.dart';
 import 'emote_button.dart';
 
-/// Balão de uma mensagem do chat (texto e/ou imagem).
-///
-/// É StatefulWidget para controlar, de forma independente por mensagem,
-/// a visibilidade do botão de emote ao tocar em mensagens de outros usuários.
 class MessageBubble extends StatefulWidget {
   final Message mensagem;
   final bool ehMinhaMensagem;
@@ -24,7 +21,6 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
-  // Controla se o botão de emote está visível para esta mensagem
   bool _mostrarEmote = false;
 
   void _toggleEmote() {
@@ -33,9 +29,6 @@ class _MessageBubbleState extends State<MessageBubble> {
     });
   }
 
-  /// Formata o timestamp da mensagem de forma amigável.
-  ///
-  /// Se for hoje, mostra apenas a hora; se for outro dia, mostra data + hora.
   String _formatTime(DateTime timestamp) {
     final agora = DateTime.now();
     final diferenca = agora.difference(timestamp);
@@ -90,18 +83,14 @@ class _MessageBubbleState extends State<MessageBubble> {
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Row(
-        // Balões próprios ficam à direita, então o emote fica antes (esquerda)
-        // Balões de outros ficam à esquerda, então o emote fica depois (direita)
         mainAxisAlignment: widget.ehMinhaMensagem
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Botão de emote à esquerda (apenas para mensagens próprias)
           if (widget.ehMinhaMensagem && _mostrarEmote)
             EmoteButton(onTap: () {}),
 
-          // Balão da mensagem — GestureDetector captura o toque
           GestureDetector(
             onTap: !widget.ehMinhaMensagem ? _toggleEmote : null,
             child: Container(
@@ -114,8 +103,11 @@ class _MessageBubbleState extends State<MessageBubble> {
               ),
               decoration: BoxDecoration(
                 color: widget.ehMinhaMensagem
-                    ? Colors.grey[800]
-                    : Colors.grey[300],
+                    ? AppColors.terracota
+                    : AppColors.marfim,
+                border: widget.ehMinhaMensagem
+                    ? null
+                    : Border.all(color: AppColors.bordaSuave),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -128,7 +120,6 @@ class _MessageBubbleState extends State<MessageBubble> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Imagem (se houver)
                   if (temImagem) ...[
                     GestureDetector(
                       onTap: () => _showImagePreview(widget.mensagem.imageUrl!),
@@ -186,7 +177,6 @@ class _MessageBubbleState extends State<MessageBubble> {
                     ),
                     if (temTexto) const SizedBox(height: 8),
                   ],
-                  // Conteúdo de texto
                   if (temTexto || !temImagem)
                     Padding(
                       padding: temImagem
@@ -206,7 +196,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
-                                color: Colors.black87,
+                                color: AppColors.terracota,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -216,14 +206,13 @@ class _MessageBubbleState extends State<MessageBubble> {
                             style: TextStyle(
                               color: widget.ehMinhaMensagem
                                   ? Colors.white
-                                  : Colors.black87,
+                                  : AppColors.tinta,
                               fontSize: 15,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  // Nome do remetente para mensagens só de imagem
                   if (!widget.ehMinhaMensagem && temImagem && !temTexto)
                     Padding(
                       padding: const EdgeInsets.only(
@@ -240,7 +229,6 @@ class _MessageBubbleState extends State<MessageBubble> {
                         ),
                       ),
                     ),
-                  // Timestamp
                   Padding(
                     padding: temImagem
                         ? const EdgeInsets.only(
@@ -255,7 +243,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       style: TextStyle(
                         color: widget.ehMinhaMensagem
                             ? Colors.white70
-                            : Colors.black54,
+                            : AppColors.bege,
                         fontSize: 11,
                       ),
                     ),
@@ -265,7 +253,6 @@ class _MessageBubbleState extends State<MessageBubble> {
             ),
           ),
 
-          // Botão de emote à direita (apenas para mensagens de outros)
           if (!widget.ehMinhaMensagem && _mostrarEmote)
             EmoteButton(onTap: () {}),
         ],

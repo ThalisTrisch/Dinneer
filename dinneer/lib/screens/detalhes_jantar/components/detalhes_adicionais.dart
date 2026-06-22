@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:dinneer/service/refeicao/Cardapio.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
 
-/// Caixa com a data do jantar e a contagem de vagas (confirmados/máximo).
 class DetalhesAdicionais extends StatelessWidget {
   final Cardapio refeicao;
 
@@ -13,15 +14,15 @@ class DetalhesAdicionais extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: AppColors.marfim,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.bordaSuave),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _InfoRow(icon: Icons.calendar_today, text: refeicao.dataFormatada),
-          Container(width: 1, height: 24, color: Colors.grey[300]),
+          Container(width: 1, height: 24, color: AppColors.bordaSuave),
           _InfoRow(
             icon: Icons.people_alt_outlined,
             text:
@@ -43,13 +44,13 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.black87),
+        Icon(icon, size: 20, color: AppColors.terracota),
         const SizedBox(width: 8),
         Text(
           text,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w500,
+          style: AppTypography.sans(
+            color: AppColors.tinta,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],

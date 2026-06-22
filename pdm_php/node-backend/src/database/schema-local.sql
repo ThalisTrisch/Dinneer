@@ -10,12 +10,13 @@ CREATE TABLE IF NOT EXISTS tb_sequence_dn (
 -- Tabela de usuários
 CREATE TABLE IF NOT EXISTS tb_usuario_dn (
     id_usuario INTEGER PRIMARY KEY,
-    nu_cpf CHAR(11) NOT NULL UNIQUE,
+    nu_cpf CHAR(11) UNIQUE,
     nm_usuario VARCHAR(100) NOT NULL,
     nm_sobrenome VARCHAR(100) NOT NULL,
     vl_email VARCHAR(100) NOT NULL UNIQUE,
-    vl_senha VARCHAR(100) NOT NULL,
+    vl_senha VARCHAR(255) NOT NULL,
     vl_foto VARCHAR(255),
+    vl_foto_capa VARCHAR(255),
     fl_anfitriao VARCHAR(10) DEFAULT 'false'
 );
 
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS tb_cardapio_dn (
     ds_cardapio TEXT NOT NULL,
     preco_refeicao DECIMAL(10,2) NOT NULL,
     vl_foto_cardapio VARCHAR(255),
+    nm_categoria VARCHAR(50),
     FOREIGN KEY (id_local) REFERENCES tb_local_dn(id_local) ON DELETE CASCADE
 );
 
@@ -52,6 +54,8 @@ CREATE TABLE IF NOT EXISTS tb_encontro_dn (
     FOREIGN KEY (id_local) REFERENCES tb_local_dn(id_local) ON DELETE CASCADE,
     FOREIGN KEY (id_cardapio) REFERENCES tb_cardapio_dn(id_cardapio) ON DELETE CASCADE
 );
+--join de tb_encontro_dn com a de avaliação , datas / notas encontros - linha do tempo de avaliação.
+--https://pub.dev/packages/syncfusion_flutter_charts
 
 -- Tabela de relação encontro-usuário (participantes)
 CREATE TABLE IF NOT EXISTS tb_encontro_usuario_dn (
@@ -71,7 +75,7 @@ CREATE TABLE IF NOT EXISTS tb_tipo_avaliacao_dn (
     nm_tipo_avaliacao VARCHAR(50) NOT NULL UNIQUE,
     fl_avaliador BOOLEAN DEFAULT true
 );
-
+--join tb_tipo_avaliacao_dn ON tb_avaliacao_encontro_dn.id_avaliacao = tb_tipo_avaliacao_dn.id_avaliacao
 -- Tabela de avaliações de encontros
 CREATE TABLE IF NOT EXISTS tb_avaliacao_encontro_dn (
     id_usuario INTEGER NOT NULL,

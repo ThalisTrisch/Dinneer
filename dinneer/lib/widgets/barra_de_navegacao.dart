@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 class BarraNavegacaoCustomizada extends StatelessWidget {
   final int index;
@@ -13,59 +14,77 @@ class BarraNavegacaoCustomizada extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 15,
-            offset: const Offset(0, -1),
-          ),
-        ],
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.marfim,
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: AppColors.bordaSuave),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.tinta.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _item(0, Icons.home_rounded, 'Início'),
+            _item(1, Icons.calendar_today_rounded, 'Reservas'),
+            _item(2, Icons.chat_bubble_rounded, 'Mensagens'),
+            _item(3, Icons.person_rounded, 'Perfil'),
+          ],
+        ),
       ),
-      child: BottomNavyBar(
-        selectedIndex: index,
-        onItemSelected: onTap,
-        backgroundColor: Colors.white,
-        itemCornerRadius: 12,
-        curve: Curves.easeIn,
-        items: <BottomNavyBarItem>[
-          // 0: Home
-          BottomNavyBarItem(
-            icon: const Icon(Icons.home_rounded),
-            title: const Text('Home'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
-            textAlign: TextAlign.center,
-          ),
+    );
+  }
 
-          // 1: Reservas
-          BottomNavyBarItem(
-            icon: const Icon(Icons.calendar_today_rounded),
-            title: const Text('Reservas'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
-            textAlign: TextAlign.center,
+  Widget _item(int i, IconData icon, String label) {
+    final bool ativo = i == index;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onTap(i),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: ativo ? AppColors.terracota : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 23,
+              color: ativo ? Colors.white : AppColors.bege,
+            ),
           ),
-
-          // 2: Chat
-          BottomNavyBarItem(
-            icon: const Icon(Icons.chat_bubble_rounded),
-            title: const Text('Chat'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
-            textAlign: TextAlign.center,
-          ),
-
-          // 3: Perfil
-          BottomNavyBarItem(
-            icon: const Icon(Icons.person_rounded),
-            title: const Text('Perfil'),
-            activeColor: Colors.black,
-            inactiveColor: Colors.grey[600],
-            textAlign: TextAlign.center,
+          const SizedBox(height: 3),
+          // Espaço do rótulo é sempre reservado (altura fixa); só a opacidade
+          // anima. Assim a barra nunca muda de tamanho ao trocar de aba.
+          SizedBox(
+            height: 13,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: ativo ? 1.0 : 0.0,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: AppTypography.sans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.terracota,
+                ),
+              ),
+            ),
           ),
         ],
       ),

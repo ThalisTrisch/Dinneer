@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dinneer/service/usuario/UsuarioService.dart';
-import 'package:dinneer/service/sessao/SessionService.dart'; // <--- Importante!
+import 'package:dinneer/service/sessao/SessionService.dart';
 import '../widgets/campo_de_texto.dart';
 import '../widgets/mensagens.dart';
 import '../widgets/botao_primario.dart';
@@ -8,6 +9,11 @@ import 'tela_cadastro.dart';
 import '../screens/tela_principal.dart';
 import '../service/notification/notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../widgets/googleButtonLogin.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -21,6 +27,7 @@ class _TelaLoginState extends State<TelaLogin> {
   final _senhaController = TextEditingController();
 
   bool _estaCarregando = false;
+
 
   void _fazerLogin() async {
     if (_estaCarregando) return;
@@ -44,24 +51,20 @@ class _TelaLoginState extends State<TelaLogin> {
           usuarioLogado = Map<String, dynamic>.from(resposta['dados']);
         }
 
-        debugPrint(
-          'LOGIN SUCESSO. Enviando dados para Principal: $usuarioLogado',
-        );
+        final token = usuarioLogado['token'];
+        if (token is String && token.isNotEmpty) {
+          await SessionService.salvarToken(token);
+        }
 
         if (usuarioLogado['id_usuario'] != null) {
           int id = int.tryParse(usuarioLogado['id_usuario'].toString()) ?? 0;
-          await SessionService.salvarUsuarioId(id); // <--- Salva no disco!
-          await SessionService.salvarUsuario(
-            usuarioLogado,
-          ); // Salva dados completos
-          debugPrint('Sessão salva para o ID: $id');
+          await SessionService.salvarUsuarioId(id);
+          await SessionService.salvarUsuario(usuarioLogado);
 
           await NotificationService.initialize(id.toString());
-          
-          // 🧪 TESTE: Enviar notificação de teste ao fazer login
+
           _enviarNotificacaoTeste();
         }
-        // ---------------------------------------
 
         if (mounted) {
           Navigator.pushReplacement(
@@ -88,22 +91,19 @@ class _TelaLoginState extends State<TelaLogin> {
     if (mounted) Mensagens.erro(context, mensagem);
   }
 
-  // 🧪 TESTE: Envia notificação local para testar o sistema
   void _enviarNotificacaoTeste() async {
     try {
       debugPrint('🧪 Enviando notificação de teste...');
-      
-      // Aguarda 2 segundos para dar tempo do app inicializar
+
       await Future.delayed(const Duration(seconds: 2));
-      
-      // Obtém o token FCM atual
+
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('🔑 FCM Token: $token');
-      
+
       if (token != null) {
         debugPrint('✅ Token FCM obtido com sucesso!');
         debugPrint('📱 Notificações estão configuradas corretamente');
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -121,6 +121,115 @@ class _TelaLoginState extends State<TelaLogin> {
     }
   }
 
+  void _fazerLoginGoogle() async {
+    if (_estaCarregando) return;
+
+    setState(() => _estaCarregando = true);
+
+    try {
+      String emailGoogle;
+      String? nomeGoogle;
+      String? fotoGoogle;
+
+      if (kIsWeb) {
+        // --- Fluxo Web: usa popup direto do Firebase ---
+        final googleProvider = GoogleAuthProvider();
+        // Força o popup a sempre mostrar o seletor de contas, em vez de
+        // reaproveitar silenciosamente a última conta usada.
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
+        final userCredential =
+            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+        emailGoogle = userCredential.user?.email ?? '';
+        nomeGoogle = userCredential.user?.displayName;
+        fotoGoogle = userCredential.user?.photoURL;
+        if (emailGoogle.isEmpty) {
+          await FirebaseAuth.instance.signOut();
+          _mostrarMensagemErro('Não foi possível obter o email da conta Google.');
+          return;
+        }
+      } else {
+        // --- Fluxo Mobile: usa google_sign_in ---
+        final googleSignIn = GoogleSignIn();
+        // Limpa a conta em cache para que o seletor de contas apareça toda vez
+        // (permite escolher/cadastrar outra conta, não só reentrar na última).
+        await googleSignIn.signOut();
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+        if (googleUser == null) {
+          // Usuário cancelou
+          return;
+        }
+
+        emailGoogle = googleUser.email;
+        nomeGoogle = googleUser.displayName;
+        fotoGoogle = googleUser.photoUrl;
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+
+      // Separa nome e sobrenome a partir do nome da conta Google
+      final partesNome = (nomeGoogle ?? '').trim().split(RegExp(r'\s+'));
+      final primeiroNome = partesNome.isNotEmpty && partesNome.first.isNotEmpty
+          ? partesNome.first
+          : 'Usuário';
+      final sobrenome =
+          partesNome.length > 1 ? partesNome.sublist(1).join(' ') : '';
+
+      // Login OU cadastro num passo só (cria a conta se ainda não existir)
+      final respostaDados = await UsuarioService.loginOuCadastroGoogle(
+        email: emailGoogle,
+        nome: primeiroNome,
+        sobrenome: sobrenome,
+        foto: fotoGoogle,
+      );
+
+      if (respostaDados == null || respostaDados['dados'] == null) {
+        _mostrarMensagemErro('Não foi possível entrar com o Google.');
+        return;
+      }
+
+      Map<String, dynamic> usuarioLogado;
+      if (respostaDados['dados'] is List) {
+        usuarioLogado =
+            Map<String, dynamic>.from(respostaDados['dados'][0]);
+      } else {
+        usuarioLogado = Map<String, dynamic>.from(respostaDados['dados']);
+      }
+
+      // 4. Salva sessão (incluindo o token) e navega para a tela principal
+      final tokenGoogle = usuarioLogado['token'];
+      if (tokenGoogle is String && tokenGoogle.isNotEmpty) {
+        await SessionService.salvarToken(tokenGoogle);
+      }
+
+      if (usuarioLogado['id_usuario'] != null) {
+        int id = int.tryParse(usuarioLogado['id_usuario'].toString()) ?? 0;
+        await SessionService.salvarUsuarioId(id);
+        await SessionService.salvarUsuario(usuarioLogado);
+        await NotificationService.initialize(id.toString());
+      }
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaPrincipal(dadosUsuario: usuarioLogado),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro no login com Google: $e');
+      _mostrarMensagemErro('Erro ao entrar com Google. Tente novamente.');
+    } finally {
+      if (mounted) setState(() => _estaCarregando = false);
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -132,11 +241,11 @@ class _TelaLoginState extends State<TelaLogin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.creme,
         elevation: 0,
         centerTitle: true,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -148,24 +257,22 @@ class _TelaLoginState extends State<TelaLogin> {
                 const Icon(
                   Icons.restaurant_menu,
                   size: 80,
-                  color: Colors.black54,
+                  color: AppColors.terracota,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'DINNEER',
-                  style: TextStyle(
-                    fontFamily: 'serif',
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+                Text(
+                  'Dinneer',
+                  style: AppTypography.serif(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'A MELHOR REFEIÇÃO DE SUA VIDA',
-                  style: TextStyle(
+                  style: AppTypography.sans(
                     fontSize: 12,
-                    color: Colors.black54,
+                    color: AppColors.bege,
                     letterSpacing: 1,
                   ),
                 ),
@@ -184,9 +291,9 @@ class _TelaLoginState extends State<TelaLogin> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Não tem uma conta? ',
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTypography.sans(color: AppColors.bege),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.push(
@@ -195,11 +302,11 @@ class _TelaLoginState extends State<TelaLogin> {
                           builder: (context) => const TelaCadastro(),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Cadastre-se',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                        style: AppTypography.sans(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.terracota,
                         ),
                       ),
                     ),
@@ -212,6 +319,9 @@ class _TelaLoginState extends State<TelaLogin> {
                   estaCarregando: _estaCarregando,
                 ),
                 const SizedBox(height: 40),
+                GoogleLoginButton(
+                  onPressed: _fazerLoginGoogle,
+                ),
               ],
             ),
           ),

@@ -18,6 +18,7 @@ class Cardapio {
   final String? urlFotoAnfitriao;
   final int nuSolicitacoesPendentes;
   final String? statusReserva;
+  final String? nmCategoria;
 
   Cardapio({
     required this.idUsuario,
@@ -37,6 +38,7 @@ class Cardapio {
     this.urlFotoAnfitriao,
     this.nuSolicitacoesPendentes = 0,
     this.statusReserva,
+    this.nmCategoria,
   });
 
   factory Cardapio.fromMap(Map<String, dynamic> map) {
@@ -76,6 +78,7 @@ class Cardapio {
           : 0,
 
       statusReserva: map['fl_status']?.toString(),
+      nmCategoria: map['nm_categoria']?.toString(),
     );
   }
 
@@ -91,6 +94,14 @@ class Cardapio {
     }
   }
 
+  String get dataCurta {
+    try {
+      return DateFormat("dd 'de' MMM 'às' HH'h'mm", 'pt_BR').format(hrEncontro);
+    } catch (e) {
+      return "Data a definir";
+    }
+  }
+
   String get precoFormatado {
     try {
       final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
@@ -98,5 +109,26 @@ class Cardapio {
     } catch (e) {
       return "R\$ 0,00";
     }
+  }
+
+  static const Map<String, List<String>> _palavrasCategoria = {
+    'Japonesa': ['ramen', 'rámen', 'sushi', 'sashimi', 'temaki', 'japon', 'yakisoba'],
+    'Italiana': ['risotto', 'risoto', 'massa', 'carbonara', 'pizza', 'italian', 'nhoque', 'lasanha'],
+    'Brasileira': ['feijoada', 'moqueca', 'brasil', 'farofa', 'coxinha', 'pirão', 'pirao'],
+    'Francesa': ['coq au vin', 'francesa', 'ratatouille', 'crepe', 'bourguignon'],
+    'Mexicana': ['taco', 'burrito', 'nachos', 'mexican', 'guacamole'],
+    'Árabe': ['kibe', 'esfiha', 'falafel', 'árabe', 'arabe', 'homus'],
+    'Churrasco': ['churrasco', 'picanha', 'costela', 'assado'],
+    'Vegetariana': ['vegetarian', 'veggie', 'vegano'],
+    'Doce': ['sobremesa', 'bolo', 'torta', 'doce', 'tiramis'],
+  };
+
+  String? get categoria {
+    if (nmCategoria != null && nmCategoria!.isNotEmpty) return nmCategoria;
+    final texto = '$nmCardapio $dsCardapio'.toLowerCase();
+    for (final entrada in _palavrasCategoria.entries) {
+      if (entrada.value.any(texto.contains)) return entrada.key;
+    }
+    return null;
   }
 }

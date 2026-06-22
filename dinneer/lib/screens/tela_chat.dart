@@ -8,6 +8,8 @@ import '../service/sessao/SessionService.dart';
 import '../service/notification/notification_service.dart';
 import 'chat/components/message_bubble.dart';
 import 'chat/components/campo_mensagem.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 import 'dart:io';
 
@@ -78,8 +80,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     }
   }
 
-  /// Rola a lista para o final (topo, pois a lista é invertida) após enviar.
-  /// O pequeno delay aguarda a mensagem ser adicionada à lista.
   void _rolarParaFinal() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
@@ -93,7 +93,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
   }
 
   Future<void> _sendMessage() async {
-    // Validação: não envia se o texto estiver vazio ou usuário não carregado
     if (_messageController.text.trim().isEmpty || _userId == null) return;
 
     final textoMensagem = _messageController.text.trim();
@@ -118,7 +117,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     } catch (erro) {
       debugPrint('Erro ao enviar mensagem: $erro');
 
-      // Restaura o texto no campo se falhar
       _messageController.text = textoMensagem;
 
       if (mounted) {
@@ -132,10 +130,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     }
   }
 
-  /// Envia uma imagem no chat
-  ///
-  /// Abre o seletor de imagens, faz upload para o Firebase Storage
-  /// e envia a URL da imagem como mensagem no chat
   Future<void> _sendImage() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -148,7 +142,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     }
 
     try {
-      // 1. Abre o seletor de imagens
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1024,
@@ -157,11 +150,9 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
       );
 
       if (pickedFile == null) {
-        // Usuário cancelou a seleção
         return;
       }
 
-      // Mostra indicador de carregamento
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -184,7 +175,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
         );
       }
 
-      // 2. Prepara o arquivo para upload
       final String fileName =
           '${DateTime.now().millisecondsSinceEpoch}_$_userId.jpg';
       final Reference storageRef = FirebaseStorage.instance
@@ -193,18 +183,15 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
           .child(widget.encontroId.toString())
           .child(fileName);
 
-      // 3. Faz upload para o Firebase Storage
       late final UploadTask uploadTask;
 
       if (kIsWeb) {
-        // Na Web, usa putData com bytes
         final bytes = await pickedFile.readAsBytes();
         uploadTask = storageRef.putData(
           bytes,
           SettableMetadata(contentType: 'image/jpeg'),
         );
       } else {
-        // No mobile, usa putFile
         final File imageFile = File(pickedFile.path);
         uploadTask = storageRef.putFile(imageFile);
       }
@@ -212,16 +199,14 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
       final TaskSnapshot snapshot = await uploadTask;
       final String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      // 4. Envia a mensagem com a URL da imagem
       await _chatService.sendMessage(
         encontroId: widget.encontroId,
         senderId: _userId!,
         senderName: _userName!,
-        text: '', // Texto vazio para mensagens apenas de imagem
+        text: '',
         imageUrl: downloadUrl,
       );
 
-      // Remove o indicador de carregamento
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         _rolarParaFinal();
@@ -246,13 +231,12 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.encontroNome),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: AppColors.creme,
+        foregroundColor: AppColors.tinta,
         elevation: 0,
       ),
       body: Column(
         children: [
-          // Lista de mensagens
           Expanded(
             child: StreamBuilder<List<Message>>(
               stream: _chatService.getMessages(widget.encontroId),
@@ -274,13 +258,15 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
                         const SizedBox(height: 16),
                         Text(
                           'Erro ao carregar mensagens',
-                          style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                          style: AppTypography.sans(
+                              fontSize: 16, color: AppColors.tinta),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           '${snapshot.error}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                          style: AppTypography.sans(
+                              fontSize: 12, color: AppColors.bege),
                         ),
                       ],
                     ),
@@ -290,11 +276,11 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
                 final listaMensagens = snapshot.data ?? [];
 
                 if (listaMensagens.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'Nenhuma mensagem ainda.\nSeja o primeiro a enviar!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                      style: AppTypography.sans(color: AppColors.bege),
                     ),
                   );
                 }
@@ -318,7 +304,6 @@ class _TelaChatState extends State<TelaChat> with WidgetsBindingObserver {
             ),
           ),
 
-          // Campo de entrada
           CampoMensagem(
             controller: _messageController,
             onEnviar: _sendMessage,

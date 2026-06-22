@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
-/// Barra inferior de entrada do chat: campo de texto, botão de anexar
-/// imagem e botão de enviar. Sem regra de negócio — delega via callbacks.
 class CampoMensagem extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onEnviar;
@@ -19,10 +18,10 @@ class CampoMensagem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.marfim,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: AppColors.tinta.withValues(alpha: 0.08),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, -1),
@@ -41,7 +40,7 @@ class CampoMensagem extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: AppColors.creme,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 10,
@@ -53,15 +52,15 @@ class CampoMensagem extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           CircleAvatar(
-            backgroundColor: Colors.grey[600],
+            backgroundColor: AppColors.tan,
             child: IconButton(
-              icon: const Icon(Icons.attachment, color: Colors.white),
+              icon: const Icon(Icons.attachment, color: AppColors.tanTexto),
               onPressed: onAnexar,
             ),
           ),
           const SizedBox(width: 8),
           CircleAvatar(
-            backgroundColor: Colors.grey[800],
+            backgroundColor: AppColors.terracota,
             child: IconButton(
               icon: const Icon(Icons.send, color: Colors.white),
               onPressed: onEnviar,

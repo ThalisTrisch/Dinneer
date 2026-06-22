@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:firebase_core/firebase_core.dart'; // Importante
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'screens/tela_login.dart';
+import 'theme/app_theme.dart';
 
-// Top-level handler required by FCM for background/terminated state
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -14,21 +14,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase with proper configuration
   if (kIsWeb) {
-    // For web platform
     await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: "AIzaSyANMw8rbJBOC0wu2hgxY5QbuZjR4QOwx7w",
         appId: "1:832231555760:web:c01a009fe2f048bec7b175",
         messagingSenderId: "832231555760",
         projectId: "dinneer-19ada",
+        authDomain: "dinneer-19ada.firebaseapp.com",
         storageBucket: "dinneer-19ada.firebasestorage.app",
         databaseURL: "https://dinneer-19ada-default-rtdb.firebaseio.com",
       ),
     );
   } else {
-    // For mobile platforms (uses google-services.json / GoogleService-Info.plist)
     await Firebase.initializeApp();
   }
 
@@ -46,10 +44,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Dinneer',
-      theme: ThemeData(
-        primarySwatch: Colors.grey,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: AppTheme.light,
       home: const TelaLogin(),
       debugShowCheckedModeBanner: false,
     );

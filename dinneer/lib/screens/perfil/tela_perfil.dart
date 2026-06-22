@@ -11,6 +11,7 @@ import 'package:dinneer/screens/tela_criar_local.dart';
 import 'components/perfil_header.dart';
 import 'components/tab_avaliacoes.dart';
 import 'components/tab_meus_locais.dart';
+import 'package:dinneer/theme/app_colors.dart';
 
 class TelaPerfil extends StatefulWidget {
   final Map<String, dynamic> dadosUsuario;
@@ -29,14 +30,15 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
 
   String? idUsuario;
   String? fotoUrlAtual;
+  String? fotoCapaUrlAtual;
   String nomeUsuario = "Usuário";
   String emailUsuario = "@usuario";
   bool _enviandoFoto = false;
+  bool _enviandoCapa = false;
 
   @override
   void initState() {
     super.initState();
-    // Agora temos apenas 2 abas: Avaliações e Meus Locais
     _tabController = TabController(length: 2, vsync: this);
     _inicializarDadosUsuario();
   }
@@ -51,6 +53,13 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           rawFoto.toString().isNotEmpty &&
           rawFoto.toString() != 'null') {
         fotoUrlAtual = rawFoto.toString();
+      }
+
+      final rawCapa = widget.dadosUsuario['vl_foto_capa'];
+      if (rawCapa != null &&
+          rawCapa.toString().isNotEmpty &&
+          rawCapa.toString() != 'null') {
+        fotoCapaUrlAtual = rawCapa.toString();
       }
     });
 
@@ -121,6 +130,51 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _alterarFotoCapa() async {
+    try {
+      final imagem = await _storage.escolherImagem(
+        imageQuality: 80,
+        maxWidth: 1920,
+      );
+
+      if (imagem != null) {
+        setState(() => _enviandoCapa = true);
+        await _uploadEAtualizarCapa(imagem);
+      }
+    } catch (e) {
+      setState(() => _enviandoCapa = false);
+    }
+  }
+
+  Future<void> _uploadEAtualizarCapa(File imagem) async {
+    try {
+      String novaUrl = await _storage.uploadImagem(
+        imagem,
+        pasta: 'capas',
+        prefixo: 'capa',
+        timeout: const Duration(seconds: 15),
+      );
+
+      if (idUsuario != null) {
+        await UsuarioService.atualizarFotoCapa(idUsuario!, novaUrl);
+      }
+
+      if (mounted) {
+        setState(() {
+          fotoCapaUrlAtual = novaUrl;
+          _enviandoCapa = false;
+        });
+        Mensagens.sucesso(context, "Capa atualizada!");
+      }
+    } catch (e) {
+      debugPrint("Erro upload capa: $e");
+      if (mounted) {
+        setState(() => _enviandoCapa = false);
+        Mensagens.erro(context, "Erro ao enviar capa.");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (idUsuario == null) {
@@ -128,7 +182,7 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -148,28 +202,29 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         icon: const Icon(Icons.add_location_alt, color: Colors.white),
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.terracota,
       ),
 
       body: CustomScrollView(
         slivers: [
-          // 1. Cabeçalho (Componente Separado)
           PerfilHeader(
             nomeUsuario: nomeUsuario,
             emailUsuario: emailUsuario,
             fotoUrl: fotoUrlAtual,
+            fotoCapaUrl: fotoCapaUrlAtual,
             isUploading: _enviandoFoto,
+            isUploadingCapa: _enviandoCapa,
             onCameraTap: _alterarFotoPerfil,
+            onCoverTap: _alterarFotoCapa,
           ),
 
-          // 2. Barra de Abas Fixa
           SliverPersistentHeader(
             delegate: SliverAppBarDelegate(
               TabBar(
                 controller: _tabController,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.black,
+                labelColor: AppColors.terracota,
+                unselectedLabelColor: AppColors.bege,
+                indicatorColor: AppColors.terracota,
                 indicatorWeight: 3,
                 tabs: const [
                   Tab(text: "Avaliações"),
@@ -180,15 +235,12 @@ class _TelaPerfilState extends State<TelaPerfil> with TickerProviderStateMixin {
             pinned: true,
           ),
 
-          // 3. Conteúdo das Abas
           SliverFillRemaining(
             child: TabBarView(
               controller: _tabController,
               children: [
-                // Aba 1: Avaliações (Com a média no topo)
                 TabAvaliacoes(idUsuario: int.parse(idUsuario!)),
 
-                // Aba 2: Meus Locais
                 TabMeusLocais(key: _meusLocaisKey, idUsuario: idUsuario!),
               ],
             ),

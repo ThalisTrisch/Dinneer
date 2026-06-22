@@ -5,6 +5,8 @@ import 'package:dinneer/service/sessao/SessionService.dart';
 import 'package:dinneer/screens/reservas/components/filtro_chip.dart';
 import 'package:dinneer/screens/reservas/components/modal_gerenciar_participantes.dart';
 import '../widgets/card_refeicao.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
 
 class TelaReservas extends StatefulWidget {
   const TelaReservas({super.key});
@@ -86,26 +88,23 @@ class _TelaReservasState extends State<TelaReservas> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.creme,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.creme,
           elevation: 0,
-          title: const Text(
+          title: Text(
             'Minhas Reservas',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
+            style: AppTypography.serif(fontSize: 24, fontWeight: FontWeight.w600),
           ),
-          bottom: const TabBar(
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.black,
+          bottom: TabBar(
+            labelColor: AppColors.terracota,
+            unselectedLabelColor: AppColors.bege,
+            indicatorColor: AppColors.terracota,
             indicatorWeight: 3,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            tabs: [
+            labelStyle: AppTypography.sans(
+                fontWeight: FontWeight.w600, fontSize: 16),
+            tabs: const [
               Tab(text: 'Participei'),
               Tab(text: 'Organizei'),
             ],
@@ -157,7 +156,7 @@ class _TelaReservasState extends State<TelaReservas> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Colors.black),
+                  child: CircularProgressIndicator(),
                 );
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -235,7 +234,7 @@ class _TelaReservasState extends State<TelaReservas> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(color: Colors.black),
+                  child: CircularProgressIndicator(),
                 );
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -279,11 +278,11 @@ class _TelaReservasState extends State<TelaReservas> {
                             width: double.infinity,
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                             decoration: BoxDecoration(
-                              color: Colors.grey[50],
+                              color: AppColors.marfim,
                               borderRadius: const BorderRadius.vertical(
                                 bottom: Radius.circular(20),
                               ),
-                              border: Border.all(color: Colors.grey.shade200),
+                              border: Border.all(color: AppColors.bordaSuave),
                             ),
                             child: TextButton.icon(
                               onPressed: () =>
@@ -291,18 +290,18 @@ class _TelaReservasState extends State<TelaReservas> {
                               icon: Icon(
                                 Icons.people,
                                 color: temPendencias
-                                    ? Colors.red
-                                    : Colors.black87,
+                                    ? AppColors.erro
+                                    : AppColors.terracota,
                               ),
                               label: Text(
                                 temPendencias
                                     ? "GERENCIAR (${jantar.nuSolicitacoesPendentes} NOVOS PEDIDOS)"
                                     : "VER LISTA DE CONVIDADOS",
-                                style: TextStyle(
+                                style: AppTypography.sans(
                                   color: temPendencias
-                                      ? Colors.red
-                                      : Colors.black87,
-                                  fontWeight: FontWeight.bold,
+                                      ? AppColors.erro
+                                      : AppColors.terracota,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),

@@ -14,6 +14,10 @@ import 'package:dinneer/screens/detalhes_jantar/components/detalhes_adicionais.d
 import 'package:dinneer/screens/detalhes_jantar/components/mapa_localizacao.dart';
 import 'package:dinneer/screens/detalhes_jantar/components/barra_acoes_detalhes.dart';
 import 'package:dinneer/screens/detalhes_jantar/components/modal_agendamento.dart';
+import 'package:dinneer/theme/app_colors.dart';
+import 'package:dinneer/theme/app_typography.dart';
+import 'package:dinneer/screens/detalhes_jantar/components/distancia_usuario.dart';
+import 'package:dinneer/service/localizacao/localizacao_service.dart';
 
 class TelaDetalhesJantar extends StatefulWidget {
   final Cardapio refeicao;
@@ -32,6 +36,10 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
   String? _statusReserva;
   String _enderecoLegivel = "";
 
+  final LocalizacaoService _localizacaoService = LocalizacaoService();
+  LatLng? _posicaoUsuario;
+  double? _distanciaKm;
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +47,26 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
         "CEP: ${widget.refeicao.nuCep}, Nº ${widget.refeicao.nuCasa}";
     _coordenadasFuture = _buscarCoordenadasPrecisa();
     _carregarDadosIniciais();
+    _carregarDistancia();
+  }
+
+  /// Obtém a posição do usuário e calcula a distância até o jantar.
+  /// Se a localização não estiver disponível (permissão negada, etc.),
+  /// a tela segue normal — apenas sem mostrar a distância nem o pino azul.
+  Future<void> _carregarDistancia() async {
+    final posicao = await _localizacaoService.posicaoAtual();
+    if (posicao == null) return;
+
+    final coordenadasJantar = await _coordenadasFuture;
+    if (coordenadasJantar == null || !mounted) return;
+
+    setState(() {
+      _posicaoUsuario = posicao;
+      _distanciaKm = _localizacaoService.distanciaKm(
+        posicao,
+        coordenadasJantar,
+      );
+    });
   }
 
   Future<void> _carregarDadosIniciais() async {
@@ -325,7 +353,7 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
         _idUsuarioLogado == widget.refeicao.idUsuario;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.creme,
 
       bottomNavigationBar: _carregandoUsuario
           ? const SizedBox(
@@ -359,18 +387,18 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                 children: [
                   Text(
                     widget.refeicao.nmCardapio,
-                    style: const TextStyle(
+                    style: AppTypography.serif(
                       fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     widget.refeicao.precoFormatado,
-                    style: const TextStyle(
+                    style: AppTypography.serif(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.terracota,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -381,27 +409,26 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                   const SizedBox(height: 16),
                   const Divider(),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     "Sobre o Jantar",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: AppTypography.serif(fontSize: 18),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     widget.refeicao.dsCardapio.isNotEmpty
                         ? widget.refeicao.dsCardapio
                         : "Sem descrição.",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
+                    style: AppTypography.sans(
+                      fontSize: 15,
+                      color: AppColors.tinta,
+                    ).copyWith(height: 1.5),
                   ),
                   const SizedBox(height: 24),
                   DetalhesAdicionais(refeicao: widget.refeicao),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     "Localização",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: AppTypography.serif(fontSize: 18),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -409,26 +436,27 @@ class _TelaDetalhesJantarState extends State<TelaDetalhesJantar> {
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        color: Colors.red,
+                        color: AppColors.terracota,
                         size: 24,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _enderecoLegivel,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[800],
-                            height: 1.3,
-                          ),
+                          style: AppTypography.sans(
+                            fontSize: 15,
+                            color: AppColors.tinta,
+                          ).copyWith(height: 1.3),
                         ),
                       ),
                     ],
                   ),
+                  DistanciaUsuario(distanciaKm: _distanciaKm),
                   const SizedBox(height: 16),
                   MapaLocalizacao(
                     coordenadasFuture: _coordenadasFuture,
                     nuCep: widget.refeicao.nuCep,
+                    posicaoUsuario: _posicaoUsuario,
                   ),
                   const SizedBox(height: 20),
                 ],

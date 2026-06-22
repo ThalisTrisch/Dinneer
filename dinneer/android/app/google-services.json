@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "832231555760",
+    "firebase_url": "https://dinneer-19ada-default-rtdb.firebaseio.com",
     "project_id": "dinneer-19ada",
     "storage_bucket": "dinneer-19ada.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.dinneer"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "832231555760-63gh3b4td5qm41ga240qsf62ul3t7abs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dinneer",
+            "certificate_hash": "0c3b2ee9344895afa5a9571f4a52f84257165249"
+          }
+        },
+        {
+          "client_id": "832231555760-6vgfg57ile4h2990t3qo4f4sjr7g3ttq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyANMw8rbJBOC0wu2hgxY5QbuZjR4QOwx7w"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "832231555760-0j3m79uv7suudrlhmrk699eib532v5i8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

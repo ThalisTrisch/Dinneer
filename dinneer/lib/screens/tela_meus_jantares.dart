@@ -21,20 +21,13 @@ class _TelaMeusJantaresState extends State<TelaMeusJantares> {
 
   @override
   void initState() {
-    print("entrou aqui");
     super.initState();
     _carregarJantares();
   }
 
   Future<void> _carregarJantares() async {
     try {
-      print("Comecando a carregar dados");
-
       final resposta = await CardapioService.getMeuCardapio(widget.idLocal);
-
-      print("jantares carregados");
-
-      print(resposta);
 
       setState(() {
         jantares = resposta["dados"] ?? [];
@@ -61,10 +54,7 @@ class _TelaMeusJantaresState extends State<TelaMeusJantares> {
             onPressed: () async {
               Navigator.pop(context);
 
-              print("deletando jantar id ");
-              print(idJantar);
               await CardapioService.deleteJantar(idJantar);
-              print("jantar deletado");
               _carregarJantares();
             },
           ),
@@ -78,8 +68,6 @@ class _TelaMeusJantaresState extends State<TelaMeusJantares> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Meus Jantares"),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
       ),
       body: carregando
           ? const Center(child: CircularProgressIndicator())

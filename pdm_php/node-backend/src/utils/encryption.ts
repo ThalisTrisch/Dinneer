@@ -6,6 +6,9 @@ import { config } from '../config/environment';
  * Compatível com openssl_encrypt do PHP
  */
 export function encrypt(text: string): string {
+  // Garante que o valor seja uma string antes de criptografar
+  const textStr = String(text ?? '');
+
   // Garante que a chave tenha exatamente 32 bytes
   const key = Buffer.alloc(32);
   Buffer.from(config.encryption.key).copy(key);
@@ -16,7 +19,7 @@ export function encrypt(text: string): string {
     Buffer.from(config.encryption.iv)
   );
   
-  let encrypted = cipher.update(text, 'utf8', 'base64');
+  let encrypted = cipher.update(textStr, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   
   return encrypted;

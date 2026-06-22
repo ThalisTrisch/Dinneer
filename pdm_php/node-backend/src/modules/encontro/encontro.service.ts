@@ -11,6 +11,21 @@ export class EncontroService extends BaseService {
   }
 
   /**
+   * Retorna o id_usuario do anfitrião (dono do local) de um encontro.
+   * Usado para autorizar ações restritas ao anfitrião.
+   */
+  async getIdAnfitriaoPorEncontro(id_encontro: number): Promise<number | null> {
+    const sql = `
+      SELECT l.id_usuario
+      FROM tb_encontro_dn e
+      INNER JOIN tb_local_dn l ON e.id_local = l.id_local
+      WHERE e.id_encontro = $1
+    `;
+    const result = await this.conexao.query(sql, [id_encontro]);
+    return result.rows.length > 0 ? Number(result.rows[0].id_usuario) : null;
+  }
+
+  /**
    * Adiciona usuário a um encontro (solicita reserva)
    */
   async addUsuarioEncontro(id_usuario: number, id_encontro: number, nu_dependentes: number): Promise<void> {
@@ -143,6 +158,7 @@ export class EncontroService extends BaseService {
         c.ds_cardapio,
         c.preco_refeicao,
         c.vl_foto_cardapio,
+        c.nm_categoria,
         e.id_encontro,
         e.hr_encontro,
         e.nu_max_convidados,
@@ -185,6 +201,7 @@ export class EncontroService extends BaseService {
         c.ds_cardapio,
         c.preco_refeicao,
         c.vl_foto_cardapio,
+        c.nm_categoria,
         e.id_encontro,
         e.hr_encontro,
         e.nu_max_convidados,
