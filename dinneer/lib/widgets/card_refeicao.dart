@@ -59,11 +59,12 @@ class CardRefeicao extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: SizedBox(
-                  height: 130,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 130),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         refeicao.nmCardapio,

@@ -9,7 +9,7 @@ const poolConfig: PoolConfig = {
   database: config.database.database,
   max: 20, // Máximo de conexões no pool
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 };
 
 export const pool = new Pool(poolConfig);
